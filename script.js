@@ -68,6 +68,29 @@
   /** @param {{ live?: string, source?: string }} project */
   const primaryUrl = (project) => project.live || project.source;
 
+  /**
+   * A screenshot inside a device frame.
+   * @param {{ src: string, kind: "phone" | "browser" | "icon" | "plain" }} shot
+   */
+  function framedShot(shot, alt) {
+    const frame = el("div", `frame frame-${shot.kind}`);
+    if (shot.kind === "browser") frame.appendChild(el("span", "frame-bar"));
+    const img = el("img");
+    img.src = shot.src;
+    img.alt = alt;
+    img.loading = "lazy";
+    img.draggable = false;
+    frame.appendChild(img);
+    return frame;
+  }
+
+  function openProjectButton(label, index, className) {
+    const btn = el("button", className, label);
+    btn.type = "button";
+    btn.dataset.openProject = String(index);
+    return btn;
+  }
+
   /* ---------- Hero slider cards ---------- */
   function buildCard(project, index) {
     const card = el("div", `card c${index % CARD_COLORS}`);
@@ -76,22 +99,15 @@
       card.classList.add("text-card");
       card.prepend(el("span", "tagline", project.tagline), el("span", "name", project.name));
     };
-    if (project.image) {
-      const img = el("img");
-      img.src = project.image;
-      img.alt = `${project.name} screenshot`;
-      img.loading = "lazy";
-      img.draggable = false;
-      img.addEventListener("error", () => { img.remove(); textCard(); }, { once: true });
-      card.appendChild(img);
+    if (project.cover) {
+      card.classList.add("shot-card");
+      const frame = framedShot(project.cover, `${project.name} screenshot`);
+      frame.querySelector("img").addEventListener("error", () => { frame.remove(); card.classList.remove("shot-card"); textCard(); }, { once: true });
+      card.append(frame, el("span", "shot-name", project.name));
     } else {
       textCard();
     }
-    const view = el("a", "view", `View ${project.name}`);
-    view.href = primaryUrl(project);
-    view.target = "_blank";
-    view.rel = "noopener";
-    card.appendChild(view);
+    card.appendChild(openProjectButton(`View ${project.name}`, index, "view"));
     return card;
   }
 
@@ -102,7 +118,7 @@
         if (copy) set.setAttribute("aria-hidden", "true");
         SITE.projects.forEach((p, i) => {
           const card = buildCard(p, i);
-          if (copy) card.querySelectorAll("a").forEach((a) => (a.tabIndex = -1));
+          if (copy) card.querySelectorAll("a, button").forEach((a) => (a.tabIndex = -1));
           set.appendChild(card);
         });
         slider.appendChild(set);
@@ -125,7 +141,14 @@
       const row = el("li", `work-row w${i % CARD_COLORS}`);
       row.dataset.cats = p.cats.join(" ");
       const main = el("div", "work-main");
-      main.append(el("h3", "", p.name), el("p", "", p.tagline));
+      const title = el("h3");
+      title.appendChild(openProjectButton(p.name, i, "work-open"));
+      main.append(title, el("p", "", p.tagline));
+      // Clicking anywhere on the row (except its Live/Source links) opens the details
+      row.addEventListener("click", (e) => {
+        if (e.target.closest("a, button")) return;
+        title.querySelector("button").click();
+      });
       const links = el("div", "work-links");
       if (p.live) links.appendChild(externalLink("Live", p.live));
       if (p.source) links.appendChild(externalLink("Source", p.source));
@@ -630,9 +653,9 @@
     return { from: `circle(0px at ${x}px ${y}px)`, to: `circle(${Math.ceil(r)}px at ${x}px ${y}px)` };
   }
 
-  function inkOpen(layer, sheet, origin) {
+  /** @param {Element[]} parts elements that slide up one after another once the ink lands */
+  function inkOpen(layer, sheet, origin, parts) {
     const words = splitHeadlineWords(sheet.querySelector("h2"));
-    const parts = [...sheet.querySelectorAll(".contact-form:not([hidden]) > :not(.form-error), .form-success:not([hidden]) > *")];
     const closeBtn = sheet.querySelector(".close-btn");
     const circle = inkCircle(sheet, origin);
     gsap.killTweensOf([layer, sheet, closeBtn, ...words, ...parts]);
@@ -673,7 +696,7 @@
       layer.hidden = false;
       if (lenis) lenis.stop();
       document.body.style.overflow = "hidden";
-      if (animate) inkOpen(layer, sheet, opener);
+      if (animate) inkOpen(layer, sheet, opener, [...sheet.querySelectorAll(".contact-form:not([hidden]) > :not(.form-error), .form-success:not([hidden]) > *")]);
       form.querySelector("input").focus({ preventScroll: true });
     };
     const finishClose = () => {
@@ -731,6 +754,116 @@
         sendBtn.firstChild.textContent = "Send ";
       }
     });
+  }
+
+  /* ---------- Project detail sheet ---------- */
+  const SHEET_COLORS = ["#0088cc", "#ffade4", "#25a750", "#fff570", "#ab6349", "#ffa970"];
+
+  /** Fill the sheet with one project's details; returns the parts to stagger in. */
+  function renderProjectBody(body, index) {
+    const p = SITE.projects[index];
+    const total = String(SITE.projects.length).padStart(2, "0");
+    body.replaceChildren();
+
+    const top = el("div", "ps-top");
+    top.append(el("span", "ps-chip", p.platform), el("span", "ps-count", `${String(index + 1).padStart(2, "0")} / ${total}`));
+    const title = el("h2", "", p.name);
+    title.id = "project-title";
+    const tagline = el("p", "ps-tagline", p.tagline);
+
+    const links = el("div", "ps-links");
+    if (p.live) links.appendChild(Object.assign(externalLink("Visit live", p.live), { className: "ps-btn ps-btn-dark" }));
+    if (p.source) links.appendChild(Object.assign(externalLink("Source code", p.source), { className: "ps-btn" }));
+
+    const parts = [tagline, links];
+    if (p.gallery && p.gallery.length) {
+      const gallery = el("div", "ps-gallery");
+      gallery.tabIndex = 0;
+      gallery.setAttribute("aria-label", `${p.name} screenshots, scroll sideways`);
+      p.gallery.forEach((shot, i) => {
+        const f = framedShot(shot, `${p.name} screenshot ${i + 1}`);
+        if (shot.wide) f.classList.add("frame-wide");
+        gallery.appendChild(f);
+      });
+      parts.push(gallery);
+    }
+    const details = el("div", "ps-details");
+    if (p.summary) details.appendChild(el("p", "ps-summary", p.summary));
+    if (p.features && p.features.length) {
+      const list = el("ul", "ps-features");
+      p.features.forEach((f) => list.appendChild(el("li", "", f)));
+      details.appendChild(list);
+    }
+    if (details.childElementCount) parts.push(details);
+
+    const stack = el("div", "ps-stack");
+    stack.appendChild(el("span", "ps-stack-label", "Built with"));
+    p.stack.split(" · ").forEach((t) => stack.appendChild(el("span", "ps-chip", t)));
+    parts.push(stack);
+
+    const next = (index + 1) % SITE.projects.length;
+    const nextBtn = el("button", "ps-next", `Next project: ${SITE.projects[next].name} →`);
+    nextBtn.type = "button";
+    nextBtn.dataset.nextProject = String(next);
+    parts.push(nextBtn);
+
+    body.append(top, title, ...parts);
+    return parts;
+  }
+
+  function setupProjectSheet() {
+    const layer = document.querySelector("[data-project-layer]");
+    // A stale cached index.html (right after a deploy) won't have the sheet; don't take the rest of the page down
+    if (!layer) return;
+    const sheet = layer.querySelector(".project-sheet");
+    const body = sheet.querySelector("[data-project-body]");
+    const closeBtn = sheet.querySelector("[data-close-project]");
+    const animate = hasGsap && !reduceMotion;
+    let opener = null;
+    let closing = false;
+
+    const show = (index) => {
+      sheet.style.setProperty("--sheet", SHEET_COLORS[index % SHEET_COLORS.length]);
+      sheet.scrollTop = 0;
+      return renderProjectBody(body, index);
+    };
+    const open = (btn) => {
+      opener = btn;
+      closing = false;
+      const parts = show(Number(btn.dataset.openProject));
+      layer.hidden = false;
+      if (lenis) lenis.stop();
+      document.body.style.overflow = "hidden";
+      if (animate) inkOpen(layer, sheet, opener, parts);
+      closeBtn.focus({ preventScroll: true });
+    };
+    const finishClose = () => {
+      layer.hidden = true;
+      closing = false;
+      if (lenis) lenis.start();
+      document.body.style.overflow = "";
+      if (opener) opener.focus({ preventScroll: true });
+    };
+    const close = () => {
+      if (layer.hidden || closing) return;
+      const target = opener && opener.getBoundingClientRect().width ? opener : closeBtn;
+      if (!animate) { finishClose(); return; }
+      closing = true;
+      inkClose(layer, sheet, target, finishClose);
+    };
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-open-project]");
+      if (btn) { open(btn); return; }
+      const nextBtn = e.target.closest("[data-next-project]");
+      if (!nextBtn) return;
+      const parts = show(Number(nextBtn.dataset.nextProject));
+      if (animate) gsap.fromTo([body.querySelector("h2"), ...parts], { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.05, ease: "power3.out" });
+      sheet.querySelector("[data-next-project]").focus({ preventScroll: true });
+    });
+    closeBtn.addEventListener("click", close);
+    layer.addEventListener("click", (e) => { if (e.target === layer) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
   }
 
   /* ---------- Pause / play all motion ---------- */
@@ -841,6 +974,7 @@
   setupScroll();
   setupCopy();
   setupContact();
+  setupProjectSheet();
   setupButtonReveal();
   setupWorkFilter();
   setupMotionToggle();

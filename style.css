@@ -99,9 +99,26 @@ body.is-loading { overflow: hidden; }
 .slider .marquee-set { --speed: 70s; }
 .slider:hover .marquee-set { animation-play-state: paused; }
 .card { position: relative; flex-shrink: 0; width: 344px; height: 258px; border-radius: 40px; display: grid; place-items: center; overflow: hidden; user-select: none; }
-.card img { height: 258px; width: auto; scale: .4; pointer-events: none; border-radius: 28px; box-shadow: 0 30px 40px -20px rgba(0, 0, 0, .35); }
-.card:hover img { scale: 1; animation: wiggle .4s ease-in-out; }
-@keyframes wiggle { 0% { scale: .4; rotate: 0deg; } 25% { scale: .6; rotate: 15deg; } 50% { scale: .8; rotate: -15deg; } 100% { scale: 1; rotate: 0deg; } }
+/* Device frames — used on the slider cards and in the project sheet gallery */
+.frame { position: relative; flex-shrink: 0; overflow: hidden; background: #000; box-shadow: 0 30px 50px -24px rgba(0, 0, 0, .45); }
+.frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; pointer-events: none; }
+.frame-phone { aspect-ratio: 9 / 19; padding: 5px; border-radius: 26px; }
+.frame-phone img { border-radius: 21px; }
+.frame-browser { aspect-ratio: 16 / 11; border-radius: 12px; display: flex; flex-direction: column; background: #1c1c1e; }
+.frame-bar { flex: none; height: 18px; background: radial-gradient(circle at 11px 9px, #ff5f57 3.5px, transparent 4px), radial-gradient(circle at 23px 9px, #febc2e 3.5px, transparent 4px), radial-gradient(circle at 35px 9px, #28c840 3.5px, transparent 4px), #2c2c2e; }
+.frame-browser img { flex: 1; min-height: 0; }
+.frame-icon { aspect-ratio: 1; border-radius: 26%; }
+.frame-plain { border-radius: 20px; background: none; }
+.frame-plain img { object-fit: contain; }
+
+/* Cards with a screenshot: frame tilted at rest, straightens with a wiggle on hover */
+.shot-card .frame { transition: transform .5s cubic-bezier(.34, 1.56, .64, 1); }
+.shot-card .frame-phone { height: 86%; transform: rotate(-6deg); }
+.shot-card .frame-browser { width: 80%; transform: rotate(-4deg); }
+.shot-card .frame-icon { height: 52%; transform: rotate(-8deg); }
+.shot-card:hover .frame { transform: rotate(0deg) scale(1.06); animation: wiggle-frame .45s ease-in-out; }
+@keyframes wiggle-frame { 30% { rotate: 6deg; } 60% { rotate: -4deg; } 100% { rotate: 0deg; } }
+.shot-name { position: absolute; left: 18px; bottom: 14px; padding: 6px 12px; border-radius: 200px; background: rgba(255, 255, 255, .85); font-size: 16px; letter-spacing: -0.02em; }
 .card .name { font-size: 56px; letter-spacing: -0.05em; line-height: 1; transition: scale .3s; }
 .card:hover .name { scale: 1.08; }
 /* Text-only cards: tagline top-left, name bottom-left, so the centred "Let's Talk" pill never covers them */
@@ -110,6 +127,8 @@ body.is-loading { overflow: hidden; }
 .text-card .name { font-size: 44px; transform-origin: left bottom; }
 .card .view { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 12px 16px; border-radius: 200px; border: 2px solid #000; background: inherit; font-size: 24px; letter-spacing: -0.04em; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .card:hover .view, .card:focus-within .view { opacity: 1; pointer-events: auto; }
+.card .view { cursor: pointer; font: inherit; font-size: 24px; color: #000; z-index: 2; }
+.shot-card .view { background: #fff; }
 .c0 { background: var(--blue); } .c1 { background: var(--pink); } .c2 { background: var(--green); }
 .c3 { background: var(--yellow); } .c4 { background: var(--brown); } .c5 { background: var(--orange); }
 
@@ -310,7 +329,36 @@ body.is-loading { overflow: hidden; }
 .contact-sheet { position: relative; z-index: 1; width: 50%; max-height: 100%; overflow-y: auto; padding: var(--pad); border-radius: var(--radius) var(--radius) 0 0; background: var(--pink); }
 .contact-sheet h2 { font-size: 96px; line-height: .8; letter-spacing: -0.05em; margin: 24px 0 40px; }
 /* Words are split into spans by the ink-drop animation so each can drop in on its own */
-.contact-sheet h2 .word { display: inline-block; transform-origin: 0 100%; }
+.contact-sheet h2 .word, .project-sheet h2 .word { display: inline-block; transform-origin: 0 100%; }
+
+/* Project detail sheet — background follows the project's card colour (--sheet) */
+.project-sheet { position: relative; z-index: 1; width: min(1120px, 88%); max-height: 100%; overflow-y: auto; padding: var(--pad) 40px 48px; border-radius: var(--radius) var(--radius) 0 0; background: var(--sheet, var(--pink)); overscroll-behavior: contain; }
+.ps-top { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+.ps-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 200px; background: rgba(255, 255, 255, .55); font-size: 15px; letter-spacing: -0.01em; }
+.ps-count { font-size: 15px; color: var(--ink-64); }
+.project-sheet h2 { margin-top: 28px; font-size: 120px; line-height: .86; letter-spacing: -0.06em; }
+.ps-tagline { margin-top: 14px; font-family: var(--serif); font-size: 40px; line-height: 1.05; }
+.ps-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+.ps-btn { padding: 12px 20px; border-radius: 200px; border: 2px solid #000; font-size: 20px; letter-spacing: -0.03em; transition: background .2s, color .2s; }
+.ps-btn:hover { background: #000; color: #fff; }
+.ps-btn-dark { background: #000; color: #fff; }
+.ps-btn-dark:hover { background: #fff; color: #000; }
+.ps-gallery { display: flex; gap: 20px; align-items: flex-end; overflow-x: auto; margin: 40px -40px 0; padding: 8px 40px 28px; scrollbar-width: thin; }
+.ps-gallery .frame-phone { height: 440px; }
+.ps-gallery .frame-browser { height: 440px; }
+.ps-gallery .frame-icon { height: 260px; }
+.ps-gallery .frame-wide { height: 440px; aspect-ratio: auto; }
+.ps-gallery .frame-wide img { width: auto; }
+.ps-details { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; }
+.ps-summary { font-size: 24px; line-height: 1.2; letter-spacing: -0.02em; }
+.ps-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.ps-features li { position: relative; padding-left: 26px; font-size: 17px; line-height: 1.3; color: rgba(0, 0, 0, .78); }
+.ps-features li::before { content: "✦"; position: absolute; left: 0; top: 1px; font-size: 13px; }
+.ps-stack { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 36px; }
+.ps-stack-label { margin-right: 6px; font-size: 15px; color: var(--ink-64); }
+.ps-next { display: block; margin: 44px 0 0 auto; padding: 14px 22px; border-radius: 200px; background: #000; color: #fff; font-size: 20px; letter-spacing: -0.03em; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.ps-next:hover { transform: translateX(4px); }
+.project-layer .close-btn { z-index: 3; }
 .close-btn { position: sticky; top: 0; float: right; width: 40px; height: 40px; border-radius: 50%; background: var(--red); color: #000; font-size: 18px; }
 .contact-form { display: flex; flex-direction: column; gap: 2px; }
 .contact-form[hidden] { display: none; }
@@ -334,7 +382,7 @@ body.is-loading { overflow: hidden; }
 .motion-toggle { position: fixed; left: 16px; bottom: 16px; z-index: 150; padding: 10px 16px; border-radius: 200px; background: #fff; border: 2px solid #000; font-size: 15px; letter-spacing: -0.02em; transition: background .2s, color .2s; }
 .motion-toggle:hover { background: #000; color: #fff; }
 .motion-paused .marquee-set, .motion-paused .talk-float, .motion-paused .contact-pill::after, .motion-paused .contact-arrow::after { animation-play-state: paused !important; }
-.motion-paused .card:hover img { animation: none; }
+.motion-paused .shot-card:hover .frame { animation: none; }
 
 /* Music on/off, bottom-right; the little bars bounce while it plays */
 .music-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 150; display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 200px; background: #fff; border: 2px solid #000; font-size: 15px; letter-spacing: -0.02em; transition: background .2s, color .2s; }
@@ -363,7 +411,9 @@ body.is-loading { overflow: hidden; }
   :root { --space-xl: 112px; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
   .hero h1 { font-size: 88px; }
-  .card { width: 300px; height: 225px; } .card img { height: 225px; }
+  .card { width: 300px; height: 225px; }
+  .project-sheet { width: 92%; padding-inline: 28px; } .ps-gallery { margin-inline: -28px; padding-inline: 28px; }
+  .project-sheet h2 { font-size: 88px; } .ps-details { grid-template-columns: 1fr; gap: 24px; }
   .since { width: 480px; height: 230px; } .since h2 { font-size: 88px; }
   .stat { width: 380px; height: 380px; } .stat b { font-size: 180px; } .stat span { font-size: 34px; }
   .service h3 { font-size: 64px; } .service { height: 136px; }
@@ -396,7 +446,12 @@ body.is-loading { overflow: hidden; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 28px; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
   .hero h1 { font-size: 56px; }
-  .card { width: 240px; height: 210px; border-radius: 28px; } .card img { height: 210px; } .card .name { font-size: 36px; }
+  .card { width: 240px; height: 210px; border-radius: 28px; } .card .name { font-size: 36px; }
+  .shot-name { font-size: 13px; left: 12px; bottom: 10px; }
+  .project-sheet { width: 100%; padding: 20px 20px 36px; } .ps-gallery { margin-inline: -20px; padding-inline: 20px; gap: 14px; }
+  .project-sheet h2 { font-size: 56px; margin-top: 20px; } .ps-tagline { font-size: 28px; }
+  .ps-gallery .frame-phone, .ps-gallery .frame-wide { height: 340px; } .ps-gallery .frame-browser { height: 220px; } .ps-gallery .frame-icon { height: 180px; }
+  .ps-summary { font-size: 19px; } .ps-btn, .ps-next { font-size: 17px; }
   .text-card { padding: 18px 20px; } .text-card .name { font-size: 30px; } .text-card .tagline { font-size: 14px; max-width: 170px; }
   .talk-pill { height: 64px; font-size: 30px; padding: 0 22px; } .talk-face { width: 64px; height: 64px; }
   .pill-item { height: 96px; padding: 0 36px; font-size: 28px; }
@@ -446,6 +501,6 @@ body.is-loading { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-set, .talk-float, .say-hi-ring, .eq i { animation: none !important; }
-  .card:hover img { animation: none; }
+  .shot-card:hover .frame { animation: none; }
   .loading { display: none; }
 }

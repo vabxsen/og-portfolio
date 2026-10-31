@@ -237,6 +237,14 @@
     </div>
   </div>
 
+  <!-- Project detail sheet (filled from SITE.projects when a card or Work row is clicked) -->
+  <div class="contact-layer project-layer" data-project-layer hidden>
+    <div class="project-sheet" role="dialog" aria-modal="true" aria-labelledby="project-title">
+      <button type="button" class="close-btn" data-close-project aria-label="Close project details">✕</button>
+      <div data-project-body></div>
+    </div>
+  </div>
+
   <button type="button" class="motion-toggle" data-motion-toggle aria-pressed="false">Pause motion</button>
   <button type="button" class="music-toggle" data-music-toggle aria-pressed="false" hidden><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span data-music-label>Music off</span></button>
   <audio data-music loop preload="metadata"></audio>
