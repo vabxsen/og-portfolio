@@ -436,6 +436,11 @@ body.is-loading { overflow: hidden; }
 }
 @media (max-width: 720px) {
   :root { --pad: 20px; --space-xl: 80px; --radius: 24px; }
+  /* Preloader: keep the line of text and the number dial side by side instead of overlapping */
+  .loading p { max-width: 140px; font-size: 18px; line-height: 1.15; }
+  .dial { left: 64%; }
+  .dial .stripe { height: 96px; }
+  .dial .number { width: 96px; height: 96px; font-size: 54px; }
   .navbar { height: 64px; }
   .hero { margin-top: 66px; }
   .contact-layer { inset: 66px 0 0; }
