@@ -9,8 +9,8 @@
 <link rel="preload" href="/assets/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Served by Vercel for any unknown URL, so every path here is root-absolute -->
-<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 <style>
   @font-face { font-family: "Inter Tight"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/assets/fonts/inter-tight-latin.woff2") format("woff2"); }
   @font-face { font-family: "Instrument Serif"; font-style: normal; font-weight: 400; font-display: swap; src: url("/assets/fonts/instrument-serif-latin.woff2") format("woff2"); }
@@ -75,22 +75,6 @@
     </div>
   </main>
 
-<script>
-  // Pupils lean toward the pointer (or a tapped point), capped inside the eye
-  (() => {
-    const eyes = [...document.querySelectorAll(".eye")];
-    const look = (x, y) => eyes.forEach((eye) => {
-      const r = eye.getBoundingClientRect();
-      const dx = x - (r.left + r.width / 2);
-      const dy = y - (r.top + r.height / 2);
-      const dist = Math.hypot(dx, dy) || 1;
-      const max = r.width * 0.22;
-      const travel = Math.min(max, dist / 8);
-      eye.firstElementChild.style.transform = `translate(${(dx / dist) * travel}px, ${(dy / dist) * travel}px)`;
-    });
-    window.addEventListener("pointermove", (e) => look(e.clientX, e.clientY), { passive: true });
-    window.addEventListener("pointerdown", (e) => look(e.clientX, e.clientY), { passive: true });
-  })();
-</script>
+<script src="/404.js"></script>
 </body>
 </html>

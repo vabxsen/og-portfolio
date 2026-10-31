@@ -6,6 +6,10 @@
 <title>Vaibhav Sen — Developer & UI/UX Designer</title>
 <meta name="description" content="I turn complex ideas into simple, thoughtful digital experiences. Designed with intent. Built with care.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- Home-screen icons for iPhone and Android -->
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#000000">
 <!-- Search and share. On a custom domain, update every vabxsen.vercel.app URL here, in the
      structured data below, and in robots.txt and sitemap.xml. -->
 <link rel="canonical" href="https://vabxsen.vercel.app/">
@@ -49,11 +53,12 @@
 <!-- Self-hosted fonts, fetched straight away so the text shows in its real font sooner -->
 <link rel="preload" href="assets/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="https://unpkg.com/lenis@1.1.20/dist/lenis.css">
+<link rel="stylesheet" href="assets/vendor/lenis.css">
 <link rel="stylesheet" href="style.css">
-<!-- Vercel Web Analytics (cookie-free), enabled in the Vercel dashboard -->
-<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<!-- Vercel Web Analytics (visits) and Speed Insights (real load times), both cookie-free and
+     switched on in the Vercel dashboard. Kept as external files so the security policy needs no inline scripts. -->
 <script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
   <!-- Preloader: a giant numbered dial that spins to 100 -->
@@ -287,10 +292,10 @@
 
   <div class="copy-label" role="status" aria-live="polite">Copied to clipboard</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Draggable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/InertiaPlugin.min.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script src="assets/vendor/gsap.min.js"></script>
+  <script src="assets/vendor/Draggable.min.js"></script>
+  <script src="assets/vendor/InertiaPlugin.min.js"></script>
+  <script src="assets/vendor/lenis.min.js"></script>
   <script src="content.js"></script>
   <script src="script.js"></script>
 </body>
