@@ -219,8 +219,8 @@ const SITE = {
 
   email: "cheeseburst06@gmail.com",
 
-  // Looping background music. Starts on the visitor's first click/tap (browsers block sound
-  // before that) and can be switched off with the ♪ button. Put the file at assets/music.mp3.
+  // Looping background music, opt-in: it plays only when the visitor presses the ♪ "Play music"
+  // button (and resumes on later visits if they left it on). Put the file at assets/music.mp3.
   // If the file is missing, the ♪ button simply stays hidden.
   music: {
     src: "assets/music.mp3",

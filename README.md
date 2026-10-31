@@ -29,7 +29,7 @@ The site loops `assets/music.mp3` (“Go!” by NEFFEX). To add it:
 1. Download the MP3 from NEFFEX's official links (in the YouTube video's description or on neffex.com). Don't rip it from YouTube itself.
 2. Save it as `assets/music.mp3`.
 
-It starts on the visitor's first click or tap (browsers block sound before that), loops forever, and the **♪ Music** button in the bottom-right turns it off. The site remembers that choice. NEFFEX's copyright-free tracks require credit, which runs in the footer ticker (`music.credit` in `content.js`). Until the file exists, the button stays hidden and nothing plays.
+It's opt-in: nothing plays until the visitor presses **♪ Play music** in the bottom-right. Then it loops, and the same button turns it off. If a visitor leaves it on, it resumes on their first click next visit. NEFFEX's copyright-free tracks require credit, which runs in the footer ticker (`music.credit` in `content.js`). Until the file exists, the button stays hidden and nothing plays.
 
 ## Contact form
 

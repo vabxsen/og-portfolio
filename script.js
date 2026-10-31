@@ -883,8 +883,8 @@
     });
   }
 
-  /* ---------- Looping background music ---------- */
-  const MUSIC_KEY = "vs-music"; // "off" once the visitor switches it off
+  /* ---------- Looping background music (opt-in) ---------- */
+  const MUSIC_KEY = "vs-music"; // "on" once the visitor chooses music, "off" once they turn it off
 
   function setupMusic() {
     const audio = document.querySelector("[data-music]");
@@ -897,7 +897,7 @@
       const playing = !audio.paused;
       btn.setAttribute("aria-pressed", String(playing));
       btn.classList.toggle("playing", playing);
-      label.textContent = playing ? "Music on" : "Music off";
+      label.textContent = playing ? "Music on" : "Play music";
     };
     audio.addEventListener("play", sync);
     audio.addEventListener("pause", sync);
@@ -913,13 +913,15 @@
       else { writeStore(MUSIC_KEY, "off"); audio.pause(); }
     });
 
-    // Browsers only allow sound after a user gesture, so start on the first click / tap / key
-    const startOnFirstGesture = (e) => {
+    // Music is opt-in: it only plays from the ♪ button. A visitor who turned it on before gets it back
+    // on their first click / tap / key (browsers block sound until a user gesture).
+    if (readStore(MUSIC_KEY) !== "on") return;
+    const resumeOnFirstGesture = (e) => {
       if (btn.contains(e.target)) return; // the button handles itself
-      if (readStore(MUSIC_KEY) !== "off" && audio.paused) play();
+      if (audio.paused) play();
     };
-    document.addEventListener("pointerdown", startOnFirstGesture, { once: true, capture: true });
-    document.addEventListener("keydown", startOnFirstGesture, { once: true, capture: true });
+    document.addEventListener("pointerdown", resumeOnFirstGesture, { once: true, capture: true });
+    document.addEventListener("keydown", resumeOnFirstGesture, { once: true, capture: true });
   }
 
   function setupWorkFilter() {

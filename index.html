@@ -13,9 +13,9 @@
 <meta property="og:description" content="I turn complex ideas into simple, thoughtful digital experiences.">
 <meta property="og:image" content="https://vabxsen.vercel.app/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;500;800&family=Instrument+Serif&display=swap" rel="stylesheet">
+<!-- Self-hosted fonts, fetched straight away so the text shows in its real font sooner -->
+<link rel="preload" href="assets/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.20/dist/lenis.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -246,7 +246,7 @@
   </div>
 
   <button type="button" class="motion-toggle" data-motion-toggle aria-pressed="false">Pause motion</button>
-  <button type="button" class="music-toggle" data-music-toggle aria-pressed="false" hidden><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span data-music-label>Music off</span></button>
+  <button type="button" class="music-toggle" data-music-toggle aria-pressed="false" hidden><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span data-music-label>Play music</span></button>
   <audio data-music loop preload="metadata"></audio>
 
   <div class="copy-label" role="status" aria-live="polite">Copied to clipboard</div>

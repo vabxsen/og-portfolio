@@ -1,3 +1,8 @@
+/* ============ Fonts (self-hosted, Latin subset; both are SIL Open Font License) ============ */
+/* Inter Tight is a variable font: one file covers every weight used here (300–800) */
+@font-face { font-family: "Inter Tight"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("assets/fonts/inter-tight-latin.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Serif"; font-style: normal; font-weight: 400; font-display: swap; src: url("assets/fonts/instrument-serif-latin.woff2") format("woff2"); }
+
 /* ============ Tokens ============ */
 :root {
   --black: #000;
