@@ -4,7 +4,7 @@ A single-page portfolio. No build step: plain HTML, CSS and JavaScript.
 
 ## Preview
 
-- **Quickest:** double-click `index.html`. It opens in your browser and works as-is, except the dot-matrix portrait shows as a plain black-and-white photo (browsers block reading image pixels from local files).
+- **Quickest:** double-click `index.html`. It opens in your browser and works as-is.
 - **Like a real server:** double-click `preview.bat` (needs Python), which opens http://localhost:5500.
 
 ## Edit content
@@ -14,7 +14,7 @@ Everything you'd change lives in **`content.js`**:
 | What | Key |
 | --- | --- |
 | Projects: name, tagline, stack, links, card visual (`cover`), pop-up screenshots (`gallery`), `summary` and `features` | `projects` |
-| Dot-matrix portrait beside the About text (photo, dot count, crop, brightness) | `about` |
+| Dot-matrix portrait beside the About text (dot count, crop, brightness). The dots come from `about-map.js`, a small brightness map made from the photo, so the photo itself is never published. To change the photo, ask for a new map. | `about` |
 | Stat circles under "Always building" | `stats` |
 | Face on the "Let's Talk" pills (empty = "VS") | `avatar.talk` |
 | Tools strip, service rows, Journey cards, round link buttons | `tools`, `services`, `journey`, `tires` |

@@ -375,22 +375,23 @@
   const DOT_INTRO_MS = 1400;
 
   /**
-   * Brightness grid (0..1) for the photo, cropped to cover a cols×rows grid.
-   * `zoom` > 1 crops in around `focus` (0..1 of the photo). Throws if pixels are unreadable.
+   * Brightness grid (0..1) for the portrait map, cropped to cover a cols×rows grid.
+   * `zoom` > 1 crops in around `focus` (0..1 of the map).
    */
-  function sampleBrightness(img, cols, rows, zoom = 1, focus = [0.5, 0.5]) {
+  function sampleBrightness(source, cols, rows, zoom = 1, focus = [0.5, 0.5]) {
     const c = document.createElement("canvas");
     c.width = cols;
     c.height = rows;
     const ctx = c.getContext("2d", { willReadFrequently: true });
-    const scale = Math.max(cols / img.naturalWidth, rows / img.naturalHeight) * zoom;
-    const w = img.naturalWidth * scale;
-    const h = img.naturalHeight * scale;
+    const scale = Math.max(cols / source.width, rows / source.height) * zoom;
+    const w = source.width * scale;
+    const h = source.height * scale;
     // Place the focus point at the grid centre, without exposing empty edges
     const x = Math.min(0, Math.max(cols - w, cols / 2 - focus[0] * w));
     const y = Math.min(0, Math.max(rows - h, rows / 2 - focus[1] * h));
-    ctx.drawImage(img, x, y, w, h);
-    const data = ctx.getImageData(0, 0, cols, rows).data; // throws on file:// (tainted canvas)
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(source, x, y, w, h);
+    const data = ctx.getImageData(0, 0, cols, rows).data;
     const lum = [];
     for (let i = 0; i < data.length; i += 4) lum.push((0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255);
     // Auto-levels: stretch the 3rd–98th percentile to 0..1 so the face pops
@@ -403,20 +404,23 @@
   function setupDotPortrait() {
     const wrap = document.querySelector("[data-dots-wrap]");
     const canvas = wrap.querySelector("[data-dots]");
-    if (!SITE.about || !SITE.about.photo) { wrap.remove(); return; }
-    const img = new Image();
-    img.addEventListener("error", () => wrap.remove(), { once: true });
-    img.addEventListener("load", () => {
-      try {
-        start(img);
-      } catch {
-        // Pixels unreadable (page opened straight from disk): show the plain photo instead
-        canvas.replaceWith(Object.assign(img, { className: "dots-fallback", alt: "Vaibhav Sen" }));
-      }
-    }, { once: true });
-    img.src = SITE.about.photo;
+    const map = SITE.about && SITE.about.map;
+    if (!map) { wrap.remove(); return; }
+    start(mapToCanvas(map));
 
-    function start(photo) {
+    // Turns the published brightness map (not the photo itself) into a canvas the sampler can read
+    function mapToCanvas({ width, height, gray }) {
+      const bytes = Uint8Array.from(atob(gray), (ch) => ch.charCodeAt(0));
+      const pixels = new ImageData(width, height);
+      bytes.forEach((v, i) => pixels.data.set([v, v, v, 255], i * 4));
+      const c = document.createElement("canvas");
+      c.width = width;
+      c.height = height;
+      c.getContext("2d").putImageData(pixels, 0, 0);
+      return c;
+    }
+
+    function start(source) {
       const ctx = canvas.getContext("2d");
       let dots = [];
       let size = { w: 0, h: 0, cell: 0 };
@@ -433,7 +437,7 @@
         const cols = SITE.about.columns || 52;
         const cell = box.width / cols;
         const rows = Math.round(box.height / cell);
-        const lum = sampleBrightness(photo, cols, rows, SITE.about.zoom || 1, SITE.about.focus || [0.5, 0.5]);
+        const lum = sampleBrightness(source, cols, rows, SITE.about.zoom || 1, SITE.about.focus || [0.5, 0.5]);
         size = { w: box.width, h: box.height, cell };
         dots = [];
         lum.forEach((v, i) => {

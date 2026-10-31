@@ -6,11 +6,11 @@ const SITE = {
     talk: "",
   },
 
-  // Dot-matrix portrait beside the About text. Empty `photo` hides it.
+  // Dot-matrix portrait beside the About text, drawn from the brightness map in about-map.js
+  // (the photo itself is never published). Delete about-map.js's script tag to hide it.
   // columns: dots across (more = finer detail). zoom/focus: crop in around a point (0..1 of the photo).
   // gamma: below 1 brightens mid-tones, above 1 darkens them.
   about: {
-    photo: "assets/about.jpg",
     columns: 60,
     zoom: 1.45,
     focus: [0.48, 0.42],
