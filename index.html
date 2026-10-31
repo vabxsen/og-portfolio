@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaibhav Sen — Developer & UI/UX Designer</title>
+<meta name="description" content="I turn complex ideas into simple, thoughtful digital experiences. Designed with intent. Built with care.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<!-- Share preview. After deploying, change og:image to the full URL, e.g. https://yourdomain.com/og-image.png -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vaibhav Sen — Developer & UI/UX Designer">
+<meta property="og:description" content="I turn complex ideas into simple, thoughtful digital experiences.">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;500;800&family=Instrument+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.1.20/dist/lenis.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Preloader: a giant numbered dial that spins to 100 -->
+  <div class="loading" aria-hidden="true">
+    <p>Designed with intent. Built with care. ✨</p>
+    <div class="dial"></div>
+  </div>
+
+  <!-- Nav -->
+  <header class="navbar panel-top">
+    <a href="#index" class="logo" aria-label="Vaibhav Sen home"><span class="logo-mark" aria-hidden="true"></span>VAIBHAV SEN</a>
+    <div class="nav-right">
+      <div class="menu">
+        <button type="button" class="chip menu-btn" aria-expanded="false" aria-controls="menu-list">Menu <span class="menu-icon" aria-hidden="true"></span></button>
+        <ul id="menu-list" class="menu-list">
+          <li><a href="#index">Index</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#build">Build</a></li>
+          <li><a href="#work">Work</a></li>
+          <li><a href="#journey">Journey</a></li>
+        </ul>
+      </div>
+      <div class="contact-btn">
+        <button type="button" class="contact-pill" data-open-contact>Let’s Talk</button>
+        <button type="button" class="contact-arrow" data-open-contact aria-label="Open contact form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="panel hero" id="index">
+      <div class="slider-wrap">
+        <div class="slider" data-slider></div>
+        <button type="button" class="talk-float" data-open-contact>
+          <span class="talk-pill">Let’s Talk</span>
+          <span class="talk-face" aria-hidden="true"><img src="" alt="" data-avatar="talk"></span>
+        </button>
+      </div>
+      <div class="hero-text">
+        <p class="right-text">I turn complex ideas into simple, thoughtful digital experiences. Developer &amp; UI/UX designer building for web, mobile, desktop and AI.</p>
+        <h1><span class="serif">Designed</span> with intent.<br>Built with <span class="serif">care.</span></h1>
+      </div>
+    </section>
+
+    <!-- Skills marquee (the "Client" row) -->
+    <section class="panel clients" id="skills">
+      <span class="label">Toolkit</span>
+      <div class="marquee">
+        <div class="marquee-set pills" data-pills></div>
+        <div class="marquee-set pills" data-pills aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- About / "Since" -->
+    <section class="panel thinking" id="about">
+      <div class="thinking-top">
+        <div class="thinking-left">
+          <span class="slashes" aria-hidden="true">///</span>
+          <!-- Dot-matrix portrait drawn from SITE.about.photo; dots swell and part around the cursor -->
+          <div class="dots-wrap" data-dots-wrap>
+            <canvas data-dots role="img" aria-label="Dot-matrix portrait of Vaibhav Sen"></canvas>
+          </div>
+        </div>
+        <div class="texts">
+          <p>I’m Vaibhav — a developer with a designer’s eye. I design and build web, mobile, desktop, and AI-powered products, thinking about how they work and how they feel in equal measure.</p>
+          <button type="button" class="contact-btn small" data-open-contact><span class="contact-pill">Let’s Talk</span><span class="contact-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span></button>
+        </div>
+      </div>
+      <div class="since">
+        <svg class="since-ring" viewBox="0 0 600 280" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="300" cy="140" rx="292" ry="128" transform="rotate(-4 300 140)"/><ellipse cx="300" cy="140" rx="286" ry="122" transform="rotate(3 300 140)"/></svg>
+        <h2><span class="serif">Always</span> building</h2>
+        <small>Always becoming.</small>
+      </div>
+      <div class="marquee stats" role="list" aria-label="At a glance">
+        <div class="marquee-set" data-stats></div>
+        <div class="marquee-set" data-stats aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section class="panel services" id="build">
+      <span class="label">What I Build</span>
+      <div class="service-list" data-services></div>
+    </section>
+
+    <!-- Projects -->
+    <section class="panel projects" id="work">
+      <div class="projects-head">
+        <span class="label">Work</span>
+        <p class="right-text">Less talk. More shipped. A collection of products, experiments, and ideas brought to life.</p>
+      </div>
+      <div class="work-filter" data-work-filter hidden>
+        <span>Showing <b data-filter-label></b> projects</span>
+        <button type="button" class="chip" data-clear-filter>Show all <span aria-hidden="true">✕</span></button>
+      </div>
+      <ol class="work-list" data-work></ol>
+    </section>
+
+    <!-- Journey (the "Testimonial" stickers) -->
+    <section class="panel journey" id="journey">
+      <span class="label">Journey</span>
+      <div class="reviews" data-reviews></div>
+    </section>
+
+    <!-- Craft CTA -->
+    <section class="panel craft">
+      <div class="craft-arrow" aria-hidden="true">
+        <svg viewBox="0 0 428 428"><path class="star" d=""/><path id="curveTop" d="M214 71.47C214 144.74 278.53 214 356.53 214" /><path id="curveBottom" d="M214 356.53C214 283.26 278.53 214 356.53 214"/><path id="line" d="M356.53 214L71.47 214"/></svg>
+      </div>
+      <div class="craft-center">
+        <h2><span class="serif">Let’s</span> build something good.</h2>
+        <p>Have a project, an opportunity, or just a good question? I’d love to hear from you.</p>
+        <div class="contact-btn on-orange">
+          <button type="button" class="contact-pill" data-open-contact>Let’s Talk</button>
+          <button type="button" class="contact-arrow" data-open-contact aria-label="Open contact form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
+        </div>
+      </div>
+      <div class="craft-face" aria-hidden="true">
+        <svg viewBox="0 0 428 428">
+          <path class="star" d=""/>
+          <g class="eye" data-eye>
+            <circle class="sclera" cx="150" cy="186" r="50"/>
+            <g class="pupil" data-pupil><circle cx="150" cy="186" r="23"/><circle class="glint" cx="158" cy="177" r="7"/></g>
+          </g>
+          <g class="eye" data-eye>
+            <circle class="sclera" cx="278" cy="186" r="50"/>
+            <g class="pupil" data-pupil><circle cx="278" cy="186" r="23"/><circle class="glint" cx="286" cy="177" r="7"/></g>
+          </g>
+          <circle class="cheek" cx="118" cy="268" r="20"/>
+          <circle class="cheek" cx="310" cy="268" r="20"/>
+          <path class="smile" d="M164 282 Q214 326 264 282"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Links -->
+    <section class="panel links" id="links">
+      <div class="link-cols">
+        <ul>
+          <li class="heading">Quick Link</li>
+          <li><a href="#index">Index</a></li>
+          <li><a href="#work">Work</a></li>
+          <li><a href="#build">Build</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#journey">Journey</a></li>
+        </ul>
+        <ul>
+          <li class="heading">Open Source</li>
+          <li><a href="https://github.com/vabxsen/Scoop" target="_blank" rel="noopener">Scoop <span class="ext">↗</span></a></li>
+          <li><a href="https://github.com/vabxsen/Advanced-Python-Roadmap-by-vabxsen" target="_blank" rel="noopener">Python Roadmap <span class="ext">↗</span></a></li>
+          <li><a href="https://github.com/vabxsen/Doclee" target="_blank" rel="noopener">Doclee <span class="ext">↗</span></a></li>
+          <li><a href="https://github.com/vabxsen?tab=repositories" target="_blank" rel="noopener">All Repositories <span class="ext">↗</span></a></li>
+        </ul>
+      </div>
+      <div class="marquee tires">
+        <div class="marquee-set" data-tires></div>
+        <div class="marquee-set" data-tires aria-hidden="true"></div>
+      </div>
+      <div class="hi">
+        <div class="hi-left">
+          <div class="step">
+            <h2>Email</h2>
+            <button type="button" class="copy" data-copy="cheeseburst06@gmail.com"><span class="plane" aria-hidden="true">✈</span> cheeseburst06@gmail.com</button>
+          </div>
+          <div class="step">
+            <h2>GitHub</h2>
+            <a class="copy" href="https://github.com/vabxsen" target="_blank" rel="noopener"><span class="plane" aria-hidden="true">✈</span> github.com/vabxsen</a>
+          </div>
+        </div>
+        <div class="hi-right">
+          <!-- Clickable "Say hi!" sticker with a spinning text ring; opens the contact form -->
+          <button type="button" class="say-hi" data-open-contact aria-label="Say hi: open the contact form">
+            <svg class="say-hi-ring" viewBox="0 0 400 400" aria-hidden="true">
+              <defs><path id="hi-ring" d="M200 200m-172 0a172 172 0 1 1 344 0a172 172 0 1 1-344 0"/></defs>
+              <text><textPath href="#hi-ring" textLength="1075" lengthAdjust="spacing">DESIGNED WITH INTENT ✦ BUILT WITH CARE ✦ </textPath></text>
+            </svg>
+            <span class="say-hi-sticker" data-say-hi aria-hidden="true"><span class="wave">👋</span><span class="serif">Say hi!</span></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel footer-top">
+      <div class="marquee">
+        <div class="marquee-set ticker" data-ticker></div>
+        <div class="marquee-set ticker" data-ticker aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <footer class="panel footer-bottom" id="footer">
+      <svg class="wordmark" viewBox="0 0 1200 170" role="img" aria-label="Vaibhav Sen"><text x="0" y="148" textLength="1200" lengthAdjust="spacingAndGlyphs">VAIBHAV SEN</text></svg>
+    </footer>
+  </main>
+
+  <!-- Contact sheet -->
+  <div class="contact-layer" data-contact hidden>
+    <div class="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+      <button type="button" class="close-btn" data-close-contact aria-label="Close contact form">✕</button>
+      <h2 id="contact-title"><span class="serif">Let’s</span> build something good.</h2>
+      <form class="contact-form" data-contact-form>
+        <label class="sr-only" for="cf-name">Your name</label>
+        <input id="cf-name" name="name" placeholder="Your name" required autocomplete="name">
+        <label class="sr-only" for="cf-email">Your email</label>
+        <input id="cf-email" name="email" type="email" placeholder="Your email" required autocomplete="email">
+        <label class="sr-only" for="cf-msg">Project details</label>
+        <textarea id="cf-msg" name="message" placeholder="Have a project, an opportunity, or just a good question?" required></textarea>
+        <p class="form-error" data-form-error role="alert"></p>
+        <button type="submit" class="send-btn">Send <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="form-success" data-form-success hidden>
+        <p class="serif">Thank you!</p>
+        <p>Your message is on its way. I’ll get back to you soon.</p>
+        <button type="button" class="send-btn" data-close-contact>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="motion-toggle" data-motion-toggle aria-pressed="false">Pause motion</button>
+  <button type="button" class="music-toggle" data-music-toggle aria-pressed="false" hidden><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span data-music-label>Music off</span></button>
+  <audio data-music loop preload="metadata"></audio>
+
+  <div class="copy-label" role="status" aria-live="polite">Copied to clipboard</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Draggable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/InertiaPlugin.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script src="content.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
