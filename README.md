@@ -39,7 +39,12 @@ With `formEndpoint` empty, **Send** opens the visitor's email app. To receive me
 2. Copy its endpoint (looks like `https://formspree.io/f/abcdwxyz`).
 3. Paste it into `formEndpoint` in `content.js`.
 
-## Before you deploy
+## Deploying
 
-- In `index.html`, change `og:image` to the full URL of `og-image.png` on your domain, so link previews show the image.
-- Deploy the whole folder (e.g. drag it into Vercel or Netlify).
+The site lives at https://vabxsen.vercel.app. Every push to `main` deploys it automatically.
+
+If you move to a custom domain, replace `vabxsen.vercel.app` with the new domain in:
+
+- `index.html`: the canonical link, the share-preview tags and the structured data
+- `robots.txt`
+- `sitemap.xml`
