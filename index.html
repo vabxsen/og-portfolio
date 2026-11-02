@@ -91,15 +91,19 @@
     <section class="panel hero" id="index">
       <div class="slider-wrap">
         <div class="slider" data-slider></div>
-        <button type="button" class="talk-float" data-open-contact>
-          <span class="talk-pill">Let’s Talk</span>
-          <span class="talk-face" aria-hidden="true"><img src="" alt="" data-avatar="talk"></span>
-        </button>
       </div>
       <div class="hero-text">
         <p class="right-text">I turn complex ideas into simple, thoughtful digital experiences. Developer &amp; UI/UX designer building for web, mobile, desktop and AI.</p>
         <h1><span class="serif">Designed</span> with intent.<br>Built with <span class="serif">care.</span></h1>
       </div>
+      <!-- Spinning "Let's Talk" sticker: a ring of text around an arrow, parked clear of the headline -->
+      <button type="button" class="talk-sticker" data-open-contact aria-label="Let’s talk: open the contact form">
+        <svg class="talk-ring" viewBox="0 0 200 200" aria-hidden="true">
+          <defs><path id="talk-ring" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0"/></defs>
+          <text><textPath href="#talk-ring" textLength="486" lengthAdjust="spacing">LET’S TALK ✦ LET’S TALK ✦ </textPath></text>
+        </svg>
+        <span class="talk-core" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </button>
     </section>
 
     <!-- Skills marquee (the "Client" row) -->

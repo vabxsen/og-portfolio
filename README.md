@@ -16,7 +16,6 @@ Everything you'd change lives in **`content.js`**:
 | Projects: name, tagline, stack, links, card visual (`cover`), pop-up screenshots (`gallery`), `summary` and `features` | `projects` |
 | Dot-matrix portrait beside the About text (dot count, crop, brightness). The dots come from `about-map.js`, a small brightness map made from the photo, so the photo itself is never published. To change the photo, ask for a new map. | `about` |
 | Stat circles under "Always building" | `stats` |
-| Face on the "Let's Talk" pills (empty = "VS") | `avatar.talk` |
 | Tools strip, service rows, Journey cards, round link buttons | `tools`, `services`, `journey`, `tires` |
 | Email shown and used by the form | `email` |
 

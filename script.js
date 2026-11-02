@@ -52,18 +52,6 @@
     arrow: "M7 17 17 7M9 7h8v8",
   };
 
-  /* ---------- Avatar: photo if provided, monogram otherwise ---------- */
-  function renderAvatars() {
-    document.querySelectorAll("[data-avatar]").forEach((img) => {
-      const src = SITE.avatar[img.dataset.avatar];
-      if (src) {
-        img.src = src;
-        return;
-      }
-      img.replaceWith(el("span", "monogram", "VS"));
-    });
-  }
-
   /** @param {{ live?: string, source?: string }} project */
   const primaryUrl = (project) => project.live || project.source;
 
@@ -623,7 +611,7 @@
       trigger.addEventListener("focus", () => { target.style.setProperty("--x", "50%"); target.style.setProperty("--y", "50%"); });
     };
     document.querySelectorAll(".contact-pill, .contact-arrow").forEach((t) => add(t, t));
-    document.querySelectorAll(".talk-float").forEach((b) => add(b, b.querySelector(".talk-pill")));
+    document.querySelectorAll(".talk-sticker").forEach((b) => add(b, b.querySelector(".talk-core")));
   }
 
   /* ---------- Ink-drop open / close for the contact sheet ---------- */
@@ -1101,7 +1089,6 @@
       .catch(finish);
   }
 
-  renderAvatars();
   renderSliders();
   renderWork();
   renderMarquees();

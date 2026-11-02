@@ -1,11 +1,6 @@
 // All site content lives here. To use your own photos, drop them in ./assets
 // and point the paths below at them (e.g. image: "assets/scoop.png").
 const SITE = {
-  // Face on the floating "Let's Talk" pills. Empty string = show the "VS" monogram.
-  avatar: {
-    talk: "",
-  },
-
   // Dot-matrix portrait beside the About text, drawn from the brightness map in about-map.js
   // (the photo itself is never published). Delete about-map.js's script tag to hide it.
   // columns: dots across (more = finer detail). zoom/focus: crop in around a point (0..1 of the photo).
