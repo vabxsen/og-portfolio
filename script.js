@@ -118,7 +118,9 @@
         if (copy) set.setAttribute("aria-hidden", "true");
         SITE.projects.forEach((p, i) => {
           const card = buildCard(p, i);
-          if (copy) card.querySelectorAll("a, button").forEach((a) => (a.tabIndex = -1));
+          // Tab skips this moving strip (a focused card would slide off screen);
+          // the same projects are listed, keyboard-friendly, in the Work section
+          card.querySelectorAll("a, button").forEach((a) => (a.tabIndex = -1));
           set.appendChild(card);
         });
         slider.appendChild(set);
@@ -701,7 +703,9 @@
       if (lenis) lenis.stop();
       document.body.style.overflow = "hidden";
       if (animate) inkOpen(layer, sheet, opener, [...sheet.querySelectorAll(".contact-form:not([hidden]) > :not(.form-error), .form-success:not([hidden]) > *")]);
-      form.querySelector("input").focus({ preventScroll: true });
+      // On touch screens, focusing a field would pop the keyboard over the opening sheet
+      const touch = window.matchMedia("(pointer: coarse)").matches;
+      (touch ? sheet.querySelector(".close-btn") : form.querySelector("input")).focus({ preventScroll: true });
     };
     const finishClose = () => {
       layer.hidden = true;
@@ -957,8 +961,10 @@
     };
     const stops = [68.4, 129.6, 180, 291.6];
     const first = stops[Math.floor(Math.random() * stops.length)];
+    // Wipe the sheet upward with clip-path: it reveals the page like collapsing the height did,
+    // but without moving its contents, so no layout shift and smoother frames
     const finish = () => {
-      gsap.to(loader, { height: 0, padding: 0, duration: 0.8, ease: "power4.inOut", onComplete: () => { loader.remove(); document.body.classList.remove("is-loading"); } });
+      gsap.fromTo(loader, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.8, ease: "power4.inOut", onComplete: () => { loader.remove(); document.body.classList.remove("is-loading"); } });
     };
     // ~2.4s total: two quick spins, then the sheet slides away
     const start = () => gsap.timeline({ onComplete: finish })

@@ -63,7 +63,7 @@
 <body>
   <!-- Preloader: a giant numbered dial that spins to 100 -->
   <div class="loading" aria-hidden="true">
-    <p>Designed with intent. Built with care. ✨</p>
+    <p>Designed with intent. Built with&nbsp;care.&nbsp;✨</p>
     <div class="dial"></div>
   </div>
 
@@ -200,11 +200,12 @@
     <section class="panel links" id="links">
       <div class="link-cols">
         <ul>
-          <li class="heading">Quick Link</li>
+          <li class="heading">Quick Links</li>
           <li><a href="#index">Index</a></li>
-          <li><a href="#work">Work</a></li>
-          <li><a href="#build">Build</a></li>
+          <li><a href="#skills">Skills</a></li>
           <li><a href="#about">About</a></li>
+          <li><a href="#build">Build</a></li>
+          <li><a href="#work">Work</a></li>
           <li><a href="#journey">Journey</a></li>
         </ul>
         <ul>
@@ -255,9 +256,9 @@
     </footer>
   </main>
 
-  <!-- Contact sheet -->
+  <!-- Contact sheet. data-lenis-prevent lets the mouse wheel scroll the sheet while smooth scrolling is paused -->
   <div class="contact-layer" data-contact hidden>
-    <div class="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+    <div class="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title" data-lenis-prevent>
       <button type="button" class="close-btn" data-close-contact aria-label="Close contact form">✕</button>
       <h2 id="contact-title"><span class="serif">Let’s</span> build something good.</h2>
       <form class="contact-form" data-contact-form>
@@ -280,7 +281,7 @@
 
   <!-- Project detail sheet (filled from SITE.projects when a card or Work row is clicked) -->
   <div class="contact-layer project-layer" data-project-layer hidden>
-    <div class="project-sheet" role="dialog" aria-modal="true" aria-labelledby="project-title">
+    <div class="project-sheet" role="dialog" aria-modal="true" aria-labelledby="project-title" data-lenis-prevent>
       <button type="button" class="close-btn" data-close-project aria-label="Close project details">✕</button>
       <div data-project-body></div>
     </div>
