@@ -405,8 +405,7 @@ body.is-loading { overflow: hidden; }
 /* ============ Contact chat ============ */
 /* Who you're talking to, then the conversation (it scrolls), then the answer bar pinned at the bottom */
 .chat-head { display: flex; align-items: center; gap: 14px; padding: 18px 18px 16px 22px; border-bottom: 2px solid rgba(0, 0, 0, .08); }
-.chat-avatar { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #000; }
-.chat-avatar .logo-mark { width: 26px; height: 21px; }
+.chat-avatar { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #000; color: var(--pink); font-size: 20px; font-weight: 700; letter-spacing: -0.04em; }
 .chat-who { flex: 1; min-width: 0; }
 .chat-who p { margin-top: 2px; font-size: 16px; letter-spacing: -0.02em; color: var(--ink-64); }
 .chat-head .close-btn { position: static; float: none; flex: none; }
@@ -574,7 +573,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   /* Phones: the chat fills the space below the navbar. Fields stay at 16px+ so iOS doesn't zoom in on them */
   .contact-sheet { height: 100%; }
   .chat-head { gap: 12px; padding: 14px 14px 12px 16px; }
-  .chat-avatar { width: 44px; height: 44px; }
+  .chat-avatar { width: 44px; height: 44px; font-size: 17px; }
   .contact-sheet h2 { font-size: 24px; }
   .chat-who p { font-size: 14px; }
   .chat-log { padding: 16px; }
