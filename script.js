@@ -174,15 +174,20 @@
         set.appendChild(circle);
       });
     });
-    // Mouse and touch shortcuts only: the same destinations are linked elsewhere, so Tab skips them
+    // Social links: the first set is the real one; the aria-hidden copy only keeps the loop seamless
     document.querySelectorAll("[data-big-links]").forEach((set) => {
+      const copy = set.hasAttribute("aria-hidden");
       SITE.bigLinks.forEach((link) => {
         const a = el("a", "big-link", link.label);
         a.href = link.url;
         if (!link.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
-        a.tabIndex = -1;
-        a.appendChild(el("span", "big-link-arrow", "↗"));
-        set.append(a, el("span", "big-link-sep", "✦"));
+        if (copy) a.tabIndex = -1;
+        const arrow = el("span", "big-link-arrow", "↗");
+        const star = el("span", "big-link-sep", "✦");
+        arrow.setAttribute("aria-hidden", "true");
+        star.setAttribute("aria-hidden", "true");
+        a.appendChild(arrow);
+        set.append(a, star);
       });
     });
     document.querySelectorAll("[data-ticker]").forEach((set) => {
@@ -880,6 +885,20 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
   }
 
+  /* ---------- Social links strip: keep a keyboard-focused link on screen ---------- */
+  function setupBigLinks() {
+    const strip = document.querySelector(".big-links");
+    if (!strip) return;
+    // The strip pauses while it holds focus (CSS); jump both copies of the loop so the word sits at the left
+    strip.addEventListener("focusin", (e) => {
+      const link = e.target.closest(".big-link");
+      if (!link) return;
+      const sets = [...strip.querySelectorAll(".marquee-set")];
+      const progress = Math.max(0, (link.offsetLeft - sets[0].offsetLeft - 32) / sets[0].offsetWidth);
+      sets.forEach((set) => set.getAnimations().forEach((anim) => { anim.currentTime = progress * anim.effect.getTiming().duration; }));
+    });
+  }
+
   /* ---------- Pause / play all motion ---------- */
   function setupMotionToggle() {
     const btn = document.querySelector("[data-motion-toggle]");
@@ -1102,6 +1121,7 @@
   setupProjectSheet();
   setupButtonReveal();
   setupWorkFilter();
+  setupBigLinks();
   setupMotionToggle();
   setupMusic();
   setupEyes();

@@ -202,14 +202,13 @@ const SITE = {
     { text: "From the first wireframe to the final interaction, I care about the details that make software feel effortless.", title: "The craft", sub: "How I work" },
   ],
 
-  // Big scrolling text links between the link lists and the contact block.
+  // Big scrolling text links (socials only) between the link lists and the contact block.
   bigLinks: [
+    { label: "Gmail", url: "mailto:cheeseburst06@gmail.com" },
     { label: "GitHub", url: "https://github.com/vabxsen" },
-    { label: "Email", url: "mailto:cheeseburst06@gmail.com" },
-    { label: "Scoop", url: "https://vabxsen.github.io/Scoop/" },
-    { label: "Doclee", url: "https://doclee.web.app/" },
-    { label: "Dailynx", url: "https://dailynx.web.app/" },
-    { label: "Repositories", url: "https://github.com/vabxsen?tab=repositories" },
+    { label: "Instagram", url: "https://www.instagram.com/vabxsen" },
+    { label: "Discord", url: "https://discord.com/users/1254441363630460994" },
+    { label: "Steam", url: "https://steamcommunity.com/profiles/76561199735052667/" },
   ],
 
   email: "cheeseburst06@gmail.com",

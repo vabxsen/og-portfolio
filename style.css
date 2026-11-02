@@ -296,9 +296,10 @@ body.is-loading { overflow: hidden; }
 .link-cols a { transition: color .15s; }
 .link-cols a:hover { color: #000; }
 .ext { font-size: .6em; vertical-align: .3em; }
-/* Big scrolling links: one huge line of words; hovering a word turns it pink and pauses the strip */
+/* Big scrolling social links: one huge line of words; hovering a word turns it pink and pauses the strip,
+   and keyboard focus pauses it too (script.js brings the focused word on screen) */
 .big-links .marquee-set { --speed: 36s; align-items: center; }
-.big-links:hover .marquee-set { animation-play-state: paused; }
+.big-links:hover .marquee-set, .big-links:focus-within .marquee-set { animation-play-state: paused; }
 .big-link { display: inline-flex; align-items: flex-start; gap: .06em; font-size: 140px; font-weight: 700; line-height: 1.05; letter-spacing: -0.055em; white-space: nowrap; transition: color .25s; }
 .big-link-arrow { font-size: .4em; line-height: 1; margin-top: .2em; transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
 .big-link:hover { color: var(--magenta); }
@@ -564,4 +565,7 @@ body.is-loading { overflow: hidden; }
   .marquee-set, .talk-ring, .say-hi-ring, .eq i { animation: none !important; }
   .card-shot, .card-initial { transition: none; }
   .intro { display: none; }
+  /* Without the scroll, the social links wrap onto lines so none are cut off */
+  .big-links .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
+  .big-links .marquee-set[aria-hidden] { display: none; }
 }
