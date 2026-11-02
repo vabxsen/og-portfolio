@@ -91,22 +91,28 @@
   }
 
   /* ---------- Hero slider cards ---------- */
+  // Poster layout: name + tagline top-left, the screenshot (or a dotted initial) rising from the bottom edge
   function buildCard(project, index) {
     const card = el("div", `card c${index % CARD_COLORS}`);
-    // Text cards keep the name in the bottom corner, clear of the floating "Let's Talk" pill
-    const textCard = () => {
-      card.classList.add("text-card");
-      card.prepend(el("span", "tagline", project.tagline), el("span", "name", project.name));
+    const head = el("div", "card-head");
+    head.append(el("span", "name", project.name), el("span", "tagline", project.tagline));
+    const initial = () => {
+      const letter = el("span", "card-initial", project.name[0]);
+      letter.setAttribute("aria-hidden", "true");
+      return letter;
     };
+    let visual = initial();
     if (project.cover) {
-      card.classList.add("shot-card");
-      const frame = framedShot(project.cover, `${project.name} screenshot`);
-      frame.querySelector("img").addEventListener("error", () => { frame.remove(); card.classList.remove("shot-card"); textCard(); }, { once: true });
-      card.append(frame, el("span", "shot-name", project.name));
-    } else {
-      textCard();
+      const kind = `card-${project.cover.kind}`;
+      card.classList.add(kind);
+      visual = framedShot(project.cover, `${project.name} screenshot`);
+      visual.classList.add("card-shot");
+      // A missing screenshot falls back to the dotted initial
+      visual.querySelector("img").addEventListener("error", () => { card.classList.remove(kind); visual.replaceWith(initial()); }, { once: true });
     }
-    card.appendChild(openProjectButton(`View ${project.name}`, index, "view"));
+    const view = openProjectButton("View project", index, "view");
+    view.setAttribute("aria-label", `View ${project.name}`);
+    card.append(head, visual, view);
     return card;
   }
 
