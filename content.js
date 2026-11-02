@@ -213,6 +213,18 @@ const SITE = {
 
   email: "cheeseburst06@gmail.com",
 
+  // What the contact chat says at each step. {name} becomes the visitor's name, {email} the address above.
+  chat: {
+    hello: "Hey! 👋 Let’s build something good. First, what’s your name?",
+    message: "Nice to meet you, {name}! What’s on your mind? A project, an opportunity, or just a good question?",
+    email: "Got it! What’s your email, so I can reply?",
+    badEmail: "Hmm, that doesn’t look like an email address. Mind checking it?",
+    ready: "Thanks, {name}! All set. Press Send when you’re ready.",
+    opened: "Opening your email app with everything filled in. If nothing opens, email me at {email}.",
+    sent: "Thank you! Your message is on its way. I’ll get back to you soon.",
+    failed: "Couldn’t send right now. Please email me at {email}.",
+  },
+
   // Looping background music, opt-in: it plays only when the visitor presses the ♪ "Play music"
   // button (and resumes on later visits if they left it on). Put the file at assets/music.mp3.
   // If the file is missing, the ♪ button simply stays hidden.
@@ -222,7 +234,7 @@ const SITE = {
     credit: "Music: “Go!” by NEFFEX",
   },
 
-  // Contact form delivery. Leave empty to open the visitor's email app instead.
+  // Where the contact chat sends messages. Leave empty to open the visitor's email app instead.
   // To receive messages directly: make a free form at https://formspree.io,
   // then paste its endpoint here, e.g. "https://formspree.io/f/abcdwxyz".
   formEndpoint: "",  copyright: "2026 Vaibhav Sen. All rights reserved.",

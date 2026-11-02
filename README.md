@@ -17,7 +17,8 @@ Everything you'd change lives in **`content.js`**:
 | Dot-matrix portrait beside the About text (dot count, crop, brightness). The dots come from `about-map.js`, a small brightness map made from the photo, so the photo itself is never published. To change the photo, ask for a new map. | `about` |
 | Stat circles under "Always building" | `stats` |
 | Tools strip, service rows, Journey cards, big scrolling social links | `tools`, `services`, `journey`, `bigLinks` |
-| Email shown and used by the form | `email` |
+| Email the contact chat sends to | `email` |
+| What the contact chat says at each step (`{name}` becomes the visitor's name) | `chat` |
 
 Put images in `assets/` and reference them like `"assets/scoop.png"`.
 
@@ -30,9 +31,9 @@ The site loops `assets/music.mp3` (“Go!” by NEFFEX). To add it:
 
 It's opt-in: nothing plays until the visitor presses **♪ Play music** in the bottom-right. Then it loops, and the same button turns it off. If a visitor leaves it on, it resumes on their first click next visit. NEFFEX's copyright-free tracks require credit, which runs in the footer ticker (`music.credit` in `content.js`). Until the file exists, the button stays hidden and nothing plays.
 
-## Contact form
+## Contact chat
 
-With `formEndpoint` empty, **Send** opens the visitor's email app. To receive messages directly:
+**Let’s Talk** opens a short chat that asks for the visitor's name, message and email, one at a time. With `formEndpoint` empty, **Send** opens the visitor's email app with everything filled in. To receive messages directly:
 
 1. Create a free form at https://formspree.io.
 2. Copy its endpoint (looks like `https://formspree.io/f/abcdwxyz`).

@@ -592,8 +592,11 @@
   }
 
   /* ---------- Contact sheet ---------- */
-  async function sendToEndpoint(form) {
-    const res = await fetch(SITE.formEndpoint, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
+  /** @param {Record<string, string>} fields */
+  async function sendToEndpoint(fields) {
+    const body = new FormData();
+    Object.entries(fields).forEach(([name, value]) => body.append(name, value));
+    const res = await fetch(SITE.formEndpoint, { method: "POST", body, headers: { Accept: "application/json" } });
     if (!res.ok) throw new Error(`Form service responded ${res.status}`);
   }
 
@@ -711,7 +714,7 @@
     gsap.set(env, { opacity: 1, y: -innerHeight, rotation: -8 });
     gsap.set(front, { zIndex: 3 });
     gsap.set(flap, { rotationX: 0, zIndex: 4, transformPerspective: 900 });
-    gsap.set(sheet, { scale, y: inY, opacity: 0, overflowY: "hidden" }); // no scrollbar flash while the fields slide up
+    gsap.set(sheet, { scale, y: inY, opacity: 0 });
     return gsap.timeline()
       .fromTo(layer, { "--veil": 0 }, { "--veil": 1, duration: 0.3, ease: "power1.out" }, 0)
       .to(env, { y: drop, rotation: 0, duration: 0.55, ease: "back.out(1.4)" }, 0) // drops in
@@ -725,7 +728,7 @@
       .fromTo(words, { yPercent: 120, rotate: 10, opacity: 0 }, { yPercent: 0, rotate: 0, opacity: 1, duration: 0.5, stagger: 0.06, ease: "back.out(1.8)" }, 1.55)
       .fromTo(parts, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: "power3.out" }, 1.6)
       .fromTo(closeBtn, { scale: 0, rotate: -180 }, { scale: 1, rotate: 0, duration: 0.5, ease: "back.out(2.2)" }, 1.7)
-      .set(sheet, { clearProps: "transform,opacity,overflowY" })
+      .set(sheet, { clearProps: "transform,opacity" })
       .set(env, { opacity: 0 });
   }
 
@@ -750,13 +753,192 @@
       .set(layer, { "--veil": 1 });
   }
 
+  /* ---------- Contact chat ---------- */
+  // The contact form as a chat: it asks for a name, a message and an email, one at a time.
+  // Its lines come from SITE.chat; answers only ever go in as text, never as HTML.
+  const CHAT_STEPS = [
+    { key: "name", line: "hello", label: "Your name", hint: "Type your name", type: "text", autocomplete: "name" },
+    { key: "message", line: "message", label: "Your message", hint: "Type your message", multiline: true },
+    { key: "email", line: "email", label: "Your email", hint: "you@example.com", type: "email", autocomplete: "email" },
+  ];
+  const CHAT_START_MS = 1700; // the first question waits for the envelope to deliver the chat
+  const CHAT_BOX_MAX_PX = 160;
+
+  /** How long "typing" shows before a line lands: a little longer for longer lines. */
+  const typingMs = (text) => Math.min(350 + text.length * 8, 1000);
+
+  function setupChat(sheet) {
+    const log = sheet.querySelector("[data-chat-log]");
+    const bar = sheet.querySelector("[data-chat-form]");
+    const line = bar.querySelector("[data-chat-line]");
+    const box = bar.querySelector("[data-chat-box]");
+    const done = sheet.querySelector("[data-chat-done]");
+    const sendBtn = done.querySelector("[data-chat-send]");
+    const restartBtn = done.querySelector("[data-chat-restart]");
+    let answers = {};
+    let step = -1; // -1: not started; CHAT_STEPS.length: everything answered
+    let pending = null; // a line on its way (waiting or "typing")
+    let opened = false; // the email app was opened at least once
+
+    const fill = (text) => text.replace(/\{(\w+)\}/g, (match, key) => (key === "email" ? SITE.email : answers[key] || match));
+    const field = () => (CHAT_STEPS[step] && CHAT_STEPS[step].multiline ? box : line);
+    const scrollDown = () => log.scrollTo({ top: log.scrollHeight, behavior: reduceMotion ? "auto" : "smooth" });
+    const grow = () => {
+      box.style.height = "";
+      if (box.scrollHeight > box.clientHeight) box.style.height = `${Math.min(box.scrollHeight, CHAT_BOX_MAX_PX)}px`;
+    };
+
+    function bubble(text, who) {
+      const b = el("p", `bubble ${who}`);
+      b.append(el("span", "sr-only", who === "me" ? "You: " : "Vaibhav: "), text);
+      log.append(b);
+      scrollDown();
+    }
+
+    /** Vaibhav "types" for a moment, then the line lands; `then` runs once it's shown. */
+    function say(key, { delay = 0, then } = {}) {
+      if (pending) pending.land();
+      const text = fill(SITE.chat[key]);
+      const reply = { timer: 0, dots: null };
+      reply.cancel = () => {
+        clearTimeout(reply.timer);
+        if (reply.dots) reply.dots.remove();
+        if (pending === reply) pending = null;
+      };
+      reply.land = () => {
+        reply.cancel();
+        bubble(text, "bot");
+        if (then) then();
+      };
+      const type = () => {
+        if (reduceMotion) { reply.land(); return; }
+        reply.dots = el("p", "bubble bot typing");
+        reply.dots.setAttribute("aria-hidden", "true");
+        reply.dots.append(el("span"), el("span"), el("span"));
+        log.append(reply.dots);
+        scrollDown();
+        reply.timer = setTimeout(reply.land, typingMs(text));
+      };
+      pending = reply;
+      if (delay) reply.timer = setTimeout(type, delay);
+      else type();
+    }
+
+    /** Switch the answer field to suit question `i` (one line, or a box for the message), then ask it. */
+    function ask(i, delay = 0) {
+      const s = CHAT_STEPS[i];
+      const hadFocus = document.activeElement === line || document.activeElement === box;
+      step = i;
+      line.hidden = Boolean(s.multiline);
+      box.hidden = !s.multiline;
+      if (!s.multiline) {
+        line.type = s.type;
+        line.setAttribute("autocomplete", s.autocomplete);
+        line.setAttribute("inputmode", s.type === "email" ? "email" : "text");
+      }
+      const f = field();
+      f.setAttribute("aria-label", s.label);
+      f.placeholder = s.hint;
+      f.value = "";
+      if (hadFocus) f.focus({ preventScroll: true });
+      say(s.line, { delay });
+    }
+
+    function answer(e) {
+      e.preventDefault();
+      if (step < 0 || step >= CHAT_STEPS.length) return;
+      const s = CHAT_STEPS[step];
+      const f = field();
+      const value = s.multiline ? f.value.trim() : f.value.trim().replace(/\s+/g, " ");
+      if (!value) { f.focus({ preventScroll: true }); return; }
+      const valid = s.type !== "email" || line.checkValidity();
+      if (pending) pending.land(); // answered before the question finished "typing": show the question first
+      bubble(value, "me");
+      f.value = "";
+      grow();
+      if (!valid) { say("badEmail"); return; }
+      answers = { ...answers, [s.key]: value };
+      if (step + 1 < CHAT_STEPS.length) ask(step + 1);
+      else finish();
+    }
+
+    // All answered: once the last line lands, the answer bar turns into Send and Start over
+    function finish() {
+      step = CHAT_STEPS.length;
+      say("ready", {
+        then: () => {
+          const hadFocus = bar.contains(document.activeElement);
+          bar.hidden = true;
+          done.hidden = false;
+          scrollDown();
+          if (hadFocus) sendBtn.focus({ preventScroll: true });
+        },
+      });
+    }
+
+    async function send() {
+      const { name, message, email } = answers;
+      if (!SITE.formEndpoint) {
+        const subject = encodeURIComponent(`Hello from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+        window.location.href = `mailto:${SITE.email}?subject=${subject}&body=${body}`;
+        if (!opened) say("opened");
+        opened = true;
+        return;
+      }
+      sendBtn.disabled = true;
+      sendBtn.firstChild.textContent = "Sending… ";
+      try {
+        await sendToEndpoint({ name, email, message });
+        sendBtn.hidden = true;
+        restartBtn.focus({ preventScroll: true });
+        say("sent");
+      } catch {
+        say("failed");
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.firstChild.textContent = "Send ";
+      }
+    }
+
+    function restart() {
+      if (pending) pending.cancel();
+      log.replaceChildren();
+      answers = {};
+      opened = false;
+      sendBtn.hidden = false;
+      done.hidden = true;
+      bar.hidden = false;
+      ask(0);
+      line.focus({ preventScroll: true });
+    }
+
+    bar.addEventListener("submit", answer);
+    box.addEventListener("input", grow);
+    // In the message box, Enter sends and Shift+Enter starts a new line
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) answer(e);
+    });
+    // Pressing the arrow mustn't pull focus out of the field (on phones that would drop the keyboard)
+    bar.querySelector(".chat-send").addEventListener("mousedown", (e) => e.preventDefault());
+    sendBtn.addEventListener("click", send);
+    restartBtn.addEventListener("click", restart);
+
+    return {
+      /** Starts the conversation on the first open; later opens carry on where it left off. */
+      start: (delay) => { if (step < 0) ask(0, delay); },
+      /** Where focus goes when the chat opens. */
+      focusTarget: () => {
+        if (done.hidden) return field();
+        return sendBtn.hidden ? restartBtn : sendBtn;
+      },
+    };
+  }
+
   function setupContact() {
     const layer = document.querySelector("[data-contact]");
     const sheet = layer.querySelector(".contact-sheet");
-    const form = document.querySelector("[data-contact-form]");
-    const error = document.querySelector("[data-form-error]");
-    const success = document.querySelector("[data-form-success]");
-    const sendBtn = form.querySelector(".send-btn");
+    const chat = setupChat(sheet);
     const animate = hasGsap && !reduceMotion;
     let opener = null;
     let closing = false;
@@ -765,17 +947,16 @@
       if (!layer.hidden && !closing) return; // already open: don't replay the envelope
       opener = e.currentTarget;
       closing = false;
-      if (anim) anim.kill(); // reopened mid-close: that close must not finish and hide the form
-      form.hidden = false;
-      success.hidden = true;
+      if (anim) anim.kill(); // reopened mid-close: that close must not finish and hide the chat
       layer.hidden = false;
       if (lenis) lenis.stop();
       document.body.style.overflow = "hidden";
-      if (animate) anim = envelopeOpen(layer, sheet, [...sheet.querySelectorAll(".contact-form:not([hidden]) > :not(.form-error), .form-success:not([hidden]) > *")]);
+      if (animate) anim = envelopeOpen(layer, sheet, [...sheet.querySelectorAll(".chat-avatar, .chat-who p, .chat-log, .chat-bar:not([hidden]), .chat-done:not([hidden])")]);
       else if (hasGsap) gsap.fromTo(sheet, { opacity: 0 }, { opacity: 1, duration: 0.2, clearProps: "opacity" }); // reduced motion: a quick fade
-      // On touch screens, focusing a field would pop the keyboard over the opening sheet
+      chat.start(animate ? CHAT_START_MS : 0);
+      // On touch screens, focusing a field would pop the keyboard over the opening chat
       const touch = window.matchMedia("(pointer: coarse)").matches;
-      (touch ? sheet.querySelector(".close-btn") : form.querySelector("input")).focus({ preventScroll: true });
+      (touch ? sheet.querySelector(".close-btn") : chat.focusTarget()).focus({ preventScroll: true });
     };
     const finishClose = () => {
       anim = null;
@@ -800,38 +981,6 @@
       if (e.key !== "Escape") return;
       if (!layer.hidden) close();
       closeMenu();
-    });
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = new FormData(form);
-      const name = String(data.get("name") || "").trim();
-      const email = String(data.get("email") || "").trim();
-      const message = String(data.get("message") || "").trim();
-      if (!name || !email || !message || !form.checkValidity()) {
-        error.textContent = "Please fill in your name, a valid email and a message.";
-        return;
-      }
-      error.textContent = "";
-      if (!SITE.formEndpoint) {
-        const subject = encodeURIComponent(`Hello from ${name}`);
-        const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
-        window.location.href = `mailto:${SITE.email}?subject=${subject}&body=${body}`;
-        return;
-      }
-      sendBtn.disabled = true;
-      sendBtn.firstChild.textContent = "Sending… ";
-      try {
-        await sendToEndpoint(form);
-        form.reset();
-        form.hidden = true;
-        success.hidden = false;
-        success.querySelector("button").focus();
-      } catch {
-        error.textContent = `Couldn’t send right now. Please email me at ${SITE.email}.`;
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.firstChild.textContent = "Send ";
-      }
     });
   }
 

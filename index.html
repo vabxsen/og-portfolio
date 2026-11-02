@@ -258,27 +258,29 @@
     </footer>
   </main>
 
-  <!-- Contact sheet. data-lenis-prevent lets the mouse wheel scroll the sheet while smooth scrolling is paused -->
+  <!-- Contact chat. data-lenis-prevent lets the mouse wheel scroll the conversation while smooth scrolling is paused -->
   <div class="contact-layer" data-contact hidden>
-    <!-- The envelope the form arrives in: back, then the form (the letter), then the front pocket and flap -->
+    <!-- The envelope the chat arrives in: back, then the chat (the letter), then the front pocket and flap -->
     <span class="env env-back" aria-hidden="true"></span>
-    <div class="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title" data-lenis-prevent>
-      <button type="button" class="close-btn" data-close-contact aria-label="Close contact form">✕</button>
-      <h2 id="contact-title"><span class="serif">Let’s</span> build something good.</h2>
-      <form class="contact-form" data-contact-form>
-        <label class="sr-only" for="cf-name">Your name</label>
-        <input id="cf-name" name="name" placeholder="Your name" required autocomplete="name">
-        <label class="sr-only" for="cf-email">Your email</label>
-        <input id="cf-email" name="email" type="email" placeholder="Your email" required autocomplete="email">
-        <label class="sr-only" for="cf-msg">Project details</label>
-        <textarea id="cf-msg" name="message" placeholder="Have a project, an opportunity, or just a good question?" required></textarea>
-        <p class="form-error" data-form-error role="alert"></p>
-        <button type="submit" class="send-btn">Send <span aria-hidden="true">→</span></button>
+    <div class="contact-sheet" role="dialog" aria-modal="true" aria-label="Chat with Vaibhav Sen" data-lenis-prevent>
+      <div class="chat-head">
+        <span class="chat-avatar" aria-hidden="true"><span class="logo-mark"></span></span>
+        <div class="chat-who">
+          <h2>Vaibhav Sen</h2>
+          <p>Developer &amp; UI/UX Designer</p>
+        </div>
+        <button type="button" class="close-btn" data-close-contact aria-label="Close contact form">✕</button>
+      </div>
+      <!-- Filled by script.js, one question at a time (the lines are SITE.chat in content.js) -->
+      <div class="chat-log" role="log" aria-live="polite" aria-label="Conversation" data-chat-log></div>
+      <form class="chat-bar" data-chat-form novalidate>
+        <input class="chat-field" data-chat-line enterkeyhint="send">
+        <textarea class="chat-field" data-chat-box rows="1" enterkeyhint="send" hidden></textarea>
+        <button type="submit" class="chat-send" aria-label="Send answer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       </form>
-      <div class="form-success" data-form-success hidden>
-        <p class="serif">Thank you!</p>
-        <p>Your message is on its way. I’ll get back to you soon.</p>
-        <button type="button" class="send-btn" data-close-contact>Close</button>
+      <div class="chat-done" data-chat-done hidden>
+        <button type="button" class="send-btn" data-chat-send>Send <span aria-hidden="true">→</span></button>
+        <button type="button" class="chat-restart" data-chat-restart>Start over</button>
       </div>
     </div>
     <span class="env env-front" aria-hidden="true"></span>
