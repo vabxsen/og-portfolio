@@ -202,8 +202,8 @@ const SITE = {
     { text: "From the first wireframe to the final interaction, I care about the details that make software feel effortless.", title: "The craft", sub: "How I work" },
   ],
 
-  // Big round buttons in the link marquee.
-  tires: [
+  // Big scrolling text links between the link lists and the contact block.
+  bigLinks: [
     { label: "GitHub", url: "https://github.com/vabxsen" },
     { label: "Email", url: "mailto:cheeseburst06@gmail.com" },
     { label: "Scoop", url: "https://vabxsen.github.io/Scoop/" },

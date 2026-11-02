@@ -2,7 +2,6 @@
 (() => {
   const CARD_COLORS = 6;
   const PILL_COLORS = 7;
-  const TIRE_COLORS = 6;
   const REVIEW_ANGLES = [-14, 6, -4, 12, -8];
   const REVIEW_COLORS = ["#fff570", "#ab6349", "#ffade4", "#25a750", "#a3daf5"];
   const REVIEW_INTERVAL_MS = 3500;
@@ -175,15 +174,15 @@
         set.appendChild(circle);
       });
     });
-    document.querySelectorAll("[data-tires]").forEach((set) => {
-      const hidden = set.hasAttribute("aria-hidden");
-      SITE.tires.forEach((t, i) => {
-        const a = el("a", `tire t${i % TIRE_COLORS}`);
-        a.href = t.url;
-        if (!t.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
-        if (hidden) a.tabIndex = -1;
-        a.appendChild(el("span", "", t.label));
-        set.appendChild(a);
+    // Mouse and touch shortcuts only: the same destinations are linked elsewhere, so Tab skips them
+    document.querySelectorAll("[data-big-links]").forEach((set) => {
+      SITE.bigLinks.forEach((link) => {
+        const a = el("a", "big-link", link.label);
+        a.href = link.url;
+        if (!link.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
+        a.tabIndex = -1;
+        a.appendChild(el("span", "big-link-arrow", "↗"));
+        set.append(a, el("span", "big-link-sep", "✦"));
       });
     });
     document.querySelectorAll("[data-ticker]").forEach((set) => {

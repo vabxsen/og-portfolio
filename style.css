@@ -296,14 +296,14 @@ body.is-loading { overflow: hidden; }
 .link-cols a { transition: color .15s; }
 .link-cols a:hover { color: #000; }
 .ext { font-size: .6em; vertical-align: .3em; }
-.tires .marquee-set { --speed: 20s; }
-.tires:hover .marquee-set { animation-play-state: paused; }
-.tire { position: relative; width: 464px; height: 464px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; font-size: 48px; letter-spacing: -0.04em; }
-.tire span { position: relative; z-index: 1; }
-.tire::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; transition: filter .3s; }
-.tire:hover::before { filter: blur(40px); }
-.t0 { background: var(--brown); } .t1 { background: var(--blue); } .t2 { background: var(--pink); }
-.t3 { background: var(--yellow); } .t4 { background: var(--green); } .t5 { background: var(--orange); }
+/* Big scrolling links: one huge line of words; hovering a word turns it pink and pauses the strip */
+.big-links .marquee-set { --speed: 36s; align-items: center; }
+.big-links:hover .marquee-set { animation-play-state: paused; }
+.big-link { display: inline-flex; align-items: flex-start; gap: .06em; font-size: 140px; font-weight: 700; line-height: 1.05; letter-spacing: -0.055em; white-space: nowrap; transition: color .25s; }
+.big-link-arrow { font-size: .4em; line-height: 1; margin-top: .2em; transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.big-link:hover { color: var(--magenta); }
+.big-link:hover .big-link-arrow { transform: translate(.1em, -.1em); }
+.big-link-sep { margin: 0 .55em; font-size: 56px; color: var(--magenta); }
 
 .hi { display: flex; justify-content: space-between; align-items: flex-end; }
 .hi-left { display: flex; flex-direction: column; gap: 80px; padding: var(--space-xl) 0 var(--pad) var(--pad); }
@@ -462,7 +462,7 @@ body.is-loading { overflow: hidden; }
   .craft-center { margin: 0; align-self: stretch; padding: 56px 24px; border-radius: 200px; }
   .craft-center h2 { font-size: 64px; }
   .craft-arrow, .craft-face { width: 260px; height: 260px; }
-  .tire { width: 340px; height: 340px; font-size: 36px; }
+  .big-link { font-size: 108px; } .big-link-sep { font-size: 44px; }
   .hi h2 { font-size: 88px; } .copy { font-size: 36px; }
   .say-hi { width: 320px; height: 320px; }
   .say-hi-ring text { font-size: 24px; }
@@ -536,7 +536,7 @@ body.is-loading { overflow: hidden; }
   .craft-arrow, .craft-face { width: 200px; height: 200px; }
   .link-cols { flex-direction: column; gap: 40px; }
   .link-cols ul { width: 100%; } .link-cols ul + ul { padding-left: 0; }
-  .tire { width: 220px; height: 220px; font-size: 28px; }
+  .big-link { font-size: 68px; } .big-link-sep { font-size: 30px; }
   .hi { flex-direction: column; align-items: stretch; }
   .hi-left { gap: 40px; padding-right: var(--pad); }
   .hi h2 { font-size: 60px; } .copy { font-size: 20px; gap: 12px; word-break: break-all; } .plane { font-size: 22px; }

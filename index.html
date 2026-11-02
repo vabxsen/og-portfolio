@@ -217,9 +217,11 @@
           <li><a href="https://github.com/vabxsen?tab=repositories" target="_blank" rel="noopener">All Repositories <span class="ext">↗</span></a></li>
         </ul>
       </div>
-      <div class="marquee tires">
-        <div class="marquee-set" data-tires></div>
-        <div class="marquee-set" data-tires aria-hidden="true"></div>
+      <!-- Big scrolling links. Every destination is also linked just above or below,
+           so this moving strip is skipped by Tab and screen readers -->
+      <div class="marquee big-links" aria-hidden="true">
+        <div class="marquee-set" data-big-links></div>
+        <div class="marquee-set" data-big-links></div>
       </div>
       <div class="hi">
         <div class="hi-left">
