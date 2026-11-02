@@ -61,15 +61,12 @@
 <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
-  <!-- Preloader: a giant numbered dial that spins to 100 -->
-  <div class="loading" aria-hidden="true">
-    <p>Designed with intent. Built with&nbsp;care.&nbsp;✨</p>
-    <div class="dial"></div>
-  </div>
+  <!-- First-visit intro: dots swarm into the name, then fly into the navbar logo (runIntro in script.js) -->
+  <div class="intro" aria-hidden="true"></div>
 
   <!-- Nav -->
   <header class="navbar panel-top">
-    <a href="#index" class="logo" aria-label="Vaibhav Sen home"><span class="logo-mark" aria-hidden="true"></span>VAIBHAV SEN</a>
+    <a href="#index" class="logo" aria-label="Vaibhav Sen home"><span class="logo-mark" aria-hidden="true"></span><span class="logo-text">VAIBHAV SEN</span></a>
     <div class="nav-right">
       <div class="menu">
         <button type="button" class="chip menu-btn" aria-expanded="false" aria-controls="menu-list">Menu <span class="menu-icon" aria-hidden="true"></span></button>

@@ -55,13 +55,10 @@ img { display: block; }
 .marquee-set { display: flex; flex-wrap: nowrap; flex-shrink: 0; animation: slide var(--speed, 40s) linear infinite; }
 @keyframes slide { to { transform: translateX(-100%); } }
 
-/* ============ Preloader ============ */
-.loading { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; align-items: center; padding: var(--pad); overflow: hidden; }
-.loading p { position: relative; z-index: 2; max-width: 370px; font-size: 24px; line-height: 1; letter-spacing: -0.04em; }
-.dial { position: absolute; width: 4876px; height: 4876px; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50px, -50%); }
-.dial .stripe { position: absolute; top: 50%; right: 50%; width: 100%; height: 140px; display: flex; align-items: center; }
-.dial .number { width: 140px; height: 140px; border-radius: 50%; background: var(--soft); color: rgba(0, 0, 0, .08); display: grid; place-items: center; font-size: 80px; letter-spacing: -0.06em; transition: background .1s, color .1s; }
-.dial .number.on { background: var(--yellow); color: var(--magenta); }
+/* ============ First-visit intro (dots spell the name, then fly into the navbar logo) ============ */
+.intro { position: fixed; inset: 0; z-index: 1000; background: #000; }
+/* Difference blending keeps the white dots visible on anything: white on the black curtain, black on the white navbar */
+.intro-dots { position: fixed; inset: 0; z-index: 1001; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: difference; }
 body.is-loading { overflow: hidden; }
 
 /* ============ Navbar ============ */
@@ -467,11 +464,6 @@ body.is-loading { overflow: hidden; }
   .footer-bottom { padding-bottom: 56px; }
   /* Keep the "Copied" message above the floating buttons */
   .copy-label.show { bottom: 60px; }
-  /* Preloader: keep the line of text and the number dial side by side instead of overlapping */
-  .loading p { max-width: 140px; font-size: 18px; line-height: 1.15; }
-  .dial { left: 64%; }
-  .dial .stripe { height: 96px; }
-  .dial .number { width: 96px; height: 96px; font-size: 54px; }
   .navbar { height: 64px; }
   .hero { margin-top: 66px; }
   .contact-layer { inset: 66px 0 0; }
@@ -538,5 +530,5 @@ body.is-loading { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .marquee-set, .talk-float, .say-hi-ring, .eq i { animation: none !important; }
   .shot-card:hover .frame { animation: none; }
-  .loading { display: none; }
+  .intro { display: none; }
 }

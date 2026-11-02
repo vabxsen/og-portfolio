@@ -8,7 +8,7 @@
   const REVIEW_INTERVAL_MS = 3500;
   const SHAKE_INTERVAL_MS = 4000;
   const NAV_OFFSET = -90;
-  const LOADER_SEEN_KEY = "vs-loader-seen";
+  const INTRO_SEEN_KEY = "vs-intro-seen";
   const MOTION_KEY = "vs-motion-paused";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const hasGsap = typeof window.gsap !== "undefined";
@@ -936,42 +936,152 @@
     document.querySelector("[data-clear-filter]").addEventListener("click", () => filterWork(null));
   }
 
-  /* ---------- Preloader: numbered dial spins to 100 (first visit only) ---------- */
-  function runLoader() {
-    const loader = document.querySelector(".loading");
-    if (!hasGsap || reduceMotion || readStore(LOADER_SEEN_KEY)) { loader.remove(); return; }
-    writeStore(LOADER_SEEN_KEY, "1");
-    document.body.classList.add("is-loading");
-    const dial = loader.querySelector(".dial");
-    const numbers = [];
-    for (let i = 1; i <= 100; i++) {
-      const stripe = el("div", "stripe");
-      stripe.style.transform = `translate(50%, -50%) rotate(${(i - 1) * 3.6}deg)`;
-      const n = el("div", "number", String(i));
-      stripe.appendChild(n);
-      dial.appendChild(stripe);
-      numbers.push(n);
+  /* ---------- First-visit intro: a dot swarm spells the name, then flies into the navbar logo ---------- */
+  const INTRO_ROWS = 14; // dots across the height of a capital letter
+  const INTRO_WIDTH = 0.86; // the spelled-out name spans this share of the screen width…
+  const INTRO_MAX_WIDTH = 1100; // …up to this many px
+  const INTRO_FONT_WAIT_MS = 800; // longest we wait for the logo font before drawing anyway
+  const TAU = Math.PI * 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /**
+   * Dot positions that spell the logo text, in the logo's own px (0,0 = its top-left corner).
+   * Each letter is drawn where the browser placed it in the navbar, so kerning and letter-spacing match.
+   */
+  function sampleLogoDots(textEl, scale) {
+    const node = textEl.firstChild;
+    const box = textEl.getBoundingClientRect();
+    const cs = getComputedStyle(textEl);
+    const size = parseFloat(cs.fontSize) * scale;
+    const pad = Math.ceil(size * 0.2);
+    const c = document.createElement("canvas");
+    c.width = Math.ceil(box.width * scale) + pad * 2;
+    c.height = Math.ceil(box.height * scale) + pad * 2;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${size}px ${cs.fontFamily}`;
+    const m = ctx.measureText(node.data);
+    const ascent = m.fontBoundingBoxAscent ?? size * 0.8;
+    const descent = m.fontBoundingBoxDescent ?? size * 0.2;
+    // The baseline sits in the middle of any extra line height, as it does in the navbar
+    const baseline = pad + (box.height * scale - ascent - descent) / 2 + ascent;
+    const range = document.createRange();
+    for (let i = 0; i < node.length; i++) {
+      range.setStart(node, i);
+      range.setEnd(node, i + 1);
+      ctx.fillText(node.data[i], pad + (range.getBoundingClientRect().left - box.left) * scale, baseline);
     }
-    gsap.set(dial, { x: -50, yPercent: -50, xPercent: 0, rotation: 0 });
-    numbers[0].classList.add("on");
-    let current = 0;
-    const highlight = () => {
-      const idx = Math.round(-gsap.getProperty(dial, "rotation") / 3.6) % 100;
-      if (idx !== current) { numbers[current].classList.remove("on"); numbers[idx].classList.add("on"); current = idx; }
+    const step = Math.max(3, (size * 0.72) / INTRO_ROWS); // a capital is ~0.72em tall
+    const alpha = ctx.getImageData(0, 0, c.width, c.height).data;
+    const points = [];
+    for (let y = step / 2; y < c.height; y += step) {
+      for (let x = step / 2; x < c.width; x += step) {
+        if (alpha[(Math.floor(y) * c.width + Math.floor(x)) * 4 + 3] > 128) points.push({ x: (x - pad) / scale, y: (y - pad) / scale });
+      }
+    }
+    return { points, width: box.width, height: box.height, radius: (step * 0.42) / scale };
+  }
+
+  /** Gives each dot a far-off start, a curved path in, and a delay so the letters fill in left to right. */
+  function scatterDots(points, width, toScreen) {
+    const far = Math.hypot(innerWidth, innerHeight) * 0.6;
+    return points.map((p) => {
+      const end = toScreen(p);
+      const angle = Math.random() * TAU;
+      const reach = far * (0.8 + Math.random() * 0.5);
+      const start = { x: innerWidth / 2 + Math.cos(angle) * reach, y: innerHeight / 2 + Math.sin(angle) * reach };
+      const bend = (Math.random() - 0.5) * 0.8;
+      const ctrl = { x: (start.x + end.x) / 2 - (end.y - start.y) * bend, y: (start.y + end.y) / 2 + (end.x - start.x) * bend };
+      return { u: p, start, ctrl, end, delay: (p.x / width) * 0.35 + Math.random() * 0.15 };
+    });
+  }
+
+  /** Draws the swarm on `canvas` and returns the timeline (~2.6s), so a tap can speed it up. */
+  function playIntro(canvas, curtain, logoText, logoMark, done) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(innerWidth * dpr);
+    canvas.height = Math.round(innerHeight * dpr);
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#fff";
+    const scale = Math.min(innerWidth * INTRO_WIDTH, INTRO_MAX_WIDTH) / logoText.getBoundingClientRect().width;
+    const { points, width, height, radius } = sampleLogoDots(logoText, scale);
+    const center = { x: innerWidth / 2, y: innerHeight / 2 };
+    const dots = scatterDots(points, width, (p) => ({ x: center.x + (p.x - width / 2) * scale, y: center.y + (p.y - height / 2) * scale }));
+    const state = { form: 0, shine: -0.3, fly: 0 };
+    let target = center;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      ctx.beginPath();
+      const k = Math.pow(scale, 1 - state.fly); // shrinks from the big name down to the logo's size
+      const cx = lerp(center.x, target.x, state.fly);
+      const cy = lerp(center.y, target.y, state.fly);
+      for (const d of dots) {
+        const glow = 1 + 0.45 * Math.exp(-(((d.u.x / width - state.shine) / 0.08) ** 2)); // the shimmer sweep
+        let x = cx + (d.u.x - width / 2) * k;
+        let y = cy + (d.u.y - height / 2) * k;
+        let r = Math.max(0.6, radius * k) * glow;
+        if (state.form < 1) {
+          const t = 1 - (1 - Math.min(1, Math.max(0, (state.form - d.delay) / 0.5))) ** 3; // ease-out per dot
+          const s = 1 - t;
+          x = s * s * d.start.x + 2 * s * t * d.ctrl.x + t * t * d.end.x;
+          y = s * s * d.start.y + 2 * s * t * d.ctrl.y + t * t * d.end.y;
+          r *= 0.25 + 0.75 * t;
+        }
+        ctx.moveTo(x + r, y);
+        ctx.arc(x, y, r, 0, TAU);
+      }
+      ctx.fill();
     };
-    const stops = [68.4, 129.6, 180, 291.6];
-    const first = stops[Math.floor(Math.random() * stops.length)];
-    // Wipe the sheet upward with clip-path: it reveals the page like collapsing the height did,
-    // but without moving its contents, so no layout shift and smoother frames
+
+    // Swarm in → shimmer → fly into the logo spot while the curtain wipes away → solid logo fades in
+    return gsap.timeline({ onUpdate: draw, onComplete: done })
+      .to(state, { form: 1, duration: 1, ease: "none" })
+      .to(state, { shine: 1.3, duration: 0.45, ease: "power1.inOut" }, "-=0.1")
+      .add(() => { const b = logoText.getBoundingClientRect(); target = { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })
+      .to(state, { fly: 1, duration: 0.85, ease: "power3.inOut" })
+      .fromTo(curtain, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.8, ease: "power3.inOut" }, "<")
+      .to(canvas, { opacity: 0, duration: 0.3 }, ">-0.05")
+      .to(logoText, { opacity: 1, duration: 0.3 }, "<")
+      .fromTo(logoMark, { scale: 0, rotate: -120 }, { scale: 1, rotate: 0, duration: 0.55, ease: "back.out(2.4)" }, "<");
+  }
+
+  function runIntro() {
+    const curtain = document.querySelector(".intro");
+    const logoText = document.querySelector(".logo-text");
+    const logoMark = document.querySelector(".logo-mark");
+    const replay = new URLSearchParams(location.search).has("intro"); // add ?intro to the address to watch it again
+    const seen = readStore(INTRO_SEEN_KEY) && !replay;
+    if (!hasGsap || reduceMotion || readStore(MOTION_KEY) === "1" || seen || !logoText) { curtain.remove(); return; }
+    writeStore(INTRO_SEEN_KEY, "1");
+    document.body.classList.add("is-loading");
+    if (lenis) lenis.stop();
+    gsap.set(logoText, { opacity: 0 });
+    gsap.set(logoMark, { scale: 0 });
+
+    const canvas = el("canvas", "intro-dots");
+    canvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(canvas);
+    let tl = null;
+    const skip = () => { if (tl) tl.timeScale(4); }; // any click, tap or key fast-forwards it
     const finish = () => {
-      gsap.fromTo(loader, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.8, ease: "power4.inOut", onComplete: () => { loader.remove(); document.body.classList.remove("is-loading"); } });
+      canvas.remove();
+      curtain.remove();
+      gsap.set([logoText, logoMark], { clearProps: "opacity,transform" });
+      document.body.classList.remove("is-loading");
+      if (lenis) lenis.start();
+      window.removeEventListener("pointerdown", skip);
+      window.removeEventListener("keydown", skip);
     };
-    // ~2.4s total: two quick spins, then the sheet slides away
-    const start = () => gsap.timeline({ onComplete: finish })
-      .to(dial, { rotation: -first, duration: 0.8, ease: "power3.inOut", onUpdate: highlight })
-      .to(dial, { rotation: -356.4, duration: 0.8, ease: "power3.inOut", onUpdate: highlight }, "+=0.15");
-    // Start right away: waiting for every font and image to finish could hold visitors for many seconds
-    start();
+    window.addEventListener("pointerdown", skip);
+    window.addEventListener("keydown", skip);
+
+    // The dots copy the logo's letters, so wait (briefly) for its font
+    const cs = getComputedStyle(logoText);
+    const fontReady = document.fonts ? document.fonts.load(`${cs.fontWeight} 32px ${cs.fontFamily}`) : Promise.resolve();
+    Promise.race([fontReady, new Promise((r) => setTimeout(r, INTRO_FONT_WAIT_MS))])
+      .then(() => { tl = playIntro(canvas, curtain, logoText, logoMark, finish); })
+      .catch(finish);
   }
 
   renderAvatars();
@@ -993,7 +1103,7 @@
   setupMusic();
   setupEyes();
   setupDotPortrait();
-  runLoader();
+  runIntro();
   setupDraggableSliders();
   setupShake();
   if (hasGsap && !reduceMotion) cycleReviews();
