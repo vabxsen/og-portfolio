@@ -260,6 +260,8 @@
 
   <!-- Contact sheet. data-lenis-prevent lets the mouse wheel scroll the sheet while smooth scrolling is paused -->
   <div class="contact-layer" data-contact hidden>
+    <!-- The envelope the form arrives in: back, then the form (the letter), then the front pocket and flap -->
+    <span class="env env-back" aria-hidden="true"></span>
     <div class="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title" data-lenis-prevent>
       <button type="button" class="close-btn" data-close-contact aria-label="Close contact form">✕</button>
       <h2 id="contact-title"><span class="serif">Let’s</span> build something good.</h2>
@@ -279,6 +281,8 @@
         <button type="button" class="send-btn" data-close-contact>Close</button>
       </div>
     </div>
+    <span class="env env-front" aria-hidden="true"></span>
+    <span class="env env-flap" aria-hidden="true"></span>
   </div>
 
   <!-- Project detail sheet (filled from SITE.projects when a card or Work row is clicked) -->

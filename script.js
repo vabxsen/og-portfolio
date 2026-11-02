@@ -681,6 +681,75 @@
       .set(layer, { "--veil": 1 });
   }
 
+  /* ---------- Envelope open / close for the contact form ---------- */
+  // The form itself plays the letter: shrunk to tuck inside the envelope, then lifted out and grown into place.
+  function envelopeFit(layer, sheet) {
+    const back = layer.querySelector(".env-back");
+    const scale = Math.min((back.offsetWidth * 0.84) / sheet.offsetWidth, (back.offsetHeight * 0.8) / sheet.offsetHeight);
+    const letterH = sheet.offsetHeight * scale;
+    const half = back.offsetHeight / 2;
+    // On short screens the lifted letter would reach under the navbar: rest the envelope lower so it fits
+    const room = layer.clientHeight / 2 - parseFloat(getComputedStyle(layer).paddingTop);
+    const drop = Math.max(0, half + 6 + letterH - room);
+    return {
+      scale,
+      drop,
+      inY: drop - half + 14 + letterH / 2, // tucked in, its top just below the envelope's top edge
+      outY: drop - half - letterH / 2 - 6, // lifted clear, resting just above the envelope
+      env: [...layer.querySelectorAll(".env")],
+      front: layer.querySelector(".env-front"),
+      flap: layer.querySelector(".env-flap"),
+    };
+  }
+
+  /** @param {Element[]} parts elements that slide up one after another once the letter is out */
+  function envelopeOpen(layer, sheet, parts) {
+    const { scale, drop, inY, outY, env, front, flap } = envelopeFit(layer, sheet);
+    const words = splitHeadlineWords(sheet.querySelector("h2"));
+    const closeBtn = sheet.querySelector(".close-btn");
+    gsap.killTweensOf([layer, sheet, ...env, ...words, ...parts, closeBtn]);
+    gsap.set(env, { opacity: 1, y: -innerHeight, rotation: -8 });
+    gsap.set(front, { zIndex: 3 });
+    gsap.set(flap, { rotationX: 0, zIndex: 4, transformPerspective: 900 });
+    gsap.set(sheet, { scale, y: inY, opacity: 0, overflowY: "hidden" }); // no scrollbar flash while the fields slide up
+    return gsap.timeline()
+      .fromTo(layer, { "--veil": 0 }, { "--veil": 1, duration: 0.3, ease: "power1.out" }, 0)
+      .to(env, { y: drop, rotation: 0, duration: 0.55, ease: "back.out(1.4)" }, 0) // drops in
+      .set(sheet, { opacity: 1 }, 0.5) // inside, hidden by the front pocket and the closed flap
+      .to(flap, { rotationX: 180, duration: 0.4, ease: "power2.inOut" }, 0.6) // flap swings open…
+      .set(flap, { zIndex: 1 }, 0.8) // …and past halfway falls behind the letter
+      .to(sheet, { y: outY, duration: 0.4, ease: "power2.out" }, 0.95) // the letter slides up out
+      .set(front, { zIndex: 1 }, 1.3) // now clear of the pocket: the envelope falls behind the growing letter
+      .to(env, { y: innerHeight * 0.75, rotation: 10, duration: 0.55, ease: "power2.in" }, 1.3) // envelope drops away
+      .to(sheet, { y: 0, scale: 1, duration: 0.6, ease: "power3.out" }, 1.3) // letter grows into place
+      .fromTo(words, { yPercent: 120, rotate: 10, opacity: 0 }, { yPercent: 0, rotate: 0, opacity: 1, duration: 0.5, stagger: 0.06, ease: "back.out(1.8)" }, 1.55)
+      .fromTo(parts, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: "power3.out" }, 1.6)
+      .fromTo(closeBtn, { scale: 0, rotate: -180 }, { scale: 1, rotate: 0, duration: 0.5, ease: "back.out(2.2)" }, 1.7)
+      .set(sheet, { clearProps: "transform,opacity,overflowY" })
+      .set(env, { opacity: 0 });
+  }
+
+  function envelopeClose(layer, sheet, done) {
+    const { scale, drop, inY, outY, env, front, flap } = envelopeFit(layer, sheet);
+    gsap.killTweensOf([layer, sheet, ...env]);
+    gsap.set(env, { opacity: 1, y: innerHeight * 0.75, rotation: 10 });
+    gsap.set(front, { zIndex: 1 });
+    gsap.set(flap, { rotationX: 180, zIndex: 1, transformPerspective: 900 });
+    return gsap.timeline({ onComplete: done })
+      .to(sheet, { y: outY, scale, duration: 0.45, ease: "power3.inOut" }, 0) // the letter shrinks…
+      .to(env, { y: drop, rotation: 0, duration: 0.45, ease: "power3.out" }, 0) // …as the envelope rises behind it
+      .set(front, { zIndex: 3 }, 0.45) // the pocket comes in front again…
+      .to(sheet, { y: inY, duration: 0.25, ease: "power2.in" }, 0.45) // …as the letter tucks in
+      .to(flap, { rotationX: 0, duration: 0.3, ease: "power2.inOut" }, 0.65) // flap closes…
+      .set(flap, { zIndex: 4 }, 0.8) // …over the letter
+      .set(sheet, { opacity: 0 }, 0.95)
+      .to(env, { y: -innerHeight, rotation: -12, duration: 0.45, ease: "power3.in" }, 0.95) // and off it flies
+      .to(layer, { "--veil": 0, duration: 0.3, ease: "power1.in" }, 1.1)
+      .set(sheet, { clearProps: "transform,opacity" })
+      .set(env, { opacity: 0 })
+      .set(layer, { "--veil": 1 });
+  }
+
   function setupContact() {
     const layer = document.querySelector("[data-contact]");
     const sheet = layer.querySelector(".contact-sheet");
@@ -691,20 +760,25 @@
     const animate = hasGsap && !reduceMotion;
     let opener = null;
     let closing = false;
+    let anim = null; // the envelope animation in flight
     const open = (e) => {
+      if (!layer.hidden && !closing) return; // already open: don't replay the envelope
       opener = e.currentTarget;
       closing = false;
+      if (anim) anim.kill(); // reopened mid-close: that close must not finish and hide the form
       form.hidden = false;
       success.hidden = true;
       layer.hidden = false;
       if (lenis) lenis.stop();
       document.body.style.overflow = "hidden";
-      if (animate) inkOpen(layer, sheet, opener, [...sheet.querySelectorAll(".contact-form:not([hidden]) > :not(.form-error), .form-success:not([hidden]) > *")]);
+      if (animate) anim = envelopeOpen(layer, sheet, [...sheet.querySelectorAll(".contact-form:not([hidden]) > :not(.form-error), .form-success:not([hidden]) > *")]);
+      else if (hasGsap) gsap.fromTo(sheet, { opacity: 0 }, { opacity: 1, duration: 0.2, clearProps: "opacity" }); // reduced motion: a quick fade
       // On touch screens, focusing a field would pop the keyboard over the opening sheet
       const touch = window.matchMedia("(pointer: coarse)").matches;
       (touch ? sheet.querySelector(".close-btn") : form.querySelector("input")).focus({ preventScroll: true });
     };
     const finishClose = () => {
+      anim = null;
       layer.hidden = true;
       closing = false;
       if (lenis) lenis.start();
@@ -713,11 +787,11 @@
     };
     const close = () => {
       if (layer.hidden || closing) return;
-      // The ink drains back into the button that opened it (if it's still on screen)
-      const target = opener && opener.getBoundingClientRect().width ? opener : sheet.querySelector(".close-btn");
       if (!animate) { finishClose(); return; }
       closing = true;
-      inkClose(layer, sheet, target, finishClose);
+      // Closed before it finished opening: rewind the opening, so the letter goes back the way it came
+      if (anim && anim.isActive()) anim.eventCallback("onReverseComplete", finishClose).timeScale(1.6).reverse();
+      else anim = envelopeClose(layer, sheet, finishClose);
     };
     document.querySelectorAll("[data-open-contact]").forEach((b) => b.addEventListener("click", open));
     document.querySelectorAll("[data-close-contact]").forEach((b) => b.addEventListener("click", close));
