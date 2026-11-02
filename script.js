@@ -8,7 +8,6 @@
   const REVIEW_INTERVAL_MS = 3500;
   const SHAKE_INTERVAL_MS = 4000;
   const NAV_OFFSET = -90;
-  const INTRO_SEEN_KEY = "vs-intro-seen";
   const MOTION_KEY = "vs-motion-paused";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const hasGsap = typeof window.gsap !== "undefined";
@@ -936,7 +935,7 @@
     document.querySelector("[data-clear-filter]").addEventListener("click", () => filterWork(null));
   }
 
-  /* ---------- First-visit intro: a dot swarm spells the name, then flies into the navbar logo ---------- */
+  /* ---------- Intro (every page load): a dot swarm spells the name, then flies into the navbar logo ---------- */
   const INTRO_ROWS = 14; // dots across the height of a capital letter
   const INTRO_WIDTH = 0.86; // the spelled-out name spans this share of the screen width…
   const INTRO_MAX_WIDTH = 1100; // …up to this many px
@@ -1050,10 +1049,8 @@
     const curtain = document.querySelector(".intro");
     const logoText = document.querySelector(".logo-text");
     const logoMark = document.querySelector(".logo-mark");
-    const replay = new URLSearchParams(location.search).has("intro"); // add ?intro to the address to watch it again
-    const seen = readStore(INTRO_SEEN_KEY) && !replay;
-    if (!hasGsap || reduceMotion || readStore(MOTION_KEY) === "1" || seen || !logoText) { curtain.remove(); return; }
-    writeStore(INTRO_SEEN_KEY, "1");
+    // Plays on every page load, except for visitors who asked for less motion
+    if (!hasGsap || reduceMotion || readStore(MOTION_KEY) === "1" || !logoText) { curtain.remove(); return; }
     document.body.classList.add("is-loading");
     if (lenis) lenis.stop();
     gsap.set(logoText, { opacity: 0 });
