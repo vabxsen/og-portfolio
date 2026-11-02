@@ -772,6 +772,27 @@
   /* ---------- Project detail sheet ---------- */
   const SHEET_COLORS = ["#0088cc", "#ffade4", "#25a750", "#fff570", "#ab6349", "#ffa970"];
 
+  /** Screenshots that scroll sideways, or the dotted initial when a project has none. */
+  function projectMedia(p) {
+    const media = el("div", "ps-media");
+    if (!p.gallery || !p.gallery.length) {
+      const letter = el("span", "ps-initial", p.name[0]);
+      letter.setAttribute("aria-hidden", "true");
+      media.appendChild(letter);
+      return media;
+    }
+    const gallery = el("div", "ps-gallery");
+    gallery.tabIndex = 0;
+    gallery.setAttribute("aria-label", `${p.name} screenshots, scroll sideways`);
+    p.gallery.forEach((shot, i) => {
+      const f = framedShot(shot, `${p.name} screenshot ${i + 1}`);
+      if (shot.wide) f.classList.add("frame-wide");
+      gallery.appendChild(f);
+    });
+    media.appendChild(gallery);
+    return media;
+  }
+
   /** Fill the sheet with one project's details; returns the parts to stagger in. */
   function renderProjectBody(body, index) {
     const p = SITE.projects[index];
@@ -780,26 +801,18 @@
 
     const top = el("div", "ps-top");
     top.append(el("span", "ps-chip", p.platform), el("span", "ps-count", `${String(index + 1).padStart(2, "0")} / ${total}`));
+
+    // The words get their own column, which scrolls if a project has a lot to say
+    const info = el("div", "ps-info");
     const title = el("h2", "", p.name);
     title.id = "project-title";
     const tagline = el("p", "ps-tagline", p.tagline);
-
     const links = el("div", "ps-links");
     if (p.live) links.appendChild(Object.assign(externalLink("Visit live", p.live), { className: "ps-btn ps-btn-dark" }));
     if (p.source) links.appendChild(Object.assign(externalLink("Source code", p.source), { className: "ps-btn" }));
-
+    info.append(title, tagline, links);
     const parts = [tagline, links];
-    if (p.gallery && p.gallery.length) {
-      const gallery = el("div", "ps-gallery");
-      gallery.tabIndex = 0;
-      gallery.setAttribute("aria-label", `${p.name} screenshots, scroll sideways`);
-      p.gallery.forEach((shot, i) => {
-        const f = framedShot(shot, `${p.name} screenshot ${i + 1}`);
-        if (shot.wide) f.classList.add("frame-wide");
-        gallery.appendChild(f);
-      });
-      parts.push(gallery);
-    }
+
     const details = el("div", "ps-details");
     if (p.summary) details.appendChild(el("p", "ps-summary", p.summary));
     if (p.features && p.features.length) {
@@ -807,21 +820,23 @@
       p.features.forEach((f) => list.appendChild(el("li", "", f)));
       details.appendChild(list);
     }
-    if (details.childElementCount) parts.push(details);
+    if (details.childElementCount) { info.appendChild(details); parts.push(details); }
 
     const stack = el("div", "ps-stack");
     stack.appendChild(el("span", "ps-stack-label", "Built with"));
     p.stack.split(" · ").forEach((t) => stack.appendChild(el("span", "ps-chip", t)));
-    parts.push(stack);
+    info.appendChild(stack);
 
+    const foot = el("div", "ps-foot");
     const next = (index + 1) % SITE.projects.length;
     const nextBtn = el("button", "ps-next", `Next project: ${SITE.projects[next].name} →`);
     nextBtn.type = "button";
     nextBtn.dataset.nextProject = String(next);
-    parts.push(nextBtn);
+    foot.appendChild(nextBtn);
 
-    body.append(top, title, ...parts);
-    return parts;
+    const media = projectMedia(p);
+    body.append(top, info, media, foot);
+    return [...parts, stack, media, foot];
   }
 
   function setupProjectSheet() {
@@ -837,7 +852,6 @@
 
     const show = (index) => {
       sheet.style.setProperty("--sheet", SHEET_COLORS[index % SHEET_COLORS.length]);
-      sheet.scrollTop = 0;
       return renderProjectBody(body, index);
     };
     const open = (btn) => {

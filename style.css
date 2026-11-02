@@ -127,9 +127,11 @@ body.is-loading { overflow: hidden; }
 .card-phone .card-shot { top: 13cqh; right: 7cqw; height: 116cqh; }
 .card-browser .card-shot { top: 44cqh; right: 7cqw; width: 82cqw; }
 .card-icon .card-shot { right: 7.5cqw; bottom: 9cqh; height: 46cqh; }
-/* No screenshot yet: the project's initial as a big dot-matrix letter */
-.card-initial { right: 6cqw; bottom: -24cqh; font-size: 100cqh; font-weight: 800; line-height: 1; letter-spacing: -0.05em; color: transparent;
-  background: radial-gradient(circle, rgba(0, 0, 0, .82) .95cqh, transparent 1.1cqh) 0 0 / 3.6cqh 3.6cqh; -webkit-background-clip: text; background-clip: text; }
+/* No screenshot yet: the project's initial as a big dot-matrix letter (--dot = grid spacing) */
+.card-initial, .ps-initial { --dot: 3.6cqh; font-weight: 800; line-height: 1; letter-spacing: -0.05em; color: transparent;
+  background: radial-gradient(circle, rgba(0, 0, 0, .82) calc(var(--dot) * .26), transparent calc(var(--dot) * .31)) 0 0 / var(--dot) var(--dot);
+  -webkit-background-clip: text; background-clip: text; }
+.card-initial { right: 6cqw; bottom: -24cqh; font-size: 100cqh; }
 .card:hover .card-shot, .card:hover .card-initial { transform: translateY(-3.5cqh); }
 .card .view { position: absolute; left: 6cqw; bottom: 7cqh; z-index: 2; padding: 8px 14px; border-radius: 200px; border: 2px solid #000; background: #fff; color: #000; font: inherit; font-size: max(14px, 6.2cqh); letter-spacing: -0.02em; white-space: nowrap; cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .2s, transform .2s; }
 .card:hover .view, .card:focus-within .view { opacity: 1; transform: none; pointer-events: auto; }
@@ -344,36 +346,49 @@ body.is-loading { overflow: hidden; }
 /* Words are split into spans by the ink-drop animation so each can drop in on its own */
 .contact-sheet h2 .word, .project-sheet h2 .word { display: inline-block; transform-origin: 0 100%; }
 
-/* Project detail sheet — background follows the project's card colour (--sheet) */
-.project-sheet { position: relative; z-index: 1; width: min(1120px, 88%); max-height: 100%; overflow-y: auto; padding: var(--pad) 40px 48px; border-radius: var(--radius) var(--radius) 0 0; background: var(--sheet, var(--pink)); }
+/* Project detail card: the same size for every project, centred below the navbar.
+   Background follows the project's card colour (--sheet); the title scales with the card (cqw). */
+.project-layer { justify-content: center; align-items: center; padding: 24px; }
+.project-sheet { position: relative; z-index: 1; width: min(1080px, 100%); height: min(780px, 100%); border-radius: var(--radius); overflow: hidden; background: var(--sheet, var(--pink)); container-type: inline-size; }
 /* Slim, arrowless scrollbars on the coloured sheets (instead of the grey system ones) */
-.contact-sheet, .project-sheet { overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, .3) transparent; }
-.ps-top { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+.contact-sheet, .ps-info, .ps-gallery { overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, .3) transparent; }
+/* Fixed grid: top bar, then the words (they scroll on their own) beside the media panel, then Next */
+.ps-body { display: grid; height: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 20px 36px; padding: 26px 32px 24px; }
+.ps-top { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; min-height: 40px; padding-right: 56px; }
 .ps-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 200px; background: rgba(255, 255, 255, .55); font-size: 15px; letter-spacing: -0.01em; }
 .ps-count { font-size: 15px; color: var(--ink-64); }
-.project-sheet h2 { margin-top: 28px; font-size: 120px; line-height: .86; letter-spacing: -0.06em; }
-.ps-tagline { margin-top: 14px; font-family: var(--serif); font-size: 40px; line-height: 1.05; }
-.ps-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
-.ps-btn { padding: 12px 20px; border-radius: 200px; border: 2px solid #000; font-size: 20px; letter-spacing: -0.03em; transition: background .2s, color .2s; }
+.ps-info { grid-row: 2; grid-column: 1; overflow-y: auto; padding-right: 10px; }
+.project-sheet h2 { font-size: min(7.6cqw, 88px); line-height: .86; letter-spacing: -0.06em; }
+.ps-tagline { margin-top: 12px; font-family: var(--serif); font-size: 30px; line-height: 1.05; }
+.ps-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.ps-btn { padding: 10px 18px; border-radius: 200px; border: 2px solid #000; font-size: 18px; letter-spacing: -0.03em; transition: background .2s, color .2s; }
 .ps-btn:hover { background: #000; color: #fff; }
 .ps-btn-dark { background: #000; color: #fff; }
 .ps-btn-dark:hover { background: #fff; color: #000; }
-.ps-gallery { display: flex; gap: 20px; align-items: flex-end; overflow-x: auto; margin: 40px -40px 0; padding: 8px 40px 28px; scrollbar-width: thin; }
-.ps-gallery .frame-phone { height: 440px; }
-.ps-gallery .frame-browser { height: 440px; }
-.ps-gallery .frame-icon { height: 260px; }
-.ps-gallery .frame-wide { height: 440px; aspect-ratio: auto; }
-.ps-gallery .frame-wide img { width: auto; }
-.ps-details { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; }
-.ps-summary { font-size: 24px; line-height: 1.2; letter-spacing: -0.02em; }
-.ps-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-.ps-features li { position: relative; padding-left: 26px; font-size: 17px; line-height: 1.3; color: rgba(0, 0, 0, .78); }
-.ps-features li::before { content: "✦"; position: absolute; left: 0; top: 1px; font-size: 13px; }
-.ps-stack { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 36px; }
+.ps-details { display: flex; flex-direction: column; gap: 18px; margin-top: 26px; }
+.ps-summary { font-size: 19px; line-height: 1.25; letter-spacing: -0.02em; }
+.ps-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.ps-features li { position: relative; padding-left: 24px; font-size: 16px; line-height: 1.3; color: rgba(0, 0, 0, .78); }
+.ps-features li::before { content: "✦"; position: absolute; left: 0; top: 1px; font-size: 12px; }
+.ps-stack { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 26px; }
 .ps-stack-label { margin-right: 6px; font-size: 15px; color: var(--ink-64); }
-.ps-next { display: block; margin: 44px 0 0 auto; padding: 14px 22px; border-radius: 200px; background: #000; color: #fff; font-size: 20px; letter-spacing: -0.03em; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+/* Media panel: one fixed-size stage. Screenshots scroll sideways (centred when they fit);
+   a project without any shows its dotted initial, like its hero card */
+.ps-media { grid-row: 2; grid-column: 2; position: relative; border-radius: 24px; background: rgba(255, 255, 255, .28); overflow: hidden; container-type: size; }
+.ps-gallery { display: flex; gap: 16px; align-items: center; height: 100%; padding: 16px; overflow-x: auto; scroll-snap-type: x mandatory; }
+.ps-gallery > * { flex: none; scroll-snap-align: center; }
+.ps-gallery > :first-child { margin-left: auto; }
+.ps-gallery > :last-child { margin-right: auto; }
+.ps-gallery .frame-phone { height: calc(100cqh - 32px); }
+.ps-gallery .frame-browser { width: min(100cqw - 32px, (100cqh - 32px) * 16 / 11); }
+.ps-gallery .frame-icon { height: min(56cqh, 56cqw); }
+.ps-gallery .frame-wide { height: calc(100cqh - 32px); aspect-ratio: auto; }
+.ps-gallery .frame-wide img { width: auto; }
+.ps-initial { position: absolute; left: 50%; top: 50%; translate: -50% -50%; --dot: 2.6cqh; font-size: 92cqh; }
+.ps-foot { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+.ps-next { padding: 12px 20px; border-radius: 200px; background: #000; color: #fff; font-size: 18px; letter-spacing: -0.03em; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
 .ps-next:hover { transform: translateX(4px); }
-.project-layer .close-btn { z-index: 3; }
+.project-sheet .close-btn { position: absolute; top: 22px; right: 24px; z-index: 3; float: none; }
 .close-btn { position: sticky; top: 0; float: right; width: 40px; height: 40px; border-radius: 50%; background: var(--red); color: #000; font-size: 18px; }
 .contact-form { display: flex; flex-direction: column; gap: 2px; }
 .contact-form[hidden] { display: none; }
@@ -432,8 +447,7 @@ body.is-loading { overflow: hidden; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
   .hero h1 { font-size: 88px; }
   .card { width: 300px; height: 225px; } .slider { min-height: 225px; }
-  .project-sheet { width: 92%; padding-inline: 28px; } .ps-gallery { margin-inline: -28px; padding-inline: 28px; }
-  .project-sheet h2 { font-size: 88px; } .ps-details { grid-template-columns: 1fr; gap: 24px; }
+  .ps-body { gap: 18px 26px; padding: 24px 26px 22px; } .ps-tagline { font-size: 26px; }
   .since { width: 480px; height: 230px; } .since h2 { font-size: 88px; }
   .stat { width: 380px; height: 380px; } .stat b { font-size: 180px; } .stat span { font-size: 34px; }
   .service h3 { font-size: 64px; } .service { height: 136px; }
@@ -474,10 +488,15 @@ body.is-loading { overflow: hidden; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
   .hero h1 { font-size: 56px; }
   .card { width: 240px; height: 210px; margin-right: 12px; border-radius: 26px; } .slider { min-height: 210px; }
-  .project-sheet { width: 100%; padding: 20px 20px 36px; } .ps-gallery { margin-inline: -20px; padding-inline: 20px; gap: 14px; }
-  .project-sheet h2 { font-size: 56px; margin-top: 20px; } .ps-tagline { font-size: 28px; }
-  .ps-gallery .frame-phone, .ps-gallery .frame-wide { height: 340px; } .ps-gallery .frame-browser { height: 220px; } .ps-gallery .frame-icon { height: 180px; }
-  .ps-summary { font-size: 19px; } .ps-btn, .ps-next { font-size: 17px; }
+  /* Phones: the card fills the space below the navbar; screenshots on top, words scrolling below */
+  .project-layer { padding: 10px; }
+  .ps-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 36% minmax(0, 1fr) auto; gap: 14px; padding: 18px 18px 16px; }
+  .ps-media { grid-row: 2; grid-column: 1; border-radius: 18px; }
+  .ps-info { grid-row: 3; grid-column: 1; }
+  .ps-gallery { gap: 12px; padding: 12px; } .ps-gallery .frame-phone, .ps-gallery .frame-wide { height: calc(100cqh - 24px); }
+  .ps-gallery .frame-browser { width: min(100cqw - 24px, (100cqh - 24px) * 16 / 11); }
+  .project-sheet h2 { font-size: min(12cqw, 56px); } .ps-tagline { font-size: 24px; }
+  .ps-summary { font-size: 17px; } .ps-btn, .ps-next { font-size: 16px; }
   /* Phones: badge centred on the cards' edge, with room left above the intro text */
   .talk-float { left: 50%; top: calc(100% - var(--pad) + 8px); } .hero-text { padding-top: 36px; }
   .talk-pill { height: 52px; font-size: 24px; padding: 0 18px; } .talk-face { width: 52px; height: 52px; } .monogram { font-size: 19px; }
