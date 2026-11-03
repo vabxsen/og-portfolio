@@ -1,0 +1,53 @@
+<!doctype html>
+<!--
+  Source of og-image.png: the picture shown when the site's link is shared (WhatsApp, LinkedIn, Discord, X).
+  A 1200 × 630 copy of the hero, built from the site's own style.css, fonts and project screenshots.
+  It isn't published (see .vercelignore). To remake og-image.png after a design change, start the
+  preview server (preview.bat), then from this folder's parent run:
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,630
+           --virtual-time-budget=5000 --screenshot=og-image.png http://localhost:5500/tools/og-image.html
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Share image</title>
+  <link rel="preload" href="../assets/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    body { display: flex; flex-direction: column; gap: 6px; padding: 14px; }
+    .og-nav { flex: none; display: flex; align-items: center; justify-content: space-between; height: 76px; padding: 0 30px; border-radius: 28px; background: #fff; }
+    .og-nav .logo { font-size: 34px; }
+    .og-nav .logo-mark { width: 44px; height: 35px; }
+    .og-role { font-size: 22px; letter-spacing: -0.03em; color: var(--ink-64); }
+    .og-hero { position: relative; flex: 1; overflow: hidden; border-radius: 28px; background: #fff; }
+    /* The project strip runs off the right edge, like the scrolling one on the site.
+       A phone card goes last so the edge cuts through a screen, never through words. */
+    .og-cards { position: absolute; top: 22px; left: 22px; display: flex; gap: 14px; }
+    .og-cards .card { width: 300px; height: 225px; margin: 0; border-radius: 28px; }
+    .og-hero h1 { position: absolute; left: 30px; bottom: 34px; font-size: 112px; font-weight: 300; line-height: .86; letter-spacing: -0.06em; }
+    .og-hero .talk-sticker { right: 36px; bottom: 40px; width: 150px; height: 150px; }
+    .talk-ring { animation: none; }
+  </style>
+</head>
+<body>
+  <header class="og-nav">
+    <span class="logo"><span class="logo-mark"></span><span class="logo-text">VAIBHAV SEN</span></span>
+    <span class="og-role">Developer &amp; UI/UX Designer</span>
+  </header>
+  <section class="og-hero">
+    <div class="og-cards">
+      <div class="card c0 card-phone"><div class="card-head"><span class="name">Scoop</span><span class="tagline">Your media. Your device.</span></div><div class="frame frame-phone card-shot"><img src="../assets/projects/scoop-home.jpg" alt=""></div></div>
+      <div class="card c3 card-browser"><div class="card-head"><span class="name">Doclee</span><span class="tagline">Powerful PDF tools. Private by design.</span></div><div class="frame frame-browser card-shot"><span class="frame-bar"></span><img src="../assets/projects/doclee.jpg" alt=""></div></div>
+      <div class="card c2"><div class="card-head"><span class="name">Budgie</span><span class="tagline">A clearer picture of your subscriptions.</span></div><span class="card-initial">B</span></div>
+      <div class="card c1 card-phone"><div class="card-head"><span class="name">Kimi</span><span class="tagline">Small rituals. A brighter every day.</span></div><div class="frame frame-phone card-shot"><img src="../assets/projects/kimi-today.jpg" alt=""></div></div>
+    </div>
+    <h1><span class="serif">Designed</span> with intent.<br>Built with <span class="serif">care.</span></h1>
+    <span class="talk-sticker">
+      <svg class="talk-ring" viewBox="0 0 200 200"><defs><path id="talk-ring" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0"/></defs><text><textPath href="#talk-ring" textLength="486" lengthAdjust="spacing">LET’S TALK ✦ LET’S TALK ✦ </textPath></text></svg>
+      <span class="talk-core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+    </span>
+  </section>
+</body>
+</html>

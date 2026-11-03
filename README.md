@@ -39,6 +39,10 @@ It's opt-in: nothing plays until the visitor presses **♪ Play music** in the b
 2. Copy its endpoint (looks like `https://formspree.io/f/abcdwxyz`).
 3. Paste it into `formEndpoint` in `content.js`.
 
+## Share image
+
+`og-image.png` is the picture shown when the site's link is shared (WhatsApp, LinkedIn, Discord, X). It's a 1200 × 630 copy of the hero, made from `tools/og-image.html` with the site's own styles and screenshots. After changing the design, remake it with the command at the top of that file, then bump the `?v=` number on the two `og-image.png` links in `index.html` so sharing apps fetch the new one.
+
 ## Deploying
 
 The site lives at https://vabxsen.vercel.app. Every push to `main` deploys it automatically.
