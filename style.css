@@ -250,18 +250,33 @@ body.is-loading { overflow: hidden; }
 .work-links a { padding: 10px 16px; border-radius: 200px; border: 2px solid #000; font-size: 18px; letter-spacing: -0.03em; white-space: nowrap; transition: background .2s, color .2s; }
 .work-links a:hover { background: #000; color: #fff; }
 
-/* ============ Journey stickers ============ */
-/* flow-root keeps the cards' negative margin inside, so this panel's own edge crops them
-   (otherwise the margin leaks out and the next panel slides over the cards) */
-.journey { padding-top: var(--pad); display: flow-root; }
-.journey .label { margin-bottom: 212px; }
-.reviews { display: flex; justify-content: center; margin-bottom: -20px; }
-.review { position: relative; flex-shrink: 0; width: 364px; height: 364px; padding: 44px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background-size: 100% 100%; }
-.review p { font-size: 22px; line-height: 1.05; letter-spacing: -0.03em; }
-.review .badge { width: 72px; height: 72px; border-radius: 50%; background: #000; color: #fff; display: grid; place-items: center; font-family: var(--serif); font-size: 34px; }
-.review .details { width: 100%; display: flex; flex-direction: column; gap: 6px; }
-.review h4 { font-size: 32px; line-height: 1; letter-spacing: -0.04em; }
-.review span { font-size: 14px; color: var(--ink-64); }
+/* ============ Journey timeline ============ */
+/* Oldest first, one sticker per stage. Everything on a sticker is sized in cqw (its own width),
+   so a sticker of any size fits its words the same way */
+.journey { padding: var(--pad) 0 48px; }
+.journey .label { margin-bottom: 56px; }
+.timeline { display: flex; gap: 40px; padding: 12px var(--pad) 16px; list-style: none; }
+.step { position: relative; flex: 1 1 0; min-width: 0; max-width: 340px; container-type: inline-size; }
+/* Auto margins centre the row when it fits, yet let it scroll from the very first sticker when it doesn't */
+.step:first-child { margin-left: auto; }
+.step:last-child { margin-right: auto; }
+/* The dashed arrow on to the next stage */
+.step:not(:last-child)::after { content: ""; position: absolute; top: 50%; left: 100%; width: 40px; height: 16px; margin-top: -8px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 16'%3E%3Cg fill='none' stroke='%23000' stroke-width='3'%3E%3Cpath d='M2 8h27' stroke-dasharray='4 4'/%3E%3Cpath d='M29 2.5l7 5.5-7 5.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+.sticker { aspect-ratio: 1; padding: 11cqw; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; background-size: 100% 100%; transform: rotate(var(--tilt, 0deg)); }
+.sticker .badge { display: grid; place-items: center; width: 17cqw; height: 17cqw; border-radius: 50%; background: #000; color: #fff; font-family: var(--serif); font-size: 8.5cqw; }
+.sticker p { font-size: 6.2cqw; line-height: 1.08; letter-spacing: -0.03em; }
+.sticker .details { display: flex; flex-direction: column; gap: 1.6cqw; }
+.sticker h3 { font-size: 9cqw; line-height: 1; letter-spacing: -0.04em; }
+.sticker .details span { font-size: max(12px, 4.4cqw); color: var(--ink-64); }
+/* The closing card is black, so its words and badge flip to white */
+.step-end .sticker { color: #fff; }
+.step-end .badge { background: #fff; color: #000; }
+.step-end .details span { color: rgba(255, 255, 255, .72); }
+/* Too narrow for all four in a row: it scrolls sideways and snaps to each sticker, with the next one peeking in */
+@media (max-width: 1100px) {
+  .timeline { overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, .3) transparent; }
+  .step { flex: none; width: 300px; max-width: none; scroll-snap-align: center; }
+}
 
 /* ============ Craft CTA ============ */
 .craft { display: flex; justify-content: space-between; align-items: center; gap: 0; padding: var(--pad); }
@@ -295,6 +310,8 @@ body.is-loading { overflow: hidden; }
 .link-cols li.heading { color: #000; margin-bottom: 32px; }
 .link-cols a { transition: color .15s; }
 .link-cols a:hover { color: #000; }
+/* A line under each open-source link saying what it is */
+.link-note { max-width: 540px; margin: 6px 0 22px; font-size: 18px; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink-64); }
 .ext { font-size: .6em; vertical-align: .3em; }
 /* Big scrolling social links: one huge line of words; hovering a word turns it pink and pauses the strip,
    and keyboard focus pauses it too (script.js brings the focused word on screen) */
@@ -483,7 +500,6 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .since { width: 480px; height: 230px; } .since h2 { font-size: 88px; }
   .stat { width: 380px; height: 380px; } .stat b { font-size: 180px; } .stat span { font-size: 34px; }
   .service h3 { font-size: 64px; } .service { height: 136px; }
-  .review { width: 320px; height: 320px; padding: 40px; } .review p { font-size: 19px; }
   .craft { flex-direction: column; gap: 16px; }
   .craft-center { margin: 0; align-self: stretch; padding: 56px 24px; border-radius: 200px; }
   .craft-center h2 { font-size: 64px; }
@@ -552,8 +568,11 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .projects-head { flex-direction: column; gap: 20px; padding: 0 var(--pad); }
   .projects-head .label { padding-left: 0; }
   .projects-head .right-text { max-width: none; }
-  .journey .label { margin-bottom: 120px; }
-  .review { width: 280px; height: 280px; padding: 36px; } .review p { font-size: 16px; } .review h4 { font-size: 24px; } .review .badge { width: 52px; height: 52px; font-size: 26px; }
+  .journey .label { margin-bottom: 28px; }
+  .timeline { gap: 28px; }
+  .step { width: 272px; }
+  .step:not(:last-child)::after { width: 28px; }
+  .link-note { font-size: 16px; margin-bottom: 16px; }
   .craft-center h2 { font-size: 44px; margin-bottom: 24px; }
   .craft-arrow, .craft-face { width: 200px; height: 200px; }
   .link-cols { flex-direction: column; gap: 40px; }

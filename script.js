@@ -2,9 +2,6 @@
 (() => {
   const CARD_COLORS = 6;
   const PILL_COLORS = 7;
-  const REVIEW_ANGLES = [-14, 6, -4, 12, -8];
-  const REVIEW_COLORS = ["#fff570", "#ab6349", "#ffade4", "#25a750", "#a3daf5"];
-  const REVIEW_INTERVAL_MS = 3500;
   const SHAKE_INTERVAL_MS = 4000;
   const NAV_OFFSET = -90;
   const MOTION_KEY = "vs-motion-paused";
@@ -236,60 +233,47 @@
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }
 
-  function fillReview(card, item, index) {
-    card.querySelector("p").textContent = `“${item.text}”`;
-    card.querySelector("h4").textContent = item.title;
-    card.querySelector("span").textContent = item.sub;
-    card.querySelector(".badge").textContent = String(index + 1).padStart(2, "0");
-    card.dataset.item = String(index);
-  }
-
   function renderSayHi() {
     document.querySelector("[data-say-hi]").style.backgroundImage = scallopBackground("#fff570");
   }
 
-  function renderReviews() {
-    const wrap = document.querySelector("[data-reviews]");
-    REVIEW_ANGLES.forEach((angle, i) => {
-      const card = el("article", "review");
-      card.style.backgroundImage = scallopBackground(REVIEW_COLORS[i]);
-      card.style.transform = `rotate(${angle}deg)`;
-      card.dataset.angle = String(angle);
-      card.appendChild(el("p"));
-      card.appendChild(el("div", "badge"));
-      const details = el("div", "details");
-      details.append(el("h4"), el("span"));
-      card.appendChild(details);
-      fillReview(card, SITE.journey[i % SITE.journey.length], i % SITE.journey.length);
-      wrap.appendChild(card);
-    });
+  /* ---------- Journey timeline ---------- */
+  // Oldest first: each stage is a scalloped sticker with a dashed arrow to the next,
+  // and a black closing card says where it has led.
+  const JOURNEY_COLORS = ["#fff570", "#ffade4", "#a3daf5"];
+  const JOURNEY_TILTS = [-4, 3, -3, 4];
+
+  function journeyStep(item, i, closing) {
+    const step = el("li", closing ? "step step-end" : "step");
+    const sticker = el("article", "sticker");
+    sticker.style.backgroundImage = scallopBackground(closing ? "#000" : JOURNEY_COLORS[i % JOURNEY_COLORS.length]);
+    sticker.style.setProperty("--tilt", `${JOURNEY_TILTS[i % JOURNEY_TILTS.length]}deg`);
+    const badge = el("span", "badge", closing ? "✦" : String(i + 1).padStart(2, "0"));
+    badge.setAttribute("aria-hidden", "true"); // the list itself already reads out in order
+    const details = el("div", "details");
+    details.append(el("h3", "", item.title), el("span", "", item.when ? `${item.when} · ${item.sub}` : item.sub));
+    sticker.append(badge, el("p", "", `“${item.text}”`), details);
+    step.appendChild(sticker);
+    return step;
   }
 
-  function cycleReviews() {
-    const cards = [...document.querySelectorAll(".review")];
-    let lastCard = -1;
-    function next() {
-      if (motionPaused) return;
-      let cardIdx = Math.floor(Math.random() * cards.length);
-      if (cardIdx === lastCard) cardIdx = (cardIdx + 1) % cards.length;
-      lastCard = cardIdx;
-      const shown = new Set(cards.map((c) => c.dataset.item));
-      const free = SITE.journey.map((_, i) => i).filter((i) => !shown.has(String(i)));
-      if (!free.length) return;
-      const itemIdx = free[Math.floor(Math.random() * free.length)];
-      const card = cards[cardIdx];
-      const angle = Number(card.dataset.angle);
-      gsap.timeline()
-        .to(card, { x: 100, y: 500, opacity: 0, rotate: angle + 45, duration: 0.4 })
-        .to(card, { x: -100, y: 500, rotate: angle - 45, duration: 0.6, onComplete: () => fillReview(card, SITE.journey[itemIdx], itemIdx) })
-        .to(card, { x: 0, y: 0, opacity: 1, rotate: angle, duration: 0.5 });
-    }
-    const section = document.querySelector(".journey");
-    let timer = null;
-    new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !timer) { next(); timer = setInterval(next, REVIEW_INTERVAL_MS); }
-      if (!entry.isIntersecting && timer) { clearInterval(timer); timer = null; }
-    }).observe(section);
+  function renderJourney() {
+    const list = document.querySelector("[data-timeline]");
+    SITE.journey.forEach((item, i) => list.appendChild(journeyStep(item, i, false)));
+    if (SITE.journeyEnd) list.appendChild(journeyStep(SITE.journeyEnd, SITE.journey.length, true));
+  }
+
+  // The first time the timeline scrolls into view, the stickers land one after another, oldest first
+  function revealJourney() {
+    const list = document.querySelector("[data-timeline]");
+    const stickers = [...list.querySelectorAll(".sticker")];
+    gsap.set(stickers, { opacity: 0, y: 60 });
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      gsap.to(stickers, { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: "back.out(1.6)", clearProps: "opacity,transform" });
+    }, { threshold: 0.3 });
+    observer.observe(list);
   }
 
   /* ---------- Starburst + elastic arrow (craft section) ---------- */
@@ -1356,7 +1340,7 @@
   renderWork();
   renderMarquees();
   renderServices();
-  renderReviews();
+  renderJourney();
   renderSayHi();
   setupCraft();
   setupMenu();
@@ -1375,5 +1359,5 @@
   runIntro();
   setupDraggableSliders();
   setupShake();
-  if (hasGsap && !reduceMotion) cycleReviews();
+  if (hasGsap && !reduceMotion && !motionPaused) revealJourney();
 })();

@@ -192,15 +192,14 @@ const SITE = {
   ],
 
   // Rotating sticker cards (the waxyweb "testimonial" slot).
+  // The Journey timeline, oldest first. To show a year on a stage, add when: "2022" (any short text works).
   journey: [
     { text: "Started with Python automation and computer vision: drowsiness detection, QR tools, and text-to-speech.", title: "Foundation", sub: "Python & automation" },
     { text: "Building with TypeScript, React, and Firebase — from daily habits and PDF tools to price tracking and PC planning.", title: "Products", sub: "Web & interface design" },
     { text: "Extending the work into native Android with Scoop and Gecko, and desktop voice interaction with Native AI.", title: "Exploring", sub: "Android, desktop & AI" },
-    { text: "On-device media downloads with a native Android interface. Built in the open, with contribution guidelines and release notes.", title: "Scoop", sub: "Open source · Kotlin" },
-    { text: "A shared learning path from Python fundamentals to advanced topics, for students and independent learners.", title: "Python Roadmap", sub: "Open source · Python" },
-    { text: "A browser-first PDF toolkit. Explore the document pipeline, offline support, and client-side processing.", title: "Doclee", sub: "Open source · TypeScript" },
-    { text: "From the first wireframe to the final interaction, I care about the details that make software feel effortless.", title: "The craft", sub: "How I work" },
   ],
+  // The black card that ends the timeline: where the journey has led
+  journeyEnd: { text: "From the first wireframe to the final interaction, I care about the details that make software feel effortless.", title: "The craft", sub: "How I work" },
 
   // Big scrolling text links (socials only) between the link lists and the contact block.
   bigLinks: [
