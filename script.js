@@ -1180,6 +1180,28 @@
     document.addEventListener("keydown", resumeOnFirstGesture, { once: true, capture: true });
   }
 
+  /* ---------- Phones: Pause motion and Play music move into the menu ---------- */
+  // Floating in the bottom corners they covered the page on small screens, so there they become menu items.
+  // The buttons themselves move (not copies), so their labels and state stay in one place.
+  function setupPhoneControls() {
+    const phone = window.matchMedia("(max-width: 720px)");
+    const buttons = [...document.querySelectorAll("[data-motion-toggle], [data-music-toggle]")];
+    if (!buttons.length) return;
+    const homes = buttons.map((btn) => ({ btn, parent: btn.parentNode, next: btn.nextSibling }));
+    const slot = el("li", "menu-controls");
+    const place = () => {
+      if (phone.matches) {
+        slot.append(...buttons);
+        menuList.append(slot);
+        return;
+      }
+      homes.forEach(({ btn, parent, next }) => parent.insertBefore(btn, next));
+      slot.remove();
+    };
+    place();
+    phone.addEventListener("change", place);
+  }
+
   function setupWorkFilter() {
     document.querySelector("[data-clear-filter]").addEventListener("click", () => filterWork(null));
   }
@@ -1347,6 +1369,7 @@
   setupBigLinks();
   setupMotionToggle();
   setupMusic();
+  setupPhoneControls();
   setupEyes();
   setupDotPortrait();
   runIntro();
