@@ -612,12 +612,13 @@
   const INK_OPEN_S = 0.75;
   const INK_CLOSE_S = 0.5;
 
-  /** Wrap each word of the sheet headline in a span once, keeping the serif "Let's". */
+  /** Wrap each word of a heading or line of text in a span once, keeping inner elements (like the serif "Let's") whole. */
   function splitHeadlineWords(h2) {
     if (h2.dataset.split) return [...h2.querySelectorAll(".word")];
     const words = [];
     [...h2.childNodes].forEach((node) => {
       if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === "BR") return; // line breaks stay as they are
         node.classList.add("word");
         words.push(node);
         return;
@@ -1358,7 +1359,11 @@
   const BUILD_START_S = 0.15;
   const BUILD_STAGGER_S = 0.18;
   const BUILD_FLY_S = 0.6;
+  const BUILD_HOP_S = 0.08; // the cursor jumping to the start of the next line
+  const BUILD_SWEEP_PX_S = 2400; // how fast it runs along a line while the words appear behind it
+  const BUILD_SWEEP_MIN_S = 0.2;
   const FRAME_INSET = 8; // wireframes stay this far inside the hero's edges
+  const FRAME_TAG_ROOM = 28; // space a name tag needs above its frame
   const SWARM_SIZE = 11;
   const SWARM_SIZE_PHONE = 7;
 
@@ -1394,11 +1399,107 @@
     return frame;
   }
 
-  /** Where a cursor lands on its frame: just past the name tag, or on the rim of a round frame. */
+  /**
+   * Name tags sit above their frames, as in a design tool. Where that would hit another frame or the hero's top edge,
+   * a tag goes below its frame instead, and inside it as a last resort.
+   */
+  function placeTags(frames) {
+    const rects = frames.map((f) => ({ l: f.offsetLeft, t: f.offsetTop, r: f.offsetLeft + f.offsetWidth, b: f.offsetTop + f.offsetHeight }));
+    const clear = (band, self) => band.t >= 0 && rects.every((o, j) => j === self || band.b <= o.t || band.t >= o.b || band.r <= o.l || band.l >= o.r);
+    frames.forEach((frame, i) => {
+      const { l, t, b } = rects[i];
+      const r = l + frame.querySelector(".build-tag").offsetWidth + 4;
+      if (clear({ l, r, t: t - FRAME_TAG_ROOM, b: t }, i)) return;
+      frame.classList.add(clear({ l, r, t: b, b: b + FRAME_TAG_ROOM }, i) ? "tag-below" : "tag-inside");
+    });
+  }
+
+  /** Where a cursor lands on its frame: its top-left corner, just past a name tag inside it, or a round frame's rim. */
   function frameTarget(frame) {
     if (frame.classList.contains("round")) return { x: frame.offsetLeft + frame.offsetWidth * 0.16, y: frame.offsetTop + frame.offsetHeight * 0.16 };
+    if (!frame.classList.contains("tag-inside")) return { x: frame.offsetLeft + 14, y: frame.offsetTop + 14 };
     const tag = frame.querySelector(".build-tag");
     return { x: frame.offsetLeft + tag.offsetLeft + tag.offsetWidth + 10, y: frame.offsetTop + 12 };
+  }
+
+  /** Words grouped into the lines they sit on, top to bottom; positions are relative to `box`. */
+  function wordLines(words, box) {
+    const lines = [];
+    words.forEach((node) => {
+      const r = node.getBoundingClientRect();
+      const left = r.left - box.left;
+      const line = lines.find((l) => Math.abs(l.top - r.top) < r.height / 2);
+      if (line) {
+        line.items.push({ node, left });
+        line.right = Math.max(line.right, r.right - box.left);
+      } else {
+        lines.push({ top: r.top, y: r.top + r.height / 2 - box.top, left, right: r.right - box.left, items: [{ node, left }] });
+      }
+    });
+    return lines.sort((a, b) => a.top - b.top);
+  }
+
+  /** The cursor hops to `from`, then runs to `to`; each item renders as the cursor passes it. Returns when it's done. */
+  function sweep(tl, cursor, items, { from, to, y }, start, fromVars, toVars) {
+    const dur = Math.max(BUILD_SWEEP_MIN_S, (to - from) / BUILD_SWEEP_PX_S);
+    const run = start + BUILD_HOP_S;
+    tl.to(cursor, { x: from, y, duration: BUILD_HOP_S, ease: "power2.inOut" }, start)
+      .to(cursor, { x: to, duration: dur, ease: "none" }, run);
+    items.forEach(({ node, left }) => {
+      tl.fromTo(node, { ...fromVars }, { ...toVars }, run + (Math.max(0, left - from) / Math.max(1, to - from)) * dur);
+    });
+    return run + dur;
+  }
+
+  /** The cursor writes `part` out line by line, the words appearing behind it. Returns when it's done. */
+  function writeText(tl, cursor, part, box, start) {
+    const words = splitHeadlineWords(part);
+    gsap.set(words, { opacity: 0 });
+    tl.set(part, { opacity: 1 }, start);
+    return wordLines(words, box).reduce((t, line) =>
+      sweep(tl, cursor, line.items, { from: line.left, to: line.right, y: line.y }, t, { opacity: 0 }, { opacity: 1, duration: 0.18 }), start);
+  }
+
+  /** The cursor runs along the project strip, putting the cards on screen one by one. Returns when it's done. */
+  function placeCards(tl, cursor, part, box, start) {
+    // The strip's scroll is paused for the build (.is-building), so these positions hold
+    const all = [...part.querySelectorAll(".card")];
+    const cards = all
+      .map((node) => ({ node, r: node.getBoundingClientRect() }))
+      .filter(({ r }) => r.right > box.left && r.left < box.right)
+      .sort((a, b) => a.r.left - b.r.left)
+      .map(({ node, r }) => ({ node, left: r.left - box.left, right: r.right - box.left, top: r.top - box.top }));
+    gsap.set(all, { opacity: 0 });
+    tl.set(part, { opacity: 1 }, start);
+    if (!cards.length) { tl.set(all, { opacity: 1 }, start); return start; }
+    const last = cards[cards.length - 1];
+    const path = { from: Math.max(cards[0].left, 0) + 24, to: Math.min(last.right, box.width) - 48, y: cards[0].top + 28 };
+    const done = sweep(tl, cursor, cards, path, start, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.35, ease: "back.out(1.6)" });
+    tl.set(all.filter((node) => !cards.some((c) => c.node === node)), { opacity: 1 }, done); // the off-screen ones
+    return done;
+  }
+
+  /** One cursor's job: fly to its frame and click it, then write, place or render its part. */
+  function buildPart(tl, layer, box, { b, part, frame }, i) {
+    const cursor = toolCursor(b.color, b.tool);
+    layer.appendChild(cursor);
+    const to = frameTarget(frame);
+    const at = BUILD_START_S + i * BUILD_STAGGER_S;
+    const click = at + BUILD_FLY_S;
+    gsap.set(cursor, { x: b.from[0] * box.width, y: b.from[1] * box.height });
+    tl.to(cursor, { x: to.x, duration: BUILD_FLY_S, ease: "power2.out" }, at)
+      .to(cursor, { y: to.y, duration: BUILD_FLY_S, ease: "power3.out" }, at) // different eases curve the path
+      .to(cursor.querySelector(".tool-cursor-arrow"), { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1 }, click)
+      .fromTo(cursor.querySelector(".tool-ripple"), { scale: 0, opacity: 0.8 }, { scale: 1.6, opacity: 0, duration: 0.45, ease: "power2.out" }, click)
+      .add(() => frame.classList.add("selected"), click);
+    // Text is written out line by line and the cards are placed one by one; the sticker just renders in
+    const start = click + 0.1;
+    let done = start + 0.4;
+    if (part.matches("h1, p")) done = writeText(tl, cursor, part, box, start);
+    else if (part.matches(".slider-wrap")) done = placeCards(tl, cursor, part, box, start);
+    else tl.fromTo(part, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, start);
+    tl.to(frame, { opacity: 0, duration: 0.3 }, done);
+    return { cursor, done: done + 0.3 };
   }
 
   // Hides the hero's parts while the intro plays; play() then has the cursors build them back.
@@ -1417,36 +1518,25 @@
         const layer = el("div", "cursor-layer");
         layer.setAttribute("aria-hidden", "true");
         hero.appendChild(layer);
+        hero.classList.add("is-building");
         const speedUp = () => tl.timeScale(4); // a click, tap or key during the build fast-forwards it too
         const tl = gsap.timeline({
           onComplete: () => {
             layer.remove();
+            hero.classList.remove("is-building");
             window.removeEventListener("pointerdown", speedUp);
             window.removeEventListener("keydown", speedUp);
           },
         });
-        const cursors = [];
-        BUILDERS.forEach((b, i) => {
-          const part = hero.querySelector(b.part);
-          if (!part) return;
-          const frame = buildFrame(layer, hero, hero.querySelector(b.outline || b.part), b.label);
-          const cursor = toolCursor(b.color, b.tool);
-          layer.appendChild(cursor);
-          cursors.push(cursor);
-          const to = frameTarget(frame);
-          const at = BUILD_START_S + i * BUILD_STAGGER_S;
-          const click = at + BUILD_FLY_S;
-          gsap.set(cursor, { x: b.from[0] * box.width, y: b.from[1] * box.height });
-          tl.to(cursor, { x: to.x, duration: BUILD_FLY_S, ease: "power2.out" }, at)
-            .to(cursor, { y: to.y, duration: BUILD_FLY_S, ease: "power3.out" }, at) // different eases curve the path
-            .to(cursor.querySelector(".tool-cursor-arrow"), { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1 }, click)
-            .fromTo(cursor.querySelector(".tool-ripple"), { scale: 0, opacity: 0.8 }, { scale: 1.6, opacity: 0, duration: 0.45, ease: "power2.out" }, click)
-            .add(() => frame.classList.add("selected"), click)
-            .fromTo(part, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, click + 0.08)
-            .to(frame, { opacity: 0, duration: 0.3 }, click + 0.2);
-        });
-        tl.to(cursors, { x: "+=28", y: "-=18", opacity: 0, duration: 0.4, stagger: 0.05 }, ">-0.1")
-          .set(parts, { clearProps: "opacity,transform" });
+        const jobs = BUILDERS.map((b) => ({ b, part: hero.querySelector(b.part) }))
+          .filter(({ part }) => part)
+          .map((job) => ({ ...job, frame: buildFrame(layer, hero, hero.querySelector(job.b.outline || job.b.part), job.b.label) }));
+        placeTags(jobs.map((job) => job.frame).filter((frame) => !frame.classList.contains("round")));
+        const built = jobs.map((job, i) => buildPart(tl, layer, box, job, i));
+        const end = Math.max(...built.map((job) => job.done));
+        tl.to(built.map((job) => job.cursor), { x: "+=28", y: "-=18", opacity: 0, duration: 0.4, stagger: 0.05 }, end - 0.2)
+          .set(parts, { clearProps: "opacity,transform" })
+          .set(hero.querySelectorAll("h1 .word, .right-text .word, .card"), { clearProps: "opacity,transform" });
         if (fast) tl.timeScale(3);
         window.addEventListener("pointerdown", speedUp);
         window.addEventListener("keydown", speedUp);
