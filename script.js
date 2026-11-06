@@ -413,6 +413,9 @@
 
       const build = () => {
         const box = wrap.getBoundingClientRect();
+        // Laid out at zero size (e.g. loaded in a hidden frame): there's nothing to sample yet, and throwing here
+        // would stop the rest of the page's setup, intro included. A later resize builds it.
+        if (!box.width || !box.height) return;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = Math.round(box.width * dpr);
         canvas.height = Math.round(box.height * dpr);
@@ -1250,7 +1253,8 @@
   }
 
   /** Draws the swarm on `canvas` and returns the timeline (~2.6s), so a tap can speed it up. */
-  function playIntro(canvas, curtain, logoText, logoMark, done) {
+  /** @param {() => void} onReveal runs as the curtain starts lifting off the page */
+  function playIntro(canvas, curtain, logoText, logoMark, done, onReveal) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(innerWidth * dpr);
     canvas.height = Math.round(innerHeight * dpr);
@@ -1295,6 +1299,7 @@
       .add(() => { const b = logoText.getBoundingClientRect(); target = { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })
       .to(state, { fly: 1, duration: 0.85, ease: "power3.inOut" })
       .fromTo(curtain, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.8, ease: "power3.inOut" }, "<")
+      .add(onReveal, "<")
       .to(canvas, { opacity: 0, duration: 0.3 }, ">-0.05")
       .to(logoText, { opacity: 1, duration: 0.3 }, "<")
       .fromTo(logoMark, { scale: 0, rotate: -120 }, { scale: 1, rotate: 0, duration: 0.55, ease: "back.out(2.4)" }, "<");
@@ -1314,8 +1319,11 @@
     const canvas = el("canvas", "intro-dots");
     canvas.setAttribute("aria-hidden", "true");
     document.body.appendChild(canvas);
+    const heroBuild = prepareHeroBuild(); // the hero waits behind the curtain as a blank blueprint
     let tl = null;
-    const skip = () => { if (tl) tl.timeScale(4); }; // any click, tap or key fast-forwards it
+    let skipped = false;
+    const skip = () => { skipped = true; if (tl) tl.timeScale(4); }; // any click, tap or key fast-forwards it
+    const reveal = () => heroBuild.play(skipped);
     const finish = () => {
       canvas.remove();
       curtain.remove();
@@ -1324,6 +1332,7 @@
       if (lenis) lenis.start();
       window.removeEventListener("pointerdown", skip);
       window.removeEventListener("keydown", skip);
+      reveal(); // only does anything if the intro ended before the curtain lifted
     };
     window.addEventListener("pointerdown", skip);
     window.addEventListener("keydown", skip);
@@ -1332,8 +1341,161 @@
     const cs = getComputedStyle(logoText);
     const fontReady = document.fonts ? document.fonts.load(`${cs.fontWeight} 32px ${cs.fontFamily}`) : Promise.resolve();
     Promise.race([fontReady, new Promise((r) => setTimeout(r, INTRO_FONT_WAIT_MS))])
-      .then(() => { tl = playIntro(canvas, curtain, logoText, logoMark, finish); })
+      .then(() => { tl = playIntro(canvas, curtain, logoText, logoMark, finish, reveal); })
       .catch(finish);
+  }
+
+  /* ---------- Toolkit cursors: they build the hero after the intro, then crowd round Let's Talk ---------- */
+  // Each cursor carries a tool from SITE.tools, in the site's colours. Bottom-up, to match the curtain lifting.
+  const BUILDERS = [
+    { tool: "React", part: ".hero h1", label: "Headline", color: "#25a750", from: [-0.06, 1.1] },
+    { tool: "Tailwind CSS", part: ".talk-sticker", label: "Let’s Talk", color: "#e95935", from: [1.06, 1.1] },
+    { tool: "TypeScript", part: ".hero .right-text", label: "Intro", color: "#0088cc", from: [1.06, 0.45] },
+    { tool: "Figma", part: ".slider-wrap", outline: ".slider", label: "Projects", color: "#d747a7", from: [-0.06, 0.2] },
+  ];
+  const CURSOR_COLORS = BUILDERS.map((b) => b.color).concat("#ab6349");
+  const CURSOR_PATH = "M2 2V19L6 15L9 22L11.5 21L8.5 14.2H14Z"; // a classic pointer, tip at (2, 2)
+  const BUILD_START_S = 0.15;
+  const BUILD_STAGGER_S = 0.18;
+  const BUILD_FLY_S = 0.6;
+  const FRAME_INSET = 8; // wireframes stay this far inside the hero's edges
+  const SWARM_SIZE = 11;
+  const SWARM_SIZE_PHONE = 7;
+
+  /** A pointer with a name tag, like a teammate's cursor in a design tool. Its (0, 0) is the arrow's tip. */
+  function toolCursor(color, label) {
+    const cursor = el("span", "tool-cursor");
+    cursor.style.setProperty("--c", color);
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "tool-cursor-arrow");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", CURSOR_PATH);
+    svg.appendChild(path);
+    cursor.append(el("span", "tool-ripple"), svg);
+    if (label) cursor.appendChild(el("span", "tool-cursor-label", label));
+    return cursor;
+  }
+
+  /** A dashed blueprint frame over `target` (in `hero`'s coordinates), with a name tag and corner handles. */
+  function buildFrame(layer, hero, target, label) {
+    const box = hero.getBoundingClientRect();
+    // Text is measured by its words, not its box (the headline's box spans the whole width)
+    const range = document.createRange();
+    range.selectNodeContents(target);
+    const r = target.matches("h1, p") ? range.getBoundingClientRect() : target.getBoundingClientRect();
+    const left = Math.max(FRAME_INSET, r.left - box.left - FRAME_INSET);
+    const right = Math.min(box.width - FRAME_INSET, r.right - box.left + FRAME_INSET);
+    const top = r.top - box.top - FRAME_INSET;
+    const frame = el("div", target.matches(".talk-sticker") ? "build-frame round" : "build-frame");
+    Object.assign(frame.style, { left: `${left}px`, top: `${top}px`, width: `${right - left}px`, height: `${r.height + FRAME_INSET * 2}px` });
+    frame.append(el("span", "build-tag", label), el("i", "h-tl"), el("i", "h-tr"), el("i", "h-bl"), el("i", "h-br"));
+    layer.appendChild(frame);
+    return frame;
+  }
+
+  /** Where a cursor lands on its frame: just past the name tag, or on the rim of a round frame. */
+  function frameTarget(frame) {
+    if (frame.classList.contains("round")) return { x: frame.offsetLeft + frame.offsetWidth * 0.16, y: frame.offsetTop + frame.offsetHeight * 0.16 };
+    const tag = frame.querySelector(".build-tag");
+    return { x: frame.offsetLeft + tag.offsetLeft + tag.offsetWidth + 10, y: frame.offsetTop + 12 };
+  }
+
+  // Hides the hero's parts while the intro plays; play() then has the cursors build them back.
+  function prepareHeroBuild() {
+    const hero = document.querySelector(".hero");
+    const parts = BUILDERS.map((b) => hero.querySelector(b.part)).filter(Boolean);
+    gsap.set(parts, { opacity: 0 });
+    let started = false;
+    return {
+      play(fast) {
+        if (started) return;
+        started = true;
+        const box = hero.getBoundingClientRect();
+        // Reloaded further down the page: nobody would see the build, so just show the hero
+        if (box.bottom < 0 || box.top > innerHeight) { gsap.set(parts, { clearProps: "opacity" }); return; }
+        const layer = el("div", "cursor-layer");
+        layer.setAttribute("aria-hidden", "true");
+        hero.appendChild(layer);
+        const speedUp = () => tl.timeScale(4); // a click, tap or key during the build fast-forwards it too
+        const tl = gsap.timeline({
+          onComplete: () => {
+            layer.remove();
+            window.removeEventListener("pointerdown", speedUp);
+            window.removeEventListener("keydown", speedUp);
+          },
+        });
+        const cursors = [];
+        BUILDERS.forEach((b, i) => {
+          const part = hero.querySelector(b.part);
+          if (!part) return;
+          const frame = buildFrame(layer, hero, hero.querySelector(b.outline || b.part), b.label);
+          const cursor = toolCursor(b.color, b.tool);
+          layer.appendChild(cursor);
+          cursors.push(cursor);
+          const to = frameTarget(frame);
+          const at = BUILD_START_S + i * BUILD_STAGGER_S;
+          const click = at + BUILD_FLY_S;
+          gsap.set(cursor, { x: b.from[0] * box.width, y: b.from[1] * box.height });
+          tl.to(cursor, { x: to.x, duration: BUILD_FLY_S, ease: "power2.out" }, at)
+            .to(cursor, { y: to.y, duration: BUILD_FLY_S, ease: "power3.out" }, at) // different eases curve the path
+            .to(cursor.querySelector(".tool-cursor-arrow"), { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1 }, click)
+            .fromTo(cursor.querySelector(".tool-ripple"), { scale: 0, opacity: 0.8 }, { scale: 1.6, opacity: 0, duration: 0.45, ease: "power2.out" }, click)
+            .add(() => frame.classList.add("selected"), click)
+            .fromTo(part, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, click + 0.08)
+            .to(frame, { opacity: 0, duration: 0.3 }, click + 0.2);
+        });
+        tl.to(cursors, { x: "+=28", y: "-=18", opacity: 0, duration: 0.4, stagger: 0.05 }, ">-0.1")
+          .set(parts, { clearProps: "opacity,transform" });
+        if (fast) tl.timeScale(3);
+        window.addEventListener("pointerdown", speedUp);
+        window.addEventListener("keydown", speedUp);
+      },
+    };
+  }
+
+  // The first time Let's Talk in the craft section is fully on screen, the cursors crowd round it, pointing at it
+  function setupCtaSwarm() {
+    const craft = document.querySelector(".craft");
+    const btn = craft && craft.querySelector(".contact-btn");
+    if (!btn || !hasGsap || reduceMotion) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || motionPaused) return;
+      observer.disconnect();
+      swarmTo(craft, btn);
+    }, { threshold: 1, rootMargin: "0px 0px -12% 0px" });
+    observer.observe(btn);
+  }
+
+  function swarmTo(section, target) {
+    const box = section.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const cx = t.left + t.width / 2 - box.left;
+    const cy = t.top + t.height / 2 - box.top;
+    const count = innerWidth <= 720 ? SWARM_SIZE_PHONE : SWARM_SIZE;
+    const layer = el("div", "cursor-layer");
+    layer.setAttribute("aria-hidden", "true");
+    section.appendChild(layer);
+    const cursors = [];
+    const tl = gsap.timeline({ onComplete: () => layer.remove() });
+    for (let i = 0; i < count; i++) {
+      // Round the right side, under the button and up the left, clear of the words above it.
+      // The four builders come back, spread round the ring so their name tags don't collide.
+      const a = lerp(-0.2, 1.2, i / (count - 1)) * Math.PI;
+      const rx = t.width / 2 + 30 + (i % 2) * 18;
+      const ry = t.height / 2 + 22 + (i % 3) * 10;
+      const builder = i % 3 === 0 ? BUILDERS[i / 3] : null;
+      const cursor = builder ? toolCursor(builder.color, builder.tool) : toolCursor(CURSOR_COLORS[i % CURSOR_COLORS.length], "");
+      if (Math.cos(a) < -0.3) cursor.classList.add("tag-left"); // left of the button: the tag goes on the outer side
+      layer.appendChild(cursor);
+      cursors.push(cursor);
+      gsap.set(cursor.querySelector(".tool-cursor-arrow"), { rotate: (a * 180) / Math.PI - 45 }); // tip faces the button
+      tl.fromTo(cursor,
+        { x: cx + Math.cos(a) * box.width * 0.7, y: cy + Math.sin(a) * box.height * 0.9, opacity: 0 },
+        { x: cx + Math.cos(a) * rx, y: cy + Math.sin(a) * ry, opacity: 1, duration: 0.9, ease: "power3.out" }, i * 0.06);
+    }
+    tl.to(cursors, { y: "+=5", duration: 0.45, yoyo: true, repeat: 3, ease: "sine.inOut", stagger: { each: 0.05, from: "random" } })
+      .to(cursors, { opacity: 0, scale: 0.6, duration: 0.4, stagger: 0.04 }, "+=0.4");
   }
 
   renderSliders();
@@ -1357,6 +1519,7 @@
   setupEyes();
   setupDotPortrait();
   runIntro();
+  setupCtaSwarm();
   setupDraggableSliders();
   setupShake();
   if (hasGsap && !reduceMotion && !motionPaused) revealJourney();

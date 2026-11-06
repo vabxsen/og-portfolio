@@ -301,6 +301,28 @@ body.is-loading { overflow: hidden; }
 .craft-center h2 { font-size: 80px; line-height: .8; letter-spacing: -0.04em; margin-bottom: 43px; max-width: 520px; }
 .craft-center p { font-size: 16px; letter-spacing: -0.02em; color: var(--ink-64); margin-bottom: 32px; max-width: 320px; }
 
+/* ============ Toolkit cursors ============ */
+/* Name-tagged pointers (tools from SITE.tools) that build the hero after the intro and crowd round Let's Talk.
+   A cursor's own (0, 0) is its arrow's tip, so script.js can place and turn it by the tip */
+.cursor-layer { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.tool-cursor { position: absolute; left: 0; top: 0; }
+.tool-cursor-arrow { position: absolute; left: -2px; top: -2px; width: 24px; height: 24px; overflow: visible; transform-origin: 2px 2px; fill: var(--c); stroke: #fff; stroke-width: 1.6; stroke-linejoin: round; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .3)); }
+.tool-cursor-label { position: absolute; left: 14px; top: 20px; padding: 3px 10px; border-radius: 200px; background: var(--c); color: #fff; font-size: 13px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; white-space: nowrap; }
+.tool-cursor.tag-left .tool-cursor-label { left: auto; right: 10px; }
+.tool-ripple { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; border: 2px solid var(--c); border-radius: 50%; opacity: 0; }
+/* The blueprint each cursor builds over, like a frame in a design tool: dashed, then selected (solid, with handles) */
+.build-frame { position: absolute; border: 2px dashed var(--blue); border-radius: 18px; background: rgba(0, 136, 204, .05); }
+.build-frame.round { border-radius: 50%; }
+.build-frame.selected { border-style: solid; }
+.build-tag { position: absolute; left: 10px; top: 10px; padding: 2px 8px; border-radius: 6px; background: var(--blue); color: #fff; font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+.build-frame.round .build-tag { left: 50%; top: -14px; transform: translateX(-50%); }
+.build-frame i { position: absolute; width: 10px; height: 10px; border: 2px solid var(--blue); background: #fff; opacity: 0; }
+.build-frame.selected i { opacity: 1; }
+.build-frame .h-tl { left: -6px; top: -6px; }
+.build-frame .h-tr { right: -6px; top: -6px; }
+.build-frame .h-bl { left: -6px; bottom: -6px; }
+.build-frame .h-br { right: -6px; bottom: -6px; }
+
 /* ============ Links ============ */
 .links { padding-top: var(--pad); }
 .link-cols { display: flex; padding: 0 var(--pad); margin-bottom: var(--space-xl); }
