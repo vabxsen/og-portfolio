@@ -190,13 +190,21 @@ body.is-loading { overflow: hidden; }
 .hero h1 { font-size: 120px; font-weight: 300; line-height: .86; letter-spacing: -0.06em; text-wrap: balance; }
 
 /* ============ Toolkit pills ============ */
+/* Toolkit ribbon: one big line of type, bold and serif words in turn (like the headline), pink ✦ between */
 .clients { padding: var(--pad) 0; }
-.clients .label { margin-bottom: var(--space-xl); }
-.pills { --speed: 40s; }
-.clients .marquee { min-height: 160px; } /* reserves the pills' height before script.js adds them */
-.pill-item { display: flex; align-items: center; height: 160px; padding: 0 64px; border-radius: 200px; flex-shrink: 0; font-size: 48px; letter-spacing: -0.04em; white-space: nowrap; }
-.p0 { background: var(--orange); } .p1 { background: var(--mint); } .p2 { background: var(--brown); } .p3 { background: var(--yellow); }
-.p4 { background: var(--blue); } .p5 { background: var(--pink); } .p6 { background: var(--sky); }
+.clients-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-right: var(--pad); margin-bottom: 36px; }
+.ribbon-note { max-width: 280px; font-size: 16px; line-height: 1.25; letter-spacing: -0.01em; text-align: right; color: var(--ink-64); }
+.clients .marquee { min-height: 136px; } /* reserves the ribbon's height before script.js adds the words */
+.ribbon .marquee-set { --speed: 70s; align-items: center; padding-bottom: 8px; }
+.ribbon:hover .marquee-set { animation-play-state: paused; }
+.tool-word { display: inline-flex; align-items: flex-start; flex-shrink: 0; padding: 0 .2em; border-radius: 200px; font-size: 112px; font-weight: 800; line-height: 1.15; letter-spacing: -0.055em; white-space: nowrap; transition: background .25s, transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.tool-word.serif { letter-spacing: -0.02em; }
+.tool-word:hover { background: var(--soft); transform: rotate(-2deg); }
+.mark-pink { background: var(--pink); } .mark-yellow { background: var(--yellow); } .mark-sky { background: var(--sky); }
+.mark-mint { background: var(--mint); } .mark-orange { background: var(--orange); }
+.tool-word[class*="mark-"]:hover { background-color: var(--soft); }
+.tool-count { margin: .3em 0 0 .12em; font-family: var(--font); font-size: .24em; font-weight: 700; line-height: 1; letter-spacing: 0; vertical-align: baseline; color: var(--magenta); }
+.tool-sep { flex-shrink: 0; margin: 0 .45em; font-size: 40px; color: var(--magenta); }
 
 /* ============ About ============ */
 /* flow-root keeps the stats strip's bottom margin inside the panel instead of leaking out as a gap */
@@ -592,6 +600,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   :root { --space-xl: 112px; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
   .hero h1 { font-size: 88px; }
+  .tool-word { font-size: 84px; } .tool-sep { font-size: 30px; } .clients .marquee { min-height: 104px; }
   .card { --pw: 196px; --ph: 128px; --cap: 54px; height: 225px; } .slider { min-height: 225px; }
   .pol-caption .name { font-size: 26px; }
   .talk-sticker { width: 112px; height: 112px; bottom: clamp(72px, calc(100% + 148px - 100vh), 120px); } .talk-ring text { font-size: 21px; }
@@ -653,7 +662,10 @@ textarea.chat-field { max-height: 160px; resize: none; }
      (top = slider padding + card height - half the sticker); the intro text keeps clear below */
   .talk-sticker { top: calc(var(--pad) + 210px - 48px); bottom: auto; width: 96px; height: 96px; }
   .talk-ring text { font-size: 22px; } .hero-text { padding-top: 44px; }
-  .pill-item { height: 96px; padding: 0 36px; font-size: 28px; } .clients .marquee { min-height: 96px; }
+  .clients-head { flex-direction: column; align-items: flex-start; gap: 10px; padding: 0 var(--pad); margin-bottom: 20px; }
+  .clients-head .label { padding-left: 0; }
+  .ribbon-note { max-width: none; font-size: 14px; text-align: left; }
+  .tool-word { font-size: 60px; } .tool-sep { font-size: 22px; } .clients .marquee { min-height: 78px; }
   .thinking-top { flex-direction: column; gap: 24px; }
   .thinking-left { width: 100%; gap: 24px; }
   .dots-wrap { width: min(300px, 86%); margin: 0 auto; }
@@ -734,6 +746,6 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .vinyl-disc { animation: none; } .vinyl, .sleeve, .crate-record, .track > * { transition: none; }
   .intro { display: none; }
   /* Without the scroll, the social links wrap onto lines so none are cut off */
-  .big-links .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
-  .big-links .marquee-set[aria-hidden] { display: none; }
+  .big-links .marquee-set, .ribbon .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
+  .big-links .marquee-set[aria-hidden], .ribbon .marquee-set[aria-hidden] { display: none; }
 }

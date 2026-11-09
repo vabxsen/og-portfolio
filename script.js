@@ -1,7 +1,6 @@
 /* global SITE, gsap, Draggable, InertiaPlugin, Lenis */
 (() => {
   const CARD_COLORS = 6;
-  const PILL_COLORS = 7;
   const SHAKE_INTERVAL_MS = 4000;
   const NAV_OFFSET = -90;
   const MOTION_KEY = "vs-motion-paused";
@@ -310,9 +309,33 @@
   }
 
   /* ---------- Simple marquee content ---------- */
+  // Toolkit ribbon: words alternate the headline's bold and serif faces, every third gets a pastel highlight,
+  // and a small number says how many projects list the tool in their stack (or platform)
+  const RIBBON_MARKS = ["pink", "yellow", "sky", "mint", "orange"];
+  function toolCount(tool) {
+    const name = tool.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(^|[^\\w])${name}(?!\\w)`, "i"); // whole names only: "Git" isn't counted in "GitHub"
+    return SITE.projects.filter((p) => re.test(p.stack) || re.test(p.platform)).length;
+  }
+
   function renderMarquees() {
     document.querySelectorAll("[data-pills]").forEach((set) => {
-      SITE.tools.forEach((t, i) => set.appendChild(el("p", `pill-item p${i % PILL_COLORS}`, t)));
+      SITE.tools.forEach((t, i) => {
+        const word = el("span", i % 2 ? "tool-word serif" : "tool-word");
+        if (i % 3 === 2) word.classList.add(`mark-${RIBBON_MARKS[Math.floor(i / 3) % RIBBON_MARKS.length]}`);
+        word.appendChild(document.createTextNode(t));
+        const n = toolCount(t);
+        if (n) {
+          const label = `${n} project${n === 1 ? "" : "s"}`;
+          const count = el("sup", "tool-count", String(n));
+          count.setAttribute("aria-hidden", "true");
+          word.append(count, el("span", "sr-only", ` (${label})`));
+          word.title = `Used in ${label}`;
+        }
+        const star = el("span", "tool-sep", "✦");
+        star.setAttribute("aria-hidden", "true");
+        set.append(word, star);
+      });
     });
     // A stat is a fixed value, or counted from the content so it never goes stale
     const statValue = (s) => {

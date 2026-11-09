@@ -211,7 +211,7 @@ const SITE = {
       ],
     },
   ],
-  tools: ["React", "TypeScript", "JavaScript", "Tailwind CSS", "Electron", "Python", "Firebase", "Kotlin", "Android", "Jetpack Compose", "Figma", "UI/UX Design", "Git", "GitHub"],
+  tools: ["React", "TypeScript", "JavaScript", "Tailwind CSS", "Electron", "Python", "Firebase", "Kotlin", "Android", "Jetpack Compose", "Figma", "UI/UX Design", "Git & GitHub"],
 
   services: [
     { title: "Web", cat: "web", text: "Web apps in React and TypeScript — Doclee, Dailynx, PricePilot, PinDrop, and NexRig.", icon: "web" },
