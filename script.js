@@ -1699,6 +1699,8 @@
   // Each cursor carries a tool from SITE.tools, in the site's colours. Bottom-up, to match the curtain lifting.
   const BUILDERS = [
     { tool: "React", part: ".hero h1", label: "Headline", color: "#25a750", from: [-0.06, 1.1] },
+    // The hero no longer has its Let's Talk sticker, so this cursor skips the build (a missing part is left out)
+    // but still joins the crowd round the Let's Talk button further down
     { tool: "Tailwind CSS", part: ".talk-sticker", label: "Let’s Talk", color: "#e95935", from: [1.06, 1.1] },
     { tool: "TypeScript", part: ".hero .right-text", label: "Intro", color: "#0088cc", from: [1.06, 0.45] },
     { tool: "Figma", part: ".slider-wrap", outline: ".slider", label: "Projects", color: "#d747a7", from: [-0.06, 0.2] },

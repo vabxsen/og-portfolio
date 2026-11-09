@@ -230,10 +230,12 @@ body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; tra
    slider, intro, headline and padding at full size); on short screens the intro and headline also step down a size.
    ".hero .hero-text" outranks the plain ".hero h1" sizes, including the tablet ones further down. */
 @media (min-width: 721px) {
-  .hero-text { --intro-gap: clamp(24px, calc(100vh - 830px), var(--space-xl)); }
-  .hero-text .right-text { margin-bottom: var(--intro-gap); }
-  /* the row is as tall as the intro plus its gap, so the buddies stand on the gap, level with the text's last line */
-  .hero-buddies svg { bottom: var(--intro-gap); height: min(calc((100% - var(--intro-gap)) * .75), 150px); }
+  /* The free space around the intro: 40% sits above it (nudging it down from the photos), 60% below, but never
+     less than 24px below, so on short screens the headline keeps its breathing room and the nudge gives way */
+  .hero-text { --intro-gap: clamp(24px, calc(100vh - 830px), var(--space-xl)); --intro-below: max(24px, calc(var(--intro-gap) * .6)); --intro-above: calc(var(--intro-gap) - var(--intro-below)); }
+  .hero-text .right-text { margin-top: var(--intro-above); margin-bottom: var(--intro-below); }
+  /* the row is the intro plus that space, so the buddies stand on the space below, level with the text's last line */
+  .hero-buddies svg { bottom: var(--intro-below); height: min(calc((100% - var(--intro-gap)) * .75), 150px); }
 }
 @media (min-width: 721px) and (max-height: 860px) { .hero .hero-text .right-text { font-size: 20px; } .hero .hero-text h1 { font-size: min(100px, 8.6vw); } }
 @media (min-width: 721px) and (max-height: 760px) { .hero .hero-text .right-text { font-size: 18px; } .hero .hero-text h1 { font-size: min(84px, 8vw); } }
