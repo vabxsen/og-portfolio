@@ -314,12 +314,19 @@
     document.querySelectorAll("[data-pills]").forEach((set) => {
       SITE.tools.forEach((t, i) => set.appendChild(el("p", `pill-item p${i % PILL_COLORS}`, t)));
     });
+    // A stat is a fixed value, or counted from the content so it never goes stale
+    const statValue = (s) => {
+      if (s.value) return s.value;
+      if (s.count === "projects") return String(SITE.projects.length);
+      if (s.count === "tools") return String(SITE.tools.length);
+      return String(SITE.projects.filter((p) => p.cats.includes(s.count)).length);
+    };
     document.querySelectorAll("[data-stats]").forEach((set) => {
       const hidden = set.hasAttribute("aria-hidden");
       SITE.stats.forEach((s) => {
         const circle = el("div", "stat");
         if (!hidden) circle.setAttribute("role", "listitem");
-        circle.append(el("b", "", s.value), el("span", "", s.label));
+        circle.append(el("b", "", statValue(s)), el("span", "", s.label));
         set.appendChild(circle);
       });
     });

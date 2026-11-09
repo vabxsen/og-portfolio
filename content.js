@@ -12,13 +12,15 @@ const SITE = {
     gamma: 0.8,
   },
 
-  // Big stat circles in the "Always building" marquee (counts from the old portfolio).
+  // Big stat circles in the "Always building" marquee. Each number is counted from the lists below,
+  // so it stays right as projects are added: count "projects", "tools", or a project cat ("web", "mobile", "ai"…).
+  // A fixed number still works too: { value: "5", label: "Years" }.
   stats: [
-    { value: "10", label: "Projects" },
-    { value: "13", label: "Tools" },
-    { value: "6", label: "Web apps" },
-    { value: "4", label: "Mobile apps" },
-    { value: "3", label: "AI projects" },
+    { count: "projects", label: "Projects" },
+    { count: "tools", label: "Tools" },
+    { count: "web", label: "Web apps" },
+    { count: "mobile", label: "Mobile apps" },
+    { count: "ai", label: "AI projects" },
   ],
 
   // Used by the hero slider, the Work list and the project detail pop-up.
@@ -48,7 +50,7 @@ const SITE = {
       ],
     },
     {
-      name: "Kimi", tagline: "Small rituals. A brighter every day.", platform: "Android", cats: ["mobile"],
+      name: "Kimi", tagline: "Small rituals. Brighter days.", platform: "Android", cats: ["mobile"],
       stack: "Kotlin · Jetpack Compose · Firebase",
       source: "https://github.com/vabxsen/Kimi",
       cover: { src: "assets/projects/kimi-today.jpg", kind: "phone" },
@@ -162,11 +164,20 @@ const SITE = {
       ],
     },
     {
-      name: "Gecko AI", tagline: "Exploring native AI experiences.", platform: "Android · AI", cats: ["mobile", "ai"],
-      stack: "Kotlin · Android",
+      name: "Gecko AI", tagline: "Any AI model. Your own key.", platform: "Android · AI", cats: ["mobile", "ai"],
+      stack: "Kotlin · Jetpack Compose · Hilt · Room · OkHttp",
       source: "https://github.com/vabxsen/gecko",
       cover: { src: "assets/projects/gecko.jpg", kind: "icon" },
       gallery: [{ src: "assets/projects/gecko.jpg", kind: "icon" }],
+      summary: "A native Android chat app for AI models that runs on your own API key. Paste a key and Gecko recognises the provider, checks that a model really answers, and connects, with your chats, keys and settings kept on your phone.",
+      features: [
+        "Paste an API key and connect: the provider is picked from the key's format",
+        "Chat with documents: PDFs, text and Markdown, with a source preview to check page references",
+        "Read any answer aloud with Android's speech engine",
+        "Saved drafts bring back unfinished messages and attachments",
+        "A connection check that explains key, quota, rate-limit and outage problems",
+        "Light and dark themes",
+      ],
     },
     {
       name: "Native AI", tagline: "A little help. Just a word away.", platform: "Desktop · AI", cats: ["desktop", "ai"],
@@ -182,7 +193,7 @@ const SITE = {
       ],
     },
   ],
-  tools: ["React", "Next.js", "TypeScript", "JavaScript", "Tailwind CSS", "Python", "Firebase", "Android", "Jetpack Compose", "Figma", "UI/UX Design", "Git", "GitHub"],
+  tools: ["React", "TypeScript", "JavaScript", "Tailwind CSS", "Python", "Firebase", "Kotlin", "Android", "Jetpack Compose", "Figma", "UI/UX Design", "Git", "GitHub"],
 
   services: [
     { title: "Web", cat: "web", text: "Web apps in React and TypeScript — Doclee, Dailynx, PricePilot, PinDrop, and NexRig.", icon: "web" },
