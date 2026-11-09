@@ -98,8 +98,41 @@
         <div class="slider" data-slider></div>
       </div>
       <div class="hero-text">
+        <div class="hero-intro-row">
+        <!-- Laptop and coffee mug buddies in the space left of the intro: they blink, watch the pointer, and react to a click.
+             Decorative, sized to the intro's height (so the hero is no taller), hidden on phones -->
+        <div class="hero-buddies" data-buddies aria-hidden="true">
+          <svg viewBox="0 -4 126 62">
+            <g class="b-laptop" data-buddy="laptop" transform="translate(0 2)">
+              <g class="b-bob">
+                <rect class="b-out b-pink" x="10" y="12" width="50" height="34" rx="5"/>
+                <g class="b-eyes">
+                  <g><circle class="b-anchor" cx="28" cy="28" r="3"/><circle class="b-pupil" data-buddy-pupil cx="28" cy="28" r="3"/></g>
+                  <g><circle class="b-anchor" cx="42" cy="28" r="3"/><circle class="b-pupil" data-buddy-pupil cx="42" cy="28" r="3"/></g>
+                </g>
+                <g class="b-happy"><path d="M25 29 Q28 25 31 29"/><path d="M39 29 Q42 25 45 29"/></g>
+                <path class="b-smile" d="M31 35 Q35 38 39 35"/>
+                <rect class="b-out b-white" x="4" y="46" width="62" height="8" rx="3"/>
+              </g>
+              <text class="b-pop" x="35" y="8">&lt;/&gt;</text>
+            </g>
+            <g class="b-mug" data-buddy="mug" transform="translate(76 0)">
+              <g class="b-steam"><path d="M18 14 Q14 8 18 2"/><path d="M28 14 Q24 8 28 2"/></g>
+              <g class="b-sway">
+                <path class="b-out b-yellow" d="M8 18 H40 L37 52 Q36 56 32 56 H16 Q12 56 11 52 Z"/>
+                <path class="b-out b-handle" d="M40 26 Q48 26 47 34 Q46 41 39 40"/>
+                <g class="b-eyes">
+                  <g><circle class="b-anchor" cx="19" cy="34" r="2.5"/><circle class="b-pupil" data-buddy-pupil cx="19" cy="34" r="2.5"/></g>
+                  <g><circle class="b-anchor" cx="29" cy="34" r="2.5"/><circle class="b-pupil" data-buddy-pupil cx="29" cy="34" r="2.5"/></g>
+                </g>
+                <path class="b-smile" d="M21 41 Q24 44 27 41"/>
+              </g>
+            </g>
+          </svg>
+        </div>
         <!-- The TypeScript cursor writes this in during the intro: plain words one by one, each <span> as a block -->
         <p class="right-text"><span class="hero-lead">I make computers do interesting things.</span>From sleek interfaces to complex applications and AI-powered experiments, I enjoy bringing ideas to life through code and design.<span class="hero-closer">Part engineer, part creative thinker, 100% convinced there’s a better way to build it.</span></p>
+        </div>
         <h1><span class="serif">Designed</span> with intent.<br>Built with <span class="serif">care.</span></h1>
       </div>
       <!-- Spinning "Let's Talk" sticker: a ring of text around an arrow, parked clear of the headline -->

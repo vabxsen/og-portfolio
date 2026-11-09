@@ -591,6 +591,50 @@
   const IDLE_GLANCE_MS = 2600;
   const BLINK_MS = 4200;
 
+  /* ---------- Hero buddies: the laptop and mug watch the pointer, blink, and react to a click ---------- */
+  const BUDDY_PUPIL_TRAVEL = 1.3; // max eye offset, in the drawing's own units (the dot eyes are 2.5–3 units)
+  const BUDDY_REACT_MS = 1400;
+
+  function setupHeroBuddies() {
+    const box = document.querySelector("[data-buddies]");
+    if (!box) return;
+    const pupils = [...box.querySelectorAll("[data-buddy-pupil]")];
+    let frame = 0;
+    const lookAt = (x, y) => pupils.forEach((pupil) => {
+      const r = pupil.previousElementSibling.getBoundingClientRect(); // its resting spot (.b-anchor), which never moves
+      if (!r.width) return; // hidden (phones)
+      const dx = x - (r.left + r.width / 2);
+      const dy = y - (r.top + r.height / 2);
+      const dist = Math.hypot(dx, dy) || 1;
+      const travel = Math.min(BUDDY_PUPIL_TRAVEL, dist / 30);
+      pupil.style.transform = `translate(${(dx / dist) * travel}px, ${(dy / dist) * travel}px)`;
+    });
+    window.addEventListener("pointermove", (e) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => lookAt(e.clientX, e.clientY));
+    }, { passive: true });
+
+    // A click on either one sets off its reaction for a moment
+    const react = (name) => {
+      box.classList.remove(name);
+      void box.offsetWidth; // restart the CSS animation if clicked again
+      box.classList.add(name);
+      clearTimeout(react[name]);
+      react[name] = setTimeout(() => box.classList.remove(name), BUDDY_REACT_MS);
+    };
+    box.querySelector('[data-buddy="laptop"]').addEventListener("click", () => react("laptop-happy"));
+    box.querySelector('[data-buddy="mug"]').addEventListener("click", () => react("mug-sip"));
+
+    if (reduceMotion) return;
+    // They blink now and then, the mug a beat after the laptop
+    setInterval(() => {
+      if (motionPaused) return;
+      box.classList.add("blink-laptop");
+      setTimeout(() => box.classList.replace("blink-laptop", "blink-mug"), 220);
+      setTimeout(() => box.classList.remove("blink-mug"), 380);
+    }, BLINK_MS * 0.8);
+  }
+
   function setupEyes() {
     const svg = document.querySelector(".craft-face svg");
     const eyes = [...document.querySelectorAll("[data-eye]")];
@@ -1916,6 +1960,7 @@
   setupMusic();
   setupPhoneControls();
   setupEyes();
+  setupHeroBuddies();
   setupDotPortrait();
   runIntro();
   setupCtaSwarm();

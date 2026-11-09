@@ -188,11 +188,53 @@ body.is-loading { overflow: hidden; }
 /* Hero intro: a bigger black lead line, then the body, then the closing line, each on its own line */
 .hero-lead { display: block; margin-bottom: 12px; color: #000; font-size: 1.35em; letter-spacing: -0.035em; }
 .hero-closer { display: block; margin-top: 12px; }
+
+/* Hero buddies: a typing laptop and its steaming mug in the space left of the intro, drawn like the sketch
+   (plain outlines, dot eyes). The drawing is as tall as the intro (absolutely placed, so it never makes the hero
+   taller), and pops in once the cursors have built the hero. */
+.hero-intro-row { display: flex; align-items: stretch; }
+.hero-buddies { position: relative; flex: 1; min-width: 0; margin-right: 32px; transition: opacity .5s, transform .7s cubic-bezier(.34, 1.56, .64, 1); }
+body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; transform: translateY(24px) scale(.9); }
+.hero-buddies svg { position: absolute; left: 50%; bottom: 0; height: min(100%, 200px); max-width: 100%; overflow: visible; transform: translateX(-50%); }
+.hero-buddies [data-buddy] { cursor: pointer; }
+.b-out { stroke: #111; stroke-width: 2.5; stroke-linejoin: round; }
+.b-pink { fill: var(--pink); } .b-white { fill: #fff; } .b-yellow { fill: var(--yellow); }
+.b-handle { fill: none; }
+.b-anchor { fill: none; } /* where an eye rests: the eye-tracking measures from here */
+.b-pupil { fill: #111; transition: transform .12s ease-out; }
+.b-smile, .b-happy path { fill: none; stroke: #111; stroke-width: 2; stroke-linecap: round; }
+.b-steam path { fill: none; stroke: #999; stroke-width: 2; stroke-linecap: round; }
+.b-pop { font: 700 9px var(--font); fill: var(--magenta); text-anchor: middle; opacity: 0; }
+/* Idle life, as in the sketch: the laptop bobs as it types and the steam rises */
+.b-bob { animation: b-type .4s ease-in-out infinite alternate; }
+@keyframes b-type { to { transform: translateY(1px); } }
+.b-steam path { animation: b-steam 2s ease-in-out infinite; }
+.b-steam path:nth-child(2) { animation-delay: .7s; }
+@keyframes b-steam { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: .8; } 100% { opacity: 0; transform: translateY(-14px); } }
+.b-sway { transform-box: fill-box; transform-origin: 50% 100%; }
+/* Blink (script.js adds .blink-laptop / .blink-mug for a moment) */
+.b-eyes g { transform-box: fill-box; transform-origin: center; transition: transform .08s; }
+.hero-buddies.blink-laptop .b-laptop .b-eyes g, .hero-buddies.blink-mug .b-mug .b-eyes g { transform: scaleY(.1); }
+/* Click the laptop: happy ^ ^ eyes, typing at double speed and a little </> popping up. Click the mug: a sip wiggle and a puff */
+.b-happy { opacity: 0; }
+.laptop-happy .b-laptop .b-eyes { opacity: 0; } .laptop-happy .b-happy { opacity: 1; }
+.laptop-happy .b-bob { animation-duration: .12s; }
+.laptop-happy .b-pop { animation: b-pop 1.2s ease-out; }
+@keyframes b-pop { 0% { opacity: 0; transform: translateY(4px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+.mug-sip .b-sway { animation: b-sip .6s ease-in-out 2; }
+@keyframes b-sip { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+.mug-sip .b-steam path { animation-duration: .8s; }
+.motion-paused .hero-buddies * { animation-play-state: paused; }
 .hero h1 { font-size: 120px; font-weight: 300; line-height: .86; letter-spacing: -0.06em; text-wrap: balance; }
 /* The whole headline should fit on the first screen. The gap under the intro gives way first (830px = navbar,
    slider, intro, headline and padding at full size); on short screens the intro and headline also step down a size.
    ".hero .hero-text" outranks the plain ".hero h1" sizes, including the tablet ones further down. */
-@media (min-width: 721px) { .hero-text .right-text { margin-bottom: clamp(24px, calc(100vh - 830px), var(--space-xl)); } }
+@media (min-width: 721px) {
+  .hero-text { --intro-gap: clamp(24px, calc(100vh - 830px), var(--space-xl)); }
+  .hero-text .right-text { margin-bottom: var(--intro-gap); }
+  /* the row is as tall as the intro plus its gap, so the buddies stand on the gap, level with the text's last line */
+  .hero-buddies svg { bottom: var(--intro-gap); height: min(calc(100% - var(--intro-gap)), 200px); }
+}
 @media (min-width: 721px) and (max-height: 860px) { .hero .hero-text .right-text { font-size: 20px; } .hero .hero-text h1 { font-size: min(100px, 8.6vw); } }
 @media (min-width: 721px) and (max-height: 760px) { .hero .hero-text .right-text { font-size: 18px; } .hero .hero-text h1 { font-size: min(84px, 8vw); } }
 
@@ -670,6 +712,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .label, .thinking .about-copy .about-lead, .link-cols li, .slashes { font-size: 28px; }
   .about-copy { gap: 14px; } .about-copy p { font-size: 17px; } .about-copy .about-kicker { font-size: 20px; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
+  .hero-buddies { display: none; } /* phones: the intro takes the full width, so there's no room beside it */
   .hero h1 { font-size: 56px; }
   .card { --pw: 172px; --ph: 116px; --cap: 50px; height: 210px; } .slider { min-height: 210px; }
   .pol-photo { padding: 8px 8px 0; } .pol-caption .name { font-size: 24px; } .pol-caption .tagline { font-size: 11px; }
@@ -772,6 +815,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .service-card { transform: none; filter: none; } .service-shots .frame, .service-cta { transition: none; }
   .vinyl-disc { animation: none; } .vinyl, .sleeve, .crate-record, .track > * { transition: none; }
   .fact-face { transition: none; }
+  .hero-buddies, .hero-buddies * { animation: none !important; transition: none; }
   .intro { display: none; }
   /* Without the scroll, the social links wrap onto lines so none are cut off */
   .big-links .marquee-set, .ribbon .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
