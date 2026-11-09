@@ -162,7 +162,20 @@
         <span>Showing <b data-filter-label></b> projects</span>
         <button type="button" class="chip" data-clear-filter>Show all <span aria-hidden="true">✕</span></button>
       </div>
-      <ol class="work-list" data-work></ol>
+      <!-- Record crate: the picked project's sleeve, its vinyl sliding out, and its details; the crate of covers sits below -->
+      <div class="crate-stage">
+        <div class="deck" data-deck aria-hidden="true">
+          <div class="vinyl"><div class="vinyl-disc"><span class="vinyl-label" data-vinyl-label></span></div></div>
+          <div class="sleeve" data-sleeve></div>
+        </div>
+        <div class="track" data-track aria-live="polite"></div>
+      </div>
+      <div class="crate-scroll" data-crate-scroll>
+        <div class="crate-box">
+          <ol class="crate" data-work aria-label="Projects"></ol>
+          <div class="crate-front" aria-hidden="true"><span>Work</span><span data-crate-count></span></div>
+        </div>
+      </div>
     </section>
 
     <!-- Journey: a timeline of stickers, oldest first, ending with how I work (SITE.journey and journeyEnd) -->

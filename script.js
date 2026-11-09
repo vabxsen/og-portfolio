@@ -117,7 +117,12 @@
     });
   }
 
-  /* ---------- Work list (filterable by the service rows) ---------- */
+  /* ---------- Work: a crate of records (filterable by the service cards) ---------- */
+  // Pick a cover from the crate and the big sleeve swaps to it: the vinyl slides back in, the art changes,
+  // and the new record slides out and spins. The sleeve and "Open project" open the project's details.
+  const SWAP_MS = 280; // how long the vinyl takes to slide back into its sleeve before the art swaps
+  let onWorkFilter = null; // set by renderWork, so a filter can move the crate off a hidden record
+
   function externalLink(label, url) {
     const a = el("a", "", `${label} ↗`);
     a.href = url;
@@ -126,26 +131,158 @@
     return a;
   }
 
+  /** The big album cover: the project's name, a "side" line, and its screenshot or dotted initial. */
+  function fillSleeve(sleeve, p, i) {
+    sleeve.className = `sleeve c${i % CARD_COLORS}`;
+    sleeve.replaceChildren(el("span", "cover-name", p.name), el("span", "cover-meta", `Side ${String.fromCharCode(65 + (i % 2))} · ${p.platform}`));
+    const initial = () => { const letter = el("span", "card-initial", p.name[0]); letter.setAttribute("aria-hidden", "true"); return letter; };
+    if (!p.cover) { sleeve.appendChild(initial()); return; }
+    const shot = framedShot(p.cover, "");
+    shot.classList.add("cover-shot");
+    shot.querySelector("img").loading = "eager";
+    shot.querySelector("img").addEventListener("error", () => shot.replaceWith(initial()), { once: true });
+    sleeve.appendChild(shot);
+  }
+
+  /** The small cover standing in the crate (phrasing content only, as it sits inside a button). */
+  function miniCover(p, i) {
+    const cover = el("span", `mini-cover c${i % CARD_COLORS}`);
+    cover.appendChild(el("span", "mini-name", p.name));
+    if (p.cover) {
+      const img = el("img", `mini-shot mini-${p.cover.kind}`);
+      img.src = p.cover.src;
+      img.alt = "";
+      img.loading = "lazy";
+      img.addEventListener("error", () => img.remove(), { once: true });
+      cover.appendChild(img);
+    } else {
+      cover.appendChild(el("span", "card-initial", p.name[0]));
+    }
+    return cover;
+  }
+
+  function fillTrack(track, p, i, total) {
+    const title = el("h3", "", p.name);
+    const stack = el("ul", "track-stack");
+    stack.setAttribute("aria-label", "Built with");
+    p.stack.split(" · ").forEach((tool) => stack.appendChild(el("li", "", tool)));
+    const actions = el("div", "track-actions");
+    actions.appendChild(openProjectButton("Open project", i, "track-open"));
+    if (p.live) actions.appendChild(externalLink("Live", p.live));
+    if (p.source) actions.appendChild(externalLink("Source", p.source));
+    const nav = el("div", "track-nav");
+    const prev = el("button", "", "←");
+    const next = el("button", "", "→");
+    prev.type = next.type = "button";
+    prev.dataset.step = "-1";
+    next.dataset.step = "1";
+    prev.setAttribute("aria-label", "Previous project");
+    next.setAttribute("aria-label", "Next project");
+    nav.append(prev, next);
+    const top = el("div", "track-top");
+    top.append(el("span", "track-no", `Track ${String(i + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`), nav);
+    track.replaceChildren(top, title, el("p", "track-tagline", p.tagline), stack, actions);
+  }
+
   function renderWork() {
     const list = document.querySelector("[data-work]");
-    SITE.projects.forEach((p, i) => {
-      const row = el("li", `work-row w${i % CARD_COLORS}`);
+    const deck = document.querySelector("[data-deck]");
+    const sleeve = document.querySelector("[data-sleeve]");
+    const label = document.querySelector("[data-vinyl-label]");
+    const track = document.querySelector("[data-track]");
+    const scroller = document.querySelector("[data-crate-scroll]");
+    const count = document.querySelector("[data-crate-count]");
+    if (!list || !deck || !track) return;
+    const total = SITE.projects.length;
+    let current = -1;
+    let swapTimer = 0;
+    let refocusStep = null; // the ← / → button to put focus back on once the details are redrawn
+
+    const rows = SITE.projects.map((p, i) => {
+      const row = el("li", "work-row");
       row.dataset.cats = p.cats.join(" ");
-      const main = el("div", "work-main");
-      const title = el("h3");
-      title.appendChild(openProjectButton(p.name, i, "work-open"));
-      main.append(title, el("p", "", p.tagline));
-      // Clicking anywhere on the row (except its Live/Source links) opens the details
-      row.addEventListener("click", (e) => {
-        if (e.target.closest("a, button")) return;
-        title.querySelector("button").click();
-      });
-      const links = el("div", "work-links");
-      if (p.live) links.appendChild(externalLink("Live", p.live));
-      if (p.source) links.appendChild(externalLink("Source", p.source));
-      row.append(el("span", "work-num", String(i + 1).padStart(2, "0")), main, el("span", "work-stack", p.stack), links);
+      const btn = el("button", "crate-record");
+      btn.type = "button";
+      btn.setAttribute("aria-label", `${p.name}, ${p.platform}`);
+      btn.appendChild(miniCover(p, i));
+      btn.addEventListener("click", () => pick(i));
+      row.appendChild(btn);
       list.appendChild(row);
+      return row;
     });
+    const visible = () => rows.filter((row) => !row.hidden);
+    const updateCount = () => { const n = visible().length; count.textContent = `${n} record${n === 1 ? "" : "s"}`; };
+
+    // Brings the picked cover to the middle of the crate (only the crate scrolls, never the page)
+    const centre = (row) => {
+      const s = scroller.getBoundingClientRect();
+      const r = row.getBoundingClientRect();
+      scroller.scrollBy({ left: r.left - s.left - (s.width - r.width) / 2, behavior: reduceMotion ? "auto" : "smooth" });
+    };
+
+    const show = (i) => {
+      const p = SITE.projects[i];
+      fillSleeve(sleeve, p, i);
+      label.className = `vinyl-label c${i % CARD_COLORS}`;
+      label.textContent = p.name;
+      fillTrack(track, p, i, total);
+      if (refocusStep) { track.querySelector(`[data-step="${refocusStep}"]`).focus({ preventScroll: true }); refocusStep = null; }
+      // Clicking the big cover opens the project, like the Open project button
+      sleeve.onclick = () => track.querySelector("[data-open-project]").click();
+    };
+
+    function pick(i, instant) {
+      if (i === current) { refocusStep = null; return; }
+      const first = current === -1;
+      current = i;
+      rows.forEach((row, j) => {
+        row.classList.toggle("is-current", j === i);
+        row.querySelector("button").setAttribute("aria-pressed", String(j === i));
+      });
+      if (!first) centre(rows[i]);
+      clearTimeout(swapTimer);
+      if (first || instant || reduceMotion) { show(i); if (!first) deck.classList.add("is-out"); return; }
+      deck.classList.remove("is-out");
+      track.classList.add("is-swapping");
+      swapTimer = setTimeout(() => { show(i); deck.classList.add("is-out"); track.classList.remove("is-swapping"); }, SWAP_MS);
+    }
+
+    // Step through the visible records (the ← → buttons, or arrow keys in the crate)
+    const step = (dir) => {
+      const vis = visible();
+      const at = vis.indexOf(rows[current]);
+      const row = vis[(at + dir + vis.length) % vis.length];
+      pick(rows.indexOf(row));
+      return row;
+    };
+    track.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-step]");
+      if (!btn) return;
+      refocusStep = btn.dataset.step;
+      step(Number(btn.dataset.step));
+    });
+    list.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      step(e.key === "ArrowLeft" ? -1 : 1).querySelector("button").focus();
+    });
+
+    onWorkFilter = () => {
+      updateCount();
+      const vis = visible();
+      if (vis.length && !vis.includes(rows[current])) pick(rows.indexOf(vis[0]), true);
+    };
+
+    pick(0);
+    updateCount();
+    // The first record slides out of its sleeve when the section comes into view
+    if (reduceMotion || !("IntersectionObserver" in window)) { deck.classList.add("is-out"); return; }
+    const seen = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      seen.disconnect();
+      deck.classList.add("is-out");
+    }, { threshold: 0.4 });
+    seen.observe(deck);
   }
 
   function filterWork(cat, label) {
@@ -155,6 +292,7 @@
     });
     bar.hidden = !cat;
     bar.querySelector("[data-filter-label]").textContent = label || "";
+    if (onWorkFilter) onWorkFilter();
   }
 
   /* ---------- Simple marquee content ---------- */
@@ -1194,6 +1332,7 @@
       const playing = !audio.paused;
       btn.setAttribute("aria-pressed", String(playing));
       btn.classList.toggle("playing", playing);
+      document.body.classList.toggle("music-on", playing); // the Work section's record spins faster while music plays
       label.textContent = playing ? "Music on" : "Play music";
     };
     audio.addEventListener("play", sync);

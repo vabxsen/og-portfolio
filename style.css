@@ -242,27 +242,76 @@ body.is-loading { overflow: hidden; }
 
 /* ============ Projects (work list) ============ */
 .projects { padding: var(--pad) 0; border-radius: 40px; }
-.projects-head { display: flex; justify-content: space-between; padding-right: var(--pad); margin-bottom: var(--space-xl); }
+.projects-head { display: flex; justify-content: space-between; padding-right: var(--pad); margin-bottom: 56px; }
 .projects-head .label { padding-left: var(--pad); }
 .projects-head .right-text { margin-left: 0; max-width: 50%; }
-.work-filter { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -96px var(--pad) 32px; font-size: 24px; letter-spacing: -0.04em; }
+.work-filter { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: -24px var(--pad) 32px; font-size: 24px; letter-spacing: -0.04em; }
 .work-filter[hidden] { display: none; }
-.work-list { list-style: none; padding: 0 var(--pad); }
-/* Fixed-width links column (fits "Live" + "Source") so the stack column lines up in every row */
-.work-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 300px) 196px; align-items: center; gap: 24px; padding: 22px 28px; border-radius: 200px; transition: background .2s; }
-.work-row + .work-row { box-shadow: 0 -1px 0 rgba(0, 0, 0, .08); }
-.work-row:hover { box-shadow: none; }
-.work-row:hover + .work-row { box-shadow: none; }
+
+/* Record crate: the picked project's sleeve on the left with its vinyl sliding out, the track details on the right */
+.crate-stage { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: center; gap: 48px; padding: 0 var(--pad); }
+.deck { position: relative; width: min(440px, 64%); aspect-ratio: 1; }
+.vinyl { position: absolute; inset: 3%; border-radius: 50%; transition: transform .6s cubic-bezier(.3, 1.25, .5, 1); }
+.deck.is-out .vinyl { transform: translateX(46%); }
+/* The shine stays put while the grooves turn under it, like light on a real record */
+.vinyl::after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 20deg, transparent 0 8%, rgba(255, 255, 255, .14) 13%, transparent 20% 56%, rgba(255, 255, 255, .1) 62%, transparent 70%); }
+.vinyl-disc { position: relative; width: 100%; height: 100%; border-radius: 50%; background: repeating-radial-gradient(circle, #111 0 2px, #1d1d1d 2px 4px); box-shadow: 0 24px 50px -24px rgba(0, 0, 0, .7); animation: vinyl-spin 5s linear infinite; }
+body.music-on .vinyl-disc { animation-duration: 1.8s; }
+@keyframes vinyl-spin { to { transform: rotate(360deg); } }
+.vinyl-label { position: absolute; inset: 32%; border-radius: 50%; display: grid; place-items: center; padding: 12%; text-align: center; font-size: clamp(10px, 1.1vw, 15px); font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+.vinyl-label::after { content: ""; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #000; }
+/* The sleeve (album cover). Its art is sized in container units, so the same rules fit the small crate covers */
+.sleeve { position: absolute; inset: 0; z-index: 1; overflow: hidden; border-radius: 10px; cursor: pointer; container-type: size; box-shadow: 0 30px 60px -28px rgba(0, 0, 0, .6); transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.sleeve:hover { transform: rotate(-1.5deg) scale(1.01); }
+.cover-name { position: absolute; z-index: 1; left: 7cqw; top: 6cqw; max-width: 86cqw; font-size: 13cqw; font-weight: 800; line-height: .9; letter-spacing: -0.06em; }
+.cover-meta { position: absolute; z-index: 1; left: 7cqw; bottom: 6cqw; font-size: max(10px, 3.4cqw); letter-spacing: .08em; text-transform: uppercase; color: rgba(0, 0, 0, .62); }
+.cover-shot { position: absolute; }
+.cover-shot.frame-phone { right: 9cqw; top: 25cqh; height: 96cqh; }
+.cover-shot.frame-browser { right: -5cqw; bottom: -7cqh; width: 86cqw; }
+.cover-shot.frame-icon { right: 9cqw; bottom: 9cqh; width: 44cqw; }
+.sleeve .card-initial { right: 6cqw; bottom: -22cqh; font-size: 96cqh; }
+.sleeve:has(.frame-browser) .cover-meta, .sleeve:has(.card-initial) .cover-meta { top: 22cqw; bottom: auto; } /* clear of art at the bottom */
+
+.track { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+.track > * { transition: opacity .25s, transform .25s; }
+.track.is-swapping > * { opacity: 0; transform: translateY(10px); }
+.track-top { align-self: stretch; display: flex; justify-content: space-between; align-items: center; }
+.track-no { font-size: 18px; letter-spacing: -0.02em; color: var(--ink-48); }
+.track-nav { display: flex; gap: 6px; }
+.track-nav button { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #000; font-size: 22px; transition: background .2s, color .2s; }
+.track-nav button:hover { background: #000; color: #fff; }
+.track h3 { font-size: 96px; line-height: .9; letter-spacing: -0.06em; font-weight: 800; }
+.track-tagline { font-size: 28px; line-height: 1.1; letter-spacing: -0.03em; color: var(--ink-64); }
+.track-stack { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+.track-stack li { padding: 6px 12px; border-radius: 200px; background: var(--chip); font-size: 15px; letter-spacing: -0.01em; }
+.track-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.track-actions a, .track-open { padding: 12px 18px; border-radius: 200px; border: 2px solid #000; font-size: 20px; letter-spacing: -0.03em; white-space: nowrap; transition: background .2s, color .2s; }
+.track-open { background: #000; color: #fff; }
+.track-actions a:hover { background: #000; color: #fff; }
+.track-open:hover { background: var(--magenta); border-color: var(--magenta); }
+
+/* The crate: covers lean back in a box, the picked one stands up out of it. Only the crate scrolls sideways. */
+.crate-scroll { margin-top: 48px; padding: 56px var(--pad) 28px; overflow-x: auto; scrollbar-width: none; }
+.crate-scroll::-webkit-scrollbar { display: none; }
+.crate-box { position: relative; width: max-content; margin: 0 auto; }
+.crate { display: flex; gap: 12px; padding: 0 28px; list-style: none; perspective: 900px; }
 .work-row[hidden] { display: none; }
-.w0:hover { background: var(--blue); } .w1:hover { background: var(--pink); } .w2:hover { background: var(--green); }
-.w3:hover { background: var(--yellow); } .w4:hover { background: var(--brown); } .w5:hover { background: var(--orange); }
-.work-num { font-size: 16px; color: var(--ink-48); }
-.work-main h3 { font-size: 56px; line-height: 1; letter-spacing: -0.05em; }
-.work-main p { margin-top: 6px; font-size: 18px; color: var(--ink-64); letter-spacing: -0.02em; }
-.work-stack { font-size: 14px; color: var(--ink-64); letter-spacing: .02em; }
-.work-links { display: flex; justify-content: flex-end; gap: 6px; }
-.work-links a { padding: 10px 16px; border-radius: 200px; border: 2px solid #000; font-size: 18px; letter-spacing: -0.03em; white-space: nowrap; transition: background .2s, color .2s; }
-.work-links a:hover { background: #000; color: #fff; }
+.crate-record { display: block; border-radius: 8px; transform-origin: 50% 100%; transform: rotateX(-12deg); transition: transform .4s cubic-bezier(.3, 1.4, .5, 1); }
+.crate-record:hover { transform: translateY(-26px); }
+.is-current .crate-record { transform: translateY(-46px) rotate(-3deg); }
+.crate-record:focus-visible { outline-offset: 4px; border-radius: 8px; }
+.mini-cover { position: relative; display: block; width: 124px; height: 124px; overflow: hidden; border-radius: 8px; container-type: size; box-shadow: 0 -8px 20px -10px rgba(0, 0, 0, .4); }
+.mini-name { position: absolute; z-index: 1; left: 9cqw; top: 8cqw; right: 6cqw; font-size: 15cqw; font-weight: 800; line-height: .9; letter-spacing: -0.05em; text-align: left; }
+.mini-shot { position: absolute; object-fit: cover; object-position: top; background: #000; }
+.mini-phone { right: 10cqw; top: 34cqh; width: 40cqw; height: 84cqh; border: 3px solid #000; border-radius: 10px; }
+.mini-browser { right: -6cqw; bottom: -6cqh; width: 84cqw; height: 54cqh; border: 3px solid #1c1c1e; border-top-width: 9px; border-radius: 6px; }
+.mini-icon { right: 10cqw; bottom: 10cqh; width: 46cqw; height: 46cqw; border-radius: 26%; }
+.mini-cover .card-initial { right: 6cqw; bottom: -20cqh; font-size: 92cqh; --dot: 4.6cqh; }
+/* The crate's front panel hides the lower part of the covers */
+.crate-front { position: absolute; left: 0; right: 0; bottom: -20px; z-index: 2; height: 86px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 28px 16px; border-radius: 18px 18px 26px 26px; background: #111; color: #fff; font-size: 18px; letter-spacing: -0.02em; pointer-events: none; box-shadow: 0 -10px 24px -16px rgba(0, 0, 0, .6); }
+.crate-front span:last-child { color: rgba(255, 255, 255, .6); }
+.motion-paused .vinyl-disc { animation-play-state: paused; }
 
 /* ============ Journey timeline ============ */
 /* Oldest first, one sticker per stage. Everything on a sticker is sized in cqw (its own width),
@@ -546,9 +595,9 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .say-hi-ring text { font-size: 24px; }
   .say-hi-sticker { width: 182px; height: 182px; } .say-hi-sticker .wave { font-size: 52px; } .say-hi-sticker .serif { font-size: 44px; }
   .hi-right { padding-right: 40px; }
-  .work-row { grid-template-columns: 48px minmax(0, 1fr) auto; }
-  .work-stack { display: none; }
-  .work-main h3 { font-size: 44px; }
+  .crate-stage { gap: 32px; }
+  .track h3 { font-size: 72px; } .track-tagline { font-size: 22px; }
+  .track-actions a, .track-open { font-size: 18px; padding: 10px 16px; }
 }
 /* Narrow tablets: the headline nearly fills the width, so the sticker moves to the cards' bottom-right edge
    (top = slider padding + card height - half the sticker) and the intro text steps down to clear it.
@@ -562,7 +611,6 @@ textarea.chat-field { max-height: 160px; resize: none; }
   html { scroll-padding-top: 76px; }
   /* Open the menu leftwards from the button so it stays on screen */
   .menu-list { left: auto; right: 0; }
-  .work-links { justify-content: flex-start; }
   .footer-bottom { padding-bottom: var(--pad); }
   .navbar { height: 64px; }
   .hero { margin-top: 66px; }
@@ -630,12 +678,23 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .say-hi { width: 280px; height: 280px; margin-bottom: 24px; }
   .say-hi-ring text { font-size: 25px; }
   .say-hi-sticker { width: 158px; height: 158px; } .say-hi-sticker .wave { font-size: 44px; } .say-hi-sticker .serif { font-size: 36px; }
-  .work-filter { margin: -48px var(--pad) 20px; font-size: 18px; flex-wrap: wrap; }
-  .work-row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 20px; border-radius: 28px; }
-  .work-num { display: none; }
-  .work-main h3 { font-size: 36px; }
-  .work-main p { font-size: 16px; }
-  .work-links a { font-size: 16px; padding: 8px 14px; }
+  .projects-head { margin-bottom: 32px; }
+  .work-filter { margin: -8px var(--pad) 20px; font-size: 18px; flex-wrap: wrap; }
+  /* Phones: sleeve on top (its record slides a little less far), details under it, the crate scrolls sideways */
+  .crate-stage { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .deck { width: 60vw; }
+  .deck.is-out .vinyl { transform: translateX(40%); }
+  .vinyl-label { font-size: 10px; }
+  .track { gap: 14px; }
+  .track-no { font-size: 15px; } .track-nav button { width: 42px; height: 42px; font-size: 19px; }
+  .track h3 { font-size: 52px; } .track-tagline { font-size: 19px; }
+  .track-stack li { font-size: 13px; padding: 5px 10px; }
+  .track-actions a, .track-open { font-size: 16px; padding: 9px 14px; }
+  .crate-scroll { margin-top: 28px; padding: 44px 0 26px; }
+  .crate { gap: 8px; padding: 0 20px; }
+  .mini-cover { width: 92px; height: 92px; }
+  .is-current .crate-record { transform: translateY(-34px) rotate(-3deg); }
+  .crate-front { height: 74px; bottom: -18px; padding: 0 20px 12px; font-size: 15px; border-radius: 14px 14px 20px 20px; }
   .ticker p { font-size: 18px; }
   /* Phones: the chat fills the space below the navbar. Fields stay at 16px+ so iOS doesn't zoom in on them */
   .contact-sheet { height: 100%; }
@@ -655,6 +714,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .marquee-set, .talk-ring, .say-hi-ring, .eq i, .bubble { animation: none !important; }
   .card-shot, .card-initial { transition: none; }
   .service-card { transform: none; filter: none; } .service-shots .frame, .service-cta { transition: none; }
+  .vinyl-disc { animation: none; } .vinyl, .sleeve, .crate-record, .track > * { transition: none; }
   .intro { display: none; }
   /* Without the scroll, the social links wrap onto lines so none are cut off */
   .big-links .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
