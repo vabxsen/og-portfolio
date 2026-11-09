@@ -182,7 +182,7 @@
     p.stack.split(" · ").forEach((tool) => stack.appendChild(el("li", "", tool)));
     const actions = el("div", "track-actions");
     actions.appendChild(openProjectButton("Open project", i, "track-open"));
-    if (p.live) actions.appendChild(externalLink("Live", p.live));
+    if (p.live) actions.appendChild(externalLink(p.liveLabel || "Live", p.live));
     if (p.source) actions.appendChild(externalLink("Source", p.source));
     const nav = el("div", "track-nav");
     const prev = el("button", "", "←");
@@ -1246,7 +1246,7 @@
     title.id = "project-title";
     const tagline = el("p", "ps-tagline", p.tagline);
     const links = el("div", "ps-links");
-    if (p.live) links.appendChild(Object.assign(externalLink("Visit live", p.live), { className: "ps-btn ps-btn-dark" }));
+    if (p.live) links.appendChild(Object.assign(externalLink(p.liveLabel || "Visit live", p.live), { className: "ps-btn ps-btn-dark" }));
     if (p.source) links.appendChild(Object.assign(externalLink("Source code", p.source), { className: "ps-btn" }));
     info.append(title, tagline, links);
     const parts = [tagline, links];

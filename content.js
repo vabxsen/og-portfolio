@@ -101,6 +101,24 @@ const SITE = {
       ],
     },
     {
+      name: "Zenode", tagline: "Your notes. Plain files. Fast.", platform: "Desktop · Windows", cats: ["desktop"],
+      stack: "Electron · TypeScript · CodeMirror 6 · d3-force · WebGL · Firebase",
+      // liveLabel renames the "Live" button (a desktop app is downloaded, not visited)
+      live: "https://github.com/vabxsen/Zenode/releases/latest", liveLabel: "Download",
+      source: "https://github.com/vabxsen/Zenode",
+      cover: { src: "assets/projects/zenode.png", kind: "icon" },
+      gallery: [{ src: "assets/projects/zenode.png", kind: "icon" }],
+      summary: "A fast, local-first Markdown knowledge base for Windows. Your notes stay plain .md files in a folder you choose, readable by any editor (Obsidian included), with links, search, a graph and canvases on top, and optional Google sign-in to sync them between computers.",
+      features: [
+        "Live Preview editor on CodeMirror 6: Markdown hides until your cursor touches it",
+        "[[Wikilinks]], backlinks, and renames that update every link",
+        "Graph view drawn with WebGL, laid out by d3-force in a background worker",
+        "Canvases in the open JSON Canvas format, compatible with Obsidian",
+        "Built for big vaults: 10,000 notes indexed in about 2.5 s, search under 50 ms",
+        "Crash recovery, file history and conflict handling, so no edit is lost",
+      ],
+    },
+    {
       name: "Dailynx", tagline: "Small habits. Lasting progress.", platform: "Web", cats: ["web"],
       stack: "React 19 · TypeScript · Vite · Tailwind CSS · Firebase · Recharts",
       live: "https://dailynx.web.app/", source: "https://github.com/vabxsen/Dailynx",
@@ -193,12 +211,12 @@ const SITE = {
       ],
     },
   ],
-  tools: ["React", "TypeScript", "JavaScript", "Tailwind CSS", "Python", "Firebase", "Kotlin", "Android", "Jetpack Compose", "Figma", "UI/UX Design", "Git", "GitHub"],
+  tools: ["React", "TypeScript", "JavaScript", "Tailwind CSS", "Electron", "Python", "Firebase", "Kotlin", "Android", "Jetpack Compose", "Figma", "UI/UX Design", "Git", "GitHub"],
 
   services: [
     { title: "Web", cat: "web", text: "Web apps in React and TypeScript — Doclee, Dailynx, PricePilot, PinDrop, and NexRig.", icon: "web" },
     { title: "Mobile", cat: "mobile", text: "Native Android with Kotlin and Jetpack Compose — Scoop, Kimi, Budgie, and Gecko.", icon: "mobile" },
-    { title: "Desktop", cat: "desktop", text: "Desktop voice interaction with Native AI, built in Python.", icon: "desktop" },
+    { title: "Desktop", cat: "desktop", text: "Windows apps: Zenode, a Markdown knowledge base built on Electron, and Native AI, a Python voice assistant.", icon: "desktop" },
     { title: "AI", cat: "ai", text: "Exploring native AI experiences, across Android and desktop.", icon: "ai" },
   ],
 
@@ -207,7 +225,7 @@ const SITE = {
   journey: [
     { text: "Started with Python automation and computer vision: drowsiness detection, QR tools, and text-to-speech.", title: "Foundation", sub: "Python & automation" },
     { text: "Building with TypeScript, React, and Firebase — from daily habits and PDF tools to price tracking and PC planning.", title: "Products", sub: "Web & interface design" },
-    { text: "Extending the work into native Android with Scoop and Gecko, and desktop voice interaction with Native AI.", title: "Exploring", sub: "Android, desktop & AI" },
+    { text: "Extending the work into native Android with Scoop and Gecko, and onto the desktop with Zenode and Native AI.", title: "Exploring", sub: "Android, desktop & AI" },
   ],
   // The black card that ends the timeline: where the journey has led
   journeyEnd: { text: "From the first wireframe to the final interaction, I care about the details that make software feel effortless.", title: "The craft", sub: "How I work" },
