@@ -1356,6 +1356,7 @@
   ];
   const CURSOR_COLORS = BUILDERS.map((b) => b.color).concat("#ab6349");
   const CURSOR_PATH = "M2 2V19L6 15L9 22L11.5 21L8.5 14.2H14Z"; // a classic pointer, tip at (2, 2)
+  const BUILD_SPEED = 1.5; // plays the whole cursor build this many times faster (1 = the timings below as written)
   const BUILD_START_S = 0.15;
   const BUILD_STAGGER_S = 0.18;
   const BUILD_FLY_S = 0.6;
@@ -1537,7 +1538,7 @@
         tl.to(built.map((job) => job.cursor), { x: "+=28", y: "-=18", opacity: 0, duration: 0.4, stagger: 0.05 }, end - 0.2)
           .set(parts, { clearProps: "opacity,transform" })
           .set(hero.querySelectorAll("h1 .word, .right-text .word, .card"), { clearProps: "opacity,transform" });
-        if (fast) tl.timeScale(3);
+        tl.timeScale(fast ? 3 : BUILD_SPEED);
         window.addEventListener("pointerdown", speedUp);
         window.addEventListener("keydown", speedUp);
       },
