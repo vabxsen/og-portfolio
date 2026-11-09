@@ -194,7 +194,8 @@ body.is-loading { overflow: hidden; }
 .dots-wrap { width: min(420px, 80%); aspect-ratio: 4 / 5; margin-left: 12%; border-radius: 32px; overflow: hidden; background: #000; transform: rotate(-3deg); transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .45); }
 .dots-wrap:hover { transform: rotate(0deg) scale(1.02); }
 .dots-wrap canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: pan-y; }
-.thinking .texts { width: 50%; padding-left: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 32px; }
+/* The text sits level with the portrait's middle, not up at the slashes (the top padding skips the slashes and the gap under them) */
+.thinking .texts { width: 50%; padding-left: 16px; padding-top: 88px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 32px; }
 .thinking .texts p { font-size: 48px; line-height: 1; letter-spacing: -0.04em; color: var(--ink-64); }
 .since { position: relative; width: 760px; height: 300px; margin: 0 auto 32px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 .since-ring { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #000; stroke-width: 2; }
@@ -583,7 +584,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .thinking-top { flex-direction: column; gap: 24px; }
   .thinking-left { width: 100%; gap: 24px; }
   .dots-wrap { width: min(300px, 86%); margin: 0 auto; }
-  .thinking .texts { width: 100%; padding-left: 0; }
+  .thinking .texts { width: 100%; padding-left: 0; padding-top: 0; }
   .since { width: 100%; max-width: 340px; height: 170px; } .since h2 { font-size: 56px; }
   .stat { width: 260px; height: 260px; margin-right: -24px; border-width: 4px; }
   .stat b { font-size: 120px; } .stat span { font-size: 24px; }
