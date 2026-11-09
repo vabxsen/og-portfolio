@@ -199,24 +199,77 @@
     });
   }
 
-  /* ---------- Services: hover-expand rows ---------- */
+  /* ---------- Services: cards that stack like pages as you scroll ---------- */
+  const SHOT_LAYOUTS = { 1: [[0, 0]], 2: [[-16, -5], [16, 5]], 3: [[-21, -7], [0, 0], [21, 7]] }; // [x offset %, tilt deg]
+
+  function serviceShots(projects, icon) {
+    const shots = el("div", "service-shots");
+    shots.setAttribute("aria-hidden", "true");
+    const covers = projects.filter((p) => p.cover).slice(0, 3);
+    // Nothing to show (e.g. Desktop has no screenshot yet): the category's icon, big
+    if (!covers.length) { shots.appendChild(svgIcon(ICONS[icon])); return shots; }
+    covers.forEach((p, i) => {
+      const [x, r] = SHOT_LAYOUTS[covers.length][i];
+      const frame = framedShot(p.cover, "");
+      frame.style.setProperty("--x", x);
+      frame.style.setProperty("--r", `${r}deg`);
+      if (covers.length === 3 && i === 1) frame.style.zIndex = "2"; // the middle one sits on top
+      frame.querySelector("img").addEventListener("error", () => frame.remove(), { once: true });
+      shots.appendChild(frame);
+    });
+    return shots;
+  }
+
   function renderServices() {
     const list = document.querySelector("[data-services]");
+    const total = String(SITE.services.length).padStart(2, "0");
     SITE.services.forEach((s, i) => {
-      // Each row jumps to the Work list, filtered to this kind of project
-      const row = el("a", "service-row");
-      row.href = "#work";
-      row.setAttribute("aria-label", `See ${s.title} projects`);
-      row.addEventListener("click", () => filterWork(s.cat, s.title));
-      const service = el("div", `service s${i}`);
-      service.appendChild(el("h3", "", s.title));
-      service.appendChild(svgIcon(ICONS[s.icon]));
-      service.appendChild(el("p", "", s.text));
-      const arrow = el("div", `service-arrow s${i}`);
-      arrow.appendChild(svgIcon(ICONS.arrow));
-      row.append(service, arrow);
-      list.appendChild(row);
+      const projects = SITE.projects.filter((p) => p.cats.includes(s.cat));
+      const count = `${projects.length} project${projects.length === 1 ? "" : "s"}`;
+      // Each card jumps to the Work list, filtered to this kind of project
+      const card = el("a", `service-card s${i}`);
+      card.href = "#work";
+      card.style.setProperty("--i", i);
+      card.setAttribute("aria-label", `${s.title}: see ${count}`);
+      card.addEventListener("click", () => filterWork(s.cat, s.title));
+
+      const info = el("div", "service-info");
+      const top = el("div", "service-top");
+      top.append(el("span", "", `${String(i + 1).padStart(2, "0")} / ${total}`), el("span", "", count));
+      const title = el("div", "service-title");
+      title.append(el("h3", "", s.title), svgIcon(ICONS[s.icon]));
+      const chips = el("div", "service-chips");
+      projects.forEach((p) => chips.appendChild(el("span", "", p.name)));
+      const cta = el("span", "service-cta", `See ${s.title} projects`);
+      cta.appendChild(svgIcon(ICONS.arrow));
+      info.append(top, title, el("p", "", s.text), chips, cta);
+
+      card.append(info, serviceShots(projects, s.icon));
+      list.appendChild(card);
     });
+  }
+
+  // As the next card slides up over a stuck one, the one underneath shrinks back and dims, like a page in a pile
+  function setupServiceStack() {
+    const cards = [...document.querySelectorAll(".service-card")];
+    if (!cards.length || reduceMotion) return;
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const tops = cards.map((c) => c.getBoundingClientRect().top); // scaling is from the top edge, so tops stay true
+      const stuckAt = cards.map((c) => parseFloat(getComputedStyle(c).top) || 0);
+      cards.forEach((card, i) => {
+        let depth = 0;
+        for (let j = i + 1; j < cards.length; j++) {
+          depth += Math.min(1, Math.max(0, 1 - (tops[j] - stuckAt[j]) / card.offsetHeight));
+        }
+        card.style.setProperty("--depth", depth.toFixed(3));
+      });
+    };
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue);
+    update();
   }
 
   /* ---------- Scalloped sticker shape (journey cards) ---------- */
@@ -1593,6 +1646,7 @@
   renderWork();
   renderMarquees();
   renderServices();
+  setupServiceStack();
   renderJourney();
   renderSayHi();
   setupCraft();

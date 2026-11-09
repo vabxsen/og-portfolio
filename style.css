@@ -211,21 +211,34 @@ body.is-loading { overflow: hidden; }
 .stat:nth-child(5n+5) { background: var(--orange); }
 
 /* ============ Services ============ */
+/* Each card sticks under the navbar, a little lower than the one before, so the next slides up over it like a page
+   on a pile. script.js sets --depth (how many cards now cover it) and the covered card shrinks back and dims. */
 .services { padding: var(--pad) 0; }
-.services .label { margin-bottom: var(--space-xl); }
-.service-list { display: flex; flex-direction: column; }
-.service-row { display: flex; cursor: pointer; color: inherit; }
-.service-row:focus-visible { outline-offset: -3px; border-radius: 0 160px 160px 0; }
-.service { display: flex; align-items: center; gap: 32px; height: 160px; padding: 32px; border-radius: 0 160px 160px 0; overflow: hidden; white-space: nowrap; }
-.service h3 { font-size: 80px; line-height: 1; letter-spacing: -0.05em; }
-.service svg { width: 80px; height: 80px; flex-shrink: 0; }
-.service p { max-width: 0; opacity: 0; white-space: normal; color: var(--ink-64); font-size: 16px; line-height: 1.2; letter-spacing: .06em; transform: translateX(32px); transition: max-width .25s, opacity .2s, transform .2s; }
-.service-row:hover .service p, .service-row:focus-visible .service p { max-width: 400px; opacity: 1; transform: none; }
-.service-arrow { width: 144px; height: 144px; margin: 8px 0 0 4px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; opacity: 0; transition: opacity .2s; }
-.service-arrow svg { width: 64px; height: 64px; }
-.service-row:hover .service-arrow, .service-row:focus-visible .service-arrow { opacity: 1; }
+.services .label { margin-bottom: 48px; }
+.service-stack { display: flex; flex-direction: column; gap: 32px; padding: 0 var(--pad); }
+.service-card { --depth: 0; position: sticky; top: calc(104px + var(--i) * 22px); display: flex; gap: 40px; height: min(560px, calc(100vh - 210px)); padding: 40px; border-radius: var(--radius); overflow: hidden; color: #000; transform-origin: 50% 0; transform: scale(calc(1 - var(--depth) * .05)); filter: brightness(calc(1 - var(--depth) * .2)); box-shadow: 0 -24px 48px -28px rgba(0, 0, 0, .5); will-change: transform; }
+.service-card:focus-visible { outline-offset: -6px; border-radius: var(--radius); }
+.service-info { flex: 1 1 50%; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.service-top { display: flex; gap: 20px; font-size: 18px; letter-spacing: -0.02em; color: rgba(0, 0, 0, .6); }
+.service-title { display: flex; align-items: center; gap: 24px; }
+.service-title h3 { font-size: 120px; line-height: .9; letter-spacing: -0.06em; font-weight: 800; }
+.service-title svg { width: 88px; height: 88px; flex-shrink: 0; }
+.service-info p { max-width: 520px; font-size: 28px; line-height: 1.1; letter-spacing: -0.03em; color: rgba(0, 0, 0, .72); }
+.service-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.service-chips span { padding: 8px 14px; border-radius: 200px; background: rgba(255, 255, 255, .5); font-size: 18px; letter-spacing: -0.02em; }
+.service-cta { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 200px; background: #000; color: #fff; font-size: 20px; letter-spacing: -0.03em; transition: transform .2s; }
+.service-cta svg { width: 20px; height: 20px; }
+.service-card:hover .service-cta { transform: translateX(6px); }
+/* Screenshots fanned out in their device frames (--x / --r come from script.js) */
+.service-shots { position: relative; flex: 1 1 50%; min-width: 0; }
+.service-shots .frame { position: absolute; top: 50%; left: calc(50% + var(--x, 0) * 1%); transform: translate(-50%, -50%) rotate(var(--r, 0deg)); transition: transform .4s cubic-bezier(.34, 1.56, .64, 1); }
+.service-card:hover .service-shots .frame { transform: translate(-50%, -52%) rotate(calc(var(--r, 0deg) * 1.4)); }
+.service-shots .frame-browser { width: 58%; }
+.service-shots .frame-phone { height: 92%; }
+.service-shots .frame-icon { width: 46%; }
+.service-shots > svg { position: absolute; top: 50%; left: 50%; width: 52%; height: 52%; transform: translate(-50%, -50%); stroke-width: 1.2; }
 .s0 { background: var(--pink); } .s1 { background: var(--brown); } .s2 { background: var(--yellow); } .s3 { background: var(--red); }
-.service-row:last-child .service { border-bottom-left-radius: 160px; }
+.motion-paused .service-card { transform: none; filter: none; }
 
 /* ============ Projects (work list) ============ */
 .projects { padding: var(--pad) 0; border-radius: 40px; }
@@ -512,11 +525,6 @@ textarea.chat-field { max-height: 160px; resize: none; }
 .copy-label.show { bottom: 16px; }
 
 /* ============ Responsive ============ */
-@media (max-width: 1280px) {
-  .service p { max-width: 400px; opacity: 1; transform: none; }
-  .service-arrow { display: none; }
-  .service { white-space: normal; }
-}
 @media (max-width: 1100px) {
   :root { --space-xl: 112px; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
@@ -526,7 +534,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .ps-body { gap: 18px 26px; padding: 24px 26px 22px; } .ps-tagline { font-size: 26px; }
   .since { width: 480px; height: 230px; } .since h2 { font-size: 88px; }
   .stat { width: 380px; height: 380px; } .stat b { font-size: 180px; } .stat span { font-size: 34px; }
-  .service h3 { font-size: 64px; } .service { height: 136px; }
+  .service-card { padding: 32px; gap: 24px; } .service-title h3 { font-size: 88px; } .service-title svg { width: 64px; height: 64px; }
+  .service-info p { font-size: 22px; } .service-chips span { font-size: 16px; }
   .craft { flex-direction: column; gap: 16px; }
   .craft-center { margin: 0; align-self: stretch; padding: 56px 24px; border-radius: 200px; }
   .craft-center h2 { font-size: 64px; }
@@ -588,10 +597,17 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .since { width: 100%; max-width: 340px; height: 170px; } .since h2 { font-size: 56px; }
   .stat { width: 260px; height: 260px; margin-right: -24px; border-width: 4px; }
   .stat b { font-size: 120px; } .stat span { font-size: 24px; }
-  .service { height: auto; min-height: 112px; padding: 20px 28px 20px 20px; gap: 16px; border-radius: 0 112px 112px 0; flex-wrap: wrap; }
-  .service-row:last-child .service { border-bottom-left-radius: 0; }
-  .service h3 { font-size: 44px; } .service svg { width: 48px; height: 48px; }
-  .service p { max-width: 100%; flex-basis: 100%; }
+  /* Phones: text on top, screenshots underneath, still stacking */
+  .services .label { margin-bottom: 28px; }
+  .service-stack { padding: 0 12px; gap: 20px; }
+  .service-card { flex-direction: column; top: calc(88px + var(--i) * 14px); height: min(540px, calc(100svh - 132px)); padding: 22px; gap: 14px; }
+  .service-info { flex: none; gap: 12px; }
+  .service-top { font-size: 14px; }
+  .service-title { gap: 14px; } .service-title h3 { font-size: 56px; } .service-title svg { width: 44px; height: 44px; }
+  .service-info p { font-size: 18px; }
+  .service-chips { margin-top: 0; gap: 6px; } .service-chips span { padding: 6px 11px; font-size: 13px; }
+  .service-cta { padding: 9px 14px; font-size: 16px; }
+  .service-shots { flex: 1; min-height: 0; }
   .projects-head { flex-direction: column; gap: 20px; padding: 0 var(--pad); }
   .projects-head .label { padding-left: 0; }
   .projects-head .right-text { max-width: none; }
@@ -638,6 +654,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
 @media (prefers-reduced-motion: reduce) {
   .marquee-set, .talk-ring, .say-hi-ring, .eq i, .bubble { animation: none !important; }
   .card-shot, .card-initial { transition: none; }
+  .service-card { transform: none; filter: none; } .service-shots .frame, .service-cta { transition: none; }
   .intro { display: none; }
   /* Without the scroll, the social links wrap onto lines so none are cut off */
   .big-links .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
