@@ -219,7 +219,11 @@ body.is-loading { overflow: hidden; }
 .dots-wrap canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: pan-y; }
 /* The text sits level with the portrait's middle, not up at the slashes (the top padding skips the slashes and the gap under them) */
 .thinking .texts { width: 50%; padding-left: 16px; padding-top: 88px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 32px; }
-.thinking .texts p { font-size: 48px; line-height: 1; letter-spacing: -0.04em; color: var(--ink-64); }
+/* About copy: a big lead line, two reading paragraphs, and a bold closing line */
+.about-copy { display: flex; flex-direction: column; gap: 18px; max-width: 600px; }
+.about-copy p { font-size: 22px; line-height: 1.35; letter-spacing: -0.02em; color: var(--ink-64); }
+.thinking .about-copy .about-lead { margin-bottom: 6px; font-size: 48px; line-height: 1; letter-spacing: -0.04em; }
+.about-copy .about-kicker { font-size: 26px; font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; color: #000; }
 /* Fact stickers: die-cut stickers (white edge + hairline, no shadow) scattered under the text, never over the portrait.
    The tilt and hover live on .fact-face; GSAP moves the <li> (slap-in and drag), so the two never fight. */
 .fact-stickers { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 560px; list-style: none; }
@@ -610,7 +614,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
 /* ============ Responsive ============ */
 @media (max-width: 1100px) {
   :root { --space-xl: 112px; }
-  .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
+  .label, .thinking .about-copy .about-lead, .link-cols li, .slashes { font-size: 36px; }
+  .about-copy p { font-size: 19px; } .about-copy .about-kicker { font-size: 22px; }
   .hero h1 { font-size: 88px; }
   .tool-word { font-size: 84px; } .tool-sep { font-size: 30px; } .clients .marquee { min-height: 104px; }
   .fact-face { font-size: 17px; padding: 10px 15px; } .fact-round .fact-face { width: 110px; height: 110px; } .fact-scallop .fact-face { width: 120px; height: 120px; padding: 22px; }
@@ -656,7 +661,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .nav-right { width: auto; gap: 8px; }
   .chip, .contact-pill { font-size: 18px; padding: 10px 14px; }
   .nav-right .contact-pill { display: none; }
-  .label, .thinking .texts p, .link-cols li, .slashes { font-size: 28px; }
+  .label, .thinking .about-copy .about-lead, .link-cols li, .slashes { font-size: 28px; }
+  .about-copy { gap: 14px; } .about-copy p { font-size: 17px; } .about-copy .about-kicker { font-size: 20px; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
   .hero h1 { font-size: 56px; }
   .card { --pw: 172px; --ph: 116px; --cap: 50px; height: 210px; } .slider { min-height: 210px; }
