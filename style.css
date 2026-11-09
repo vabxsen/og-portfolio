@@ -185,10 +185,16 @@ body.is-loading { overflow: hidden; }
 .hero-text { display: flex; flex-direction: column; padding: 0 var(--pad) var(--pad); }
 .right-text { width: 50%; margin-left: auto; padding-left: 16px; color: var(--ink-64); font-size: 24px; line-height: 1; letter-spacing: -0.02em; }
 .hero-text .right-text { margin-bottom: var(--space-xl); }
-/* Short laptop screens: shrink the gap above the headline so it fits on the first screen
-   (720px = navbar, slider, intro, headline and padding at full size) */
-@media (min-width: 721px) { .hero-text .right-text { margin-bottom: clamp(32px, calc(100vh - 720px), var(--space-xl)); } }
+/* Hero intro: a bigger black lead line, then the body, then the closing line, each on its own line */
+.hero-lead { display: block; margin-bottom: 12px; color: #000; font-size: 1.35em; letter-spacing: -0.035em; }
+.hero-closer { display: block; margin-top: 12px; }
 .hero h1 { font-size: 120px; font-weight: 300; line-height: .86; letter-spacing: -0.06em; text-wrap: balance; }
+/* The whole headline should fit on the first screen. The gap under the intro gives way first (830px = navbar,
+   slider, intro, headline and padding at full size); on short screens the intro and headline also step down a size.
+   ".hero .hero-text" outranks the plain ".hero h1" sizes, including the tablet ones further down. */
+@media (min-width: 721px) { .hero-text .right-text { margin-bottom: clamp(24px, calc(100vh - 830px), var(--space-xl)); } }
+@media (min-width: 721px) and (max-height: 860px) { .hero .hero-text .right-text { font-size: 20px; } .hero .hero-text h1 { font-size: min(100px, 8.6vw); } }
+@media (min-width: 721px) and (max-height: 760px) { .hero .hero-text .right-text { font-size: 18px; } .hero .hero-text h1 { font-size: min(84px, 8vw); } }
 
 /* ============ Toolkit pills ============ */
 /* Toolkit ribbon: one big line of type, bold and serif words in turn (like the headline), pink ✦ between */
