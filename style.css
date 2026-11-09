@@ -103,7 +103,33 @@ body.is-loading { overflow: hidden; }
 .slider:active { cursor: grabbing; }
 .slider .marquee-set { --speed: 70s; }
 .slider:hover .marquee-set { animation-play-state: paused; }
-.card { position: relative; flex-shrink: 0; width: 344px; height: 258px; margin-right: 16px; border-radius: 32px; overflow: hidden; user-select: none; container-type: size; }
+/* Clothesline: a taut line across the hero; each .card is a hanger with a polaroid pegged to the line.
+   Sizes: --pw photo width, --ph picture height, --cap caption height (the card is the line + peg + photo). */
+.slider-wrap::before { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--pad) + 10px); height: 2px; background: #1a1a1a; box-shadow: 0 2px 3px rgba(0, 0, 0, .18); }
+.card { --pw: 216px; --ph: 150px; --cap: 62px; position: relative; flex-shrink: 0; width: calc(var(--pw) + 24px); height: 258px; user-select: none; transform-origin: 50% 11px; }
+.pol-swing { transform-origin: 50% 11px; animation: pol-sway var(--sway-time, 3s) ease-in-out var(--sway-delay, 0s) infinite; }
+@keyframes pol-sway { 0%, 100% { transform: rotate(calc(var(--tilt, 0deg) - 2deg)); } 50% { transform: rotate(calc(var(--tilt, 0deg) + 2deg)); } }
+.pol-kick { position: relative; transform-origin: 50% 11px; }
+/* A wooden clothes peg clipped over the line and the top of the photo */
+.peg { position: absolute; z-index: 2; left: 50%; top: 0; width: 13px; height: 32px; margin-left: -6.5px; border-radius: 3px; background: linear-gradient(90deg, #c08a55 0 46%, #8a5a2e 46% 54%, #d29b62 54%); box-shadow: 0 3px 4px -1px rgba(0, 0, 0, .35); }
+.peg::after { content: ""; position: absolute; left: -2px; right: -2px; top: 12px; height: 3px; border-radius: 2px; background: #9aa0a6; } /* the metal spring */
+.pol-photo { position: absolute; left: 12px; top: 20px; width: var(--pw); padding: 10px 10px 0; background: #fff; border-radius: 3px; box-shadow: 0 1px 0 rgba(0, 0, 0, .06), 0 18px 30px -16px rgba(0, 0, 0, .45); transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.card:hover .pol-photo { transform: translateY(4px) scale(1.03); }
+.pol-pic { position: relative; height: var(--ph); overflow: hidden; border-radius: 2px; container-type: size; }
+.pol-shot { position: absolute; transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+.pol-shot.frame-phone { right: 12cqw; top: 12cqh; height: 122cqh; }
+.pol-shot.frame-browser { right: -6cqw; bottom: -12cqh; width: 92cqw; }
+.pol-shot.frame-icon { left: 50%; top: 50%; height: 62cqh; transform: translate(-50%, -50%); }
+.pol-shot.frame-plain { left: 10%; top: 10%; width: 80%; height: 80%; }
+.pol-pic .card-initial { right: 8cqw; bottom: -26cqh; font-size: 112cqh; --dot: 4.4cqh; }
+.card:hover .pol-shot.frame-phone, .card:hover .pol-shot.frame-browser { transform: translateY(-4cqh); }
+.pol-caption { height: var(--cap); display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 2px; }
+.pol-caption .name { font-size: 30px; line-height: 1; letter-spacing: -0.01em; }
+.pol-caption .tagline { overflow: hidden; font-size: 12px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; color: rgba(0, 0, 0, .55); }
+.card .view { position: absolute; right: 8px; bottom: 10px; padding: 5px 11px; border-radius: 200px; background: #000; color: #fff; font: inherit; font-size: 13px; letter-spacing: -0.01em; white-space: nowrap; cursor: pointer; opacity: 0; transform: translateY(4px); pointer-events: none; transition: opacity .2s, transform .2s, background .2s; }
+.card:hover .view, .card:focus-within .view { opacity: 1; transform: none; pointer-events: auto; }
+.card .view:hover { background: var(--magenta); }
+.motion-paused .pol-swing { animation-play-state: paused; }
 /* Device frames — used on the slider cards and in the project sheet gallery */
 .frame { position: relative; flex-shrink: 0; overflow: hidden; background: #000; box-shadow: 0 30px 50px -24px rgba(0, 0, 0, .45); }
 .frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; pointer-events: none; }
@@ -116,25 +142,13 @@ body.is-loading { overflow: hidden; }
 .frame-plain { border-radius: 20px; background: none; }
 .frame-plain img { object-fit: contain; }
 
-/* Poster cards: name and tagline top-left, the screenshot standing up out of the bottom edge.
-   Inner sizes use container units (cqw/cqh), so the same rules fit every card size. */
-.card-head { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.8cqh; max-width: 58%; padding: 8.5cqh 7cqw; }
-.card-browser .card-head { max-width: none; }
-.card-phone .card-head { max-width: 50%; } /* stops the tagline running under the phone */
-.card .name { font-size: 13cqh; line-height: .95; letter-spacing: -0.05em; }
-.card .tagline { font-size: max(12px, 6cqh); line-height: 1.2; letter-spacing: -0.01em; color: rgba(0, 0, 0, .64); }
-.card-shot, .card-initial { position: absolute; transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
-.card-phone .card-shot { top: 13cqh; right: 7cqw; height: 116cqh; }
-.card-browser .card-shot { top: 44cqh; right: 7cqw; width: 82cqw; }
-.card-icon .card-shot { right: 7.5cqw; bottom: 9cqh; height: 46cqh; }
+.card-initial { position: absolute; transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
 /* No screenshot yet: the project's initial as a big dot-matrix letter (--dot = grid spacing) */
 .card-initial, .ps-initial { --dot: 3.6cqh; font-weight: 800; line-height: 1; letter-spacing: -0.05em; color: transparent;
   background: radial-gradient(circle, rgba(0, 0, 0, .82) calc(var(--dot) * .26), transparent calc(var(--dot) * .31)) 0 0 / var(--dot) var(--dot);
   -webkit-background-clip: text; background-clip: text; }
 .card-initial { right: 6cqw; bottom: -24cqh; font-size: 100cqh; }
-.card:hover .card-shot, .card:hover .card-initial { transform: translateY(-3.5cqh); }
-.card .view { position: absolute; left: 6cqw; bottom: 7cqh; z-index: 2; padding: 8px 14px; border-radius: 200px; border: 2px solid #000; background: #fff; color: #000; font: inherit; font-size: max(14px, 6.2cqh); letter-spacing: -0.02em; white-space: nowrap; cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .2s, transform .2s; }
-.card:hover .view, .card:focus-within .view { opacity: 1; transform: none; pointer-events: auto; }
+.card:hover .card-initial { transform: translateY(-3.5cqh); }
 .c0 { background: var(--blue); } .c1 { background: var(--pink); } .c2 { background: var(--green); }
 .c3 { background: var(--yellow); } .c4 { background: var(--brown); } .c5 { background: var(--orange); }
 
@@ -578,7 +592,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   :root { --space-xl: 112px; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
   .hero h1 { font-size: 88px; }
-  .card { width: 300px; height: 225px; } .slider { min-height: 225px; }
+  .card { --pw: 196px; --ph: 128px; --cap: 54px; height: 225px; } .slider { min-height: 225px; }
+  .pol-caption .name { font-size: 26px; }
   .talk-sticker { width: 112px; height: 112px; bottom: clamp(72px, calc(100% + 148px - 100vh), 120px); } .talk-ring text { font-size: 21px; }
   .ps-body { gap: 18px 26px; padding: 24px 26px 22px; } .ps-tagline { font-size: 26px; }
   .since { width: 480px; height: 230px; } .since h2 { font-size: 88px; }
@@ -622,7 +637,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 28px; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
   .hero h1 { font-size: 56px; }
-  .card { width: 240px; height: 210px; margin-right: 12px; border-radius: 26px; } .slider { min-height: 210px; }
+  .card { --pw: 172px; --ph: 116px; --cap: 50px; height: 210px; } .slider { min-height: 210px; }
+  .pol-photo { padding: 8px 8px 0; } .pol-caption .name { font-size: 24px; } .pol-caption .tagline { font-size: 11px; }
   /* Phones: the pop-ups fill the space below the navbar (project card: screenshots on top, words below) */
   .contact-layer { padding: 10px; --env-w: 300px; --env-h: 192px; }
   .ps-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 36% minmax(0, 1fr) auto; gap: 14px; padding: 18px 18px 16px; }
@@ -712,7 +728,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-set, .talk-ring, .say-hi-ring, .eq i, .bubble { animation: none !important; }
-  .card-shot, .card-initial { transition: none; }
+  .card-initial, .pol-shot, .pol-photo { transition: none; }
+  .pol-swing { animation: none; transform: rotate(var(--tilt, 0deg)); }
   .service-card { transform: none; filter: none; } .service-shots .frame, .service-cta { transition: none; }
   .vinyl-disc { animation: none; } .vinyl, .sleeve, .crate-record, .track > * { transition: none; }
   .intro { display: none; }

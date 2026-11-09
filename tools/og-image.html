@@ -25,7 +25,16 @@
     /* The project strip runs off the right edge, like the scrolling one on the site.
        A phone card goes last so the edge cuts through a screen, never through words. */
     .og-cards { position: absolute; top: 22px; left: 22px; display: flex; gap: 14px; }
-    .og-cards .card { width: 300px; height: 225px; margin: 0; border-radius: 28px; }
+    .og-cards .card { width: 300px; height: 225px; margin: 0; border-radius: 28px; overflow: hidden; container-type: size; }
+    /* The share image keeps the original poster cards (the site's strip is now a clothesline of polaroids) */
+    .og-cards .card-head { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.8cqh; max-width: 58%; padding: 8.5cqh 7cqw; }
+    .og-cards .card-browser .card-head { max-width: none; }
+    .og-cards .card-phone .card-head { max-width: 50%; }
+    .og-cards .card .name { font-size: 13cqh; line-height: .95; letter-spacing: -0.05em; }
+    .og-cards .card .tagline { font-size: max(12px, 6cqh); line-height: 1.2; letter-spacing: -0.01em; color: rgba(0, 0, 0, .64); }
+    .og-cards .card-shot { position: absolute; }
+    .og-cards .card-phone .card-shot { top: 13cqh; right: 7cqw; height: 116cqh; }
+    .og-cards .card-browser .card-shot { top: 44cqh; right: 7cqw; width: 82cqw; }
     .og-hero h1 { position: absolute; left: 30px; bottom: 34px; font-size: 112px; font-weight: 300; line-height: .86; letter-spacing: -0.06em; }
     .og-hero .talk-sticker { right: 36px; bottom: 40px; width: 150px; height: 150px; }
     .talk-ring { animation: none; }

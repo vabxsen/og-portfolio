@@ -74,29 +74,43 @@
     return btn;
   }
 
-  /* ---------- Hero slider cards ---------- */
-  // Poster layout: name + tagline top-left, the screenshot (or a dotted initial) rising from the bottom edge
+  /* ---------- Hero clothesline: project polaroids pegged to a line, swaying as they pass ---------- */
+  // .card is the hanger the cursor build places; .pol-swing sways on its own (CSS), .pol-kick swings when the line is dragged
+  const POL_TILTS = [-2, 1.5, -1, 2.5, -1.5, 1]; // each photo hangs a little crooked, like real pegged prints
+
   function buildCard(project, index) {
-    const card = el("div", `card c${index % CARD_COLORS}`);
-    const head = el("div", "card-head");
-    head.append(el("span", "name", project.name), el("span", "tagline", project.tagline));
+    const card = el("div", "card");
+    card.style.setProperty("--tilt", `${POL_TILTS[index % POL_TILTS.length]}deg`);
+    card.style.setProperty("--sway-time", `${(2.6 + (index % 4) * 0.35).toFixed(2)}s`);
+    card.style.setProperty("--sway-delay", `${(-index * 0.7).toFixed(1)}s`);
+    const swing = el("div", "pol-swing");
+    const kick = el("div", "pol-kick");
+    const peg = el("span", "peg");
+    peg.setAttribute("aria-hidden", "true");
+    const photo = el("div", "pol-photo");
+    const pic = el("div", `pol-pic c${index % CARD_COLORS}`);
     const initial = () => {
       const letter = el("span", "card-initial", project.name[0]);
       letter.setAttribute("aria-hidden", "true");
       return letter;
     };
-    let visual = initial();
     if (project.cover) {
-      const kind = `card-${project.cover.kind}`;
-      card.classList.add(kind);
-      visual = framedShot(project.cover, `${project.name} screenshot`);
-      visual.classList.add("card-shot");
+      const shot = framedShot(project.cover, `${project.name} screenshot`);
+      shot.classList.add("pol-shot");
       // A missing screenshot falls back to the dotted initial
-      visual.querySelector("img").addEventListener("error", () => { card.classList.remove(kind); visual.replaceWith(initial()); }, { once: true });
+      shot.querySelector("img").addEventListener("error", () => shot.replaceWith(initial()), { once: true });
+      pic.appendChild(shot);
+    } else {
+      pic.appendChild(initial());
     }
-    const view = openProjectButton("View project", index, "view");
+    const caption = el("div", "pol-caption");
+    caption.append(el("span", "name serif", project.name), el("span", "tagline", project.tagline));
+    const view = openProjectButton("View ↗", index, "view");
     view.setAttribute("aria-label", `View ${project.name}`);
-    card.append(head, visual, view);
+    photo.append(pic, caption, view);
+    kick.append(peg, photo);
+    swing.appendChild(kick);
+    card.appendChild(swing);
     return card;
   }
 
@@ -696,7 +710,30 @@
         const wrapped = wrapX(this.x);
         if (wrapped !== this.x) { gsap.set(slider, { x: wrapped }); this.update(); }
       };
-      Draggable.create(slider, { type: "x", inertia: true, dragClickables: false, onDrag: keepInRange, onThrowUpdate: keepInRange });
+      // Tugging the line makes the photos swing: they trail behind the way it moves, then settle with a wobble
+      const kicks = () => slider.querySelectorAll(".pol-kick");
+      let lastX = 0;
+      const swingWith = function () {
+        keepInRange.call(this);
+        const dx = this.x - lastX;
+        lastX = this.x;
+        if (reduceMotion || Math.abs(dx) > 200) return; // a jump from wrapping round isn't movement
+        gsap.to(kicks(), { rotate: gsap.utils.clamp(-14, 14, dx * 0.9), duration: 0.3, ease: "power2.out", overwrite: true });
+      };
+      const settle = () => {
+        if (!reduceMotion) gsap.to(kicks(), { rotate: 0, duration: 1.8, ease: "elastic.out(1, 0.25)", overwrite: true });
+      };
+      Draggable.create(slider, {
+        type: "x", inertia: true, dragClickables: false,
+        onPress() { lastX = this.x; },
+        onDrag: swingWith, onThrowUpdate: swingWith, onThrowComplete: settle,
+        onRelease() { if (!this.isThrowing) settle(); },
+        // A tap (not a drag) anywhere on a photo opens that project
+        onClick(e) {
+          const card = e.target.closest(".card");
+          if (card && !e.target.closest("button")) card.querySelector("[data-open-project]").click();
+        },
+      });
     });
   }
 
@@ -1666,8 +1703,9 @@
     tl.set(part, { opacity: 1 }, start);
     if (!cards.length) { tl.set(all, { opacity: 1 }, start); return start; }
     const last = cards[cards.length - 1];
-    const path = { from: Math.max(cards[0].left, 0) + 24, to: Math.min(last.right, box.width) - 48, y: cards[0].top + 28 };
-    const done = sweep(tl, cursor, cards, path, start, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.35, ease: "back.out(1.6)" });
+    // The cursor runs along the clothesline, and each photo drops onto its peg as the cursor passes
+    const path = { from: Math.max(cards[0].left, 0) + 24, to: Math.min(last.right, box.width) - 48, y: cards[0].top + 14 };
+    const done = sweep(tl, cursor, cards, path, start, { opacity: 0, y: -28, rotate: -8 }, { opacity: 1, y: 0, rotate: 0, duration: 0.5, ease: "back.out(2.2)" });
     tl.set(all.filter((node) => !cards.some((c) => c.node === node)), { opacity: 1 }, done); // the off-screen ones
     return done;
   }
