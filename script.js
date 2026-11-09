@@ -468,6 +468,52 @@
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }
 
+  /* ---------- About: fact stickers beside the text (the portrait stays untouched) ---------- */
+  const FACT_TILTS = [-6, 4, -3, 7, -5, 3];
+
+  function renderFactStickers() {
+    const list = document.querySelector("[data-fact-stickers]");
+    if (!list || !SITE.aboutStickers) return;
+    const fill = (text) => text.replace("{projects}", SITE.projects.length).replace("{tools}", SITE.tools.length);
+    SITE.aboutStickers.forEach((s, i) => {
+      const shape = s.shape || "pill";
+      const item = el("li", `fact fact-${shape}`);
+      const text = fill(s.text);
+      const project = s.open ? SITE.projects.findIndex((p) => p.name === s.open) : -1;
+      let face;
+      if (project >= 0) face = openProjectButton(text, project, "fact-face");
+      else if (s.href) { face = el("a", "fact-face", text); face.href = s.href; }
+      else face = el("span", "fact-face", text);
+      face.style.setProperty("--r", `${FACT_TILTS[i % FACT_TILTS.length]}deg`);
+      const color = s.color || "yellow";
+      // The scalloped one is drawn like the Journey and Say hi stickers; the rest are plain colour
+      if (shape === "scallop") face.style.backgroundImage = scallopBackground(getComputedStyle(document.documentElement).getPropertyValue(`--${color}`).trim() || "#ffade4");
+      else face.style.background = `var(--${color})`;
+      item.appendChild(face);
+      list.appendChild(item);
+    });
+  }
+
+  // They slap on one by one when the About text scrolls into view; on a mouse they can be dragged around the text column
+  function setupFactStickers() {
+    const list = document.querySelector("[data-fact-stickers]");
+    if (!list || !list.children.length || !hasGsap) return;
+    const items = [...list.children];
+    // Dragging starts only once they've landed: the drag bounds would otherwise shove the still-enlarged stickers sideways
+    const enableDrag = () => {
+      if (typeof Draggable === "undefined" || !window.matchMedia("(pointer: fine)").matches) return;
+      Draggable.create(items, { type: "x,y", bounds: list.closest(".texts"), zIndexBoost: true });
+    };
+    if (reduceMotion || !("IntersectionObserver" in window)) { enableDrag(); return; }
+    gsap.set(items, { opacity: 0, scale: 1.5 });
+    const seen = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      seen.disconnect();
+      gsap.to(items, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2.6)", stagger: 0.09, onComplete: enableDrag });
+    }, { threshold: 0.4 });
+    seen.observe(list);
+  }
+
   function renderSayHi() {
     document.querySelector("[data-say-hi]").style.backgroundImage = scallopBackground("#fff570");
   }
@@ -1856,6 +1902,7 @@
   setupServiceStack();
   renderJourney();
   renderSayHi();
+  renderFactStickers(); // before setupScroll, so its #work / #skills links get smooth scrolling
   setupCraft();
   setupMenu();
   setupScroll();
@@ -1873,6 +1920,7 @@
   runIntro();
   setupCtaSwarm();
   setupDraggableSliders();
+  setupFactStickers(); // after setupDraggableSliders, which registers Draggable
   setupShake();
   if (hasGsap && !reduceMotion && !motionPaused) revealJourney();
 })();

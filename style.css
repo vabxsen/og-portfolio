@@ -220,6 +220,17 @@ body.is-loading { overflow: hidden; }
 /* The text sits level with the portrait's middle, not up at the slashes (the top padding skips the slashes and the gap under them) */
 .thinking .texts { width: 50%; padding-left: 16px; padding-top: 88px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 32px; }
 .thinking .texts p { font-size: 48px; line-height: 1; letter-spacing: -0.04em; color: var(--ink-64); }
+/* Fact stickers: die-cut stickers (white edge + hairline, no shadow) scattered under the text, never over the portrait.
+   The tilt and hover live on .fact-face; GSAP moves the <li> (slap-in and drag), so the two never fight. */
+.fact-stickers { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 560px; list-style: none; }
+.fact:nth-child(even) { margin-top: 18px; }
+.fact-face { display: inline-flex; align-items: center; justify-content: center; padding: 12px 18px; border: 3px solid #fff; outline: 1px solid rgba(0, 0, 0, .12); color: #000; font-size: 20px; font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; text-align: center; white-space: nowrap; user-select: none; transform: rotate(var(--r, 0deg)); transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
+.fact-face:hover { transform: rotate(0deg) scale(1.06); }
+a.fact-face:hover, button.fact-face:hover { text-decoration: underline; text-underline-offset: 3px; }
+.fact-pill .fact-face { border-radius: 200px; }
+.fact-tag .fact-face { border-radius: 12px; }
+.fact-round .fact-face { width: 128px; height: 128px; padding: 16px; border-radius: 50%; white-space: normal; }
+.fact-scallop .fact-face { width: 140px; height: 140px; padding: 26px; border: 0; outline: 0; background-size: 100% 100%; white-space: normal; }
 .since { position: relative; width: 760px; height: 300px; margin: 0 auto 32px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 .since-ring { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #000; stroke-width: 2; }
 .since h2 { position: relative; font-size: 120px; line-height: 1; letter-spacing: -0.06em; white-space: nowrap; }
@@ -602,6 +613,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .label, .thinking .texts p, .link-cols li, .slashes { font-size: 36px; }
   .hero h1 { font-size: 88px; }
   .tool-word { font-size: 84px; } .tool-sep { font-size: 30px; } .clients .marquee { min-height: 104px; }
+  .fact-face { font-size: 17px; padding: 10px 15px; } .fact-round .fact-face { width: 110px; height: 110px; } .fact-scallop .fact-face { width: 120px; height: 120px; padding: 22px; }
   .card { --pw: 196px; --ph: 128px; --cap: 54px; height: 225px; } .slider { min-height: 225px; }
   .pol-caption .name { font-size: 26px; }
   .talk-sticker { width: 112px; height: 112px; bottom: clamp(72px, calc(100% + 148px - 100vh), 120px); } .talk-ring text { font-size: 21px; }
@@ -671,6 +683,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .thinking-left { width: 100%; gap: 24px; }
   .dots-wrap { width: min(300px, 86%); margin: 0 auto; }
   .thinking .texts { width: 100%; padding-left: 0; padding-top: 0; }
+  .fact-stickers { gap: 10px; } .fact:nth-child(even) { margin-top: 10px; }
+  .fact-face { font-size: 15px; padding: 9px 13px; } .fact-round .fact-face { width: 96px; height: 96px; padding: 12px; } .fact-scallop .fact-face { width: 106px; height: 106px; padding: 20px; }
   .since { width: 100%; max-width: 340px; height: 170px; } .since h2 { font-size: 56px; }
   .stat { width: 260px; height: 260px; margin-right: -24px; border-width: 4px; }
   .stat b { font-size: 120px; } .stat span { font-size: 24px; }
@@ -745,6 +759,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .pol-swing { animation: none; transform: rotate(var(--tilt, 0deg)); }
   .service-card { transform: none; filter: none; } .service-shots .frame, .service-cta { transition: none; }
   .vinyl-disc { animation: none; } .vinyl, .sleeve, .crate-record, .track > * { transition: none; }
+  .fact-face { transition: none; }
   .intro { display: none; }
   /* Without the scroll, the social links wrap onto lines so none are cut off */
   .big-links .marquee-set, .ribbon .marquee-set { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }

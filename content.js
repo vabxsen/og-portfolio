@@ -12,6 +12,22 @@ const SITE = {
     gamma: 0.8,
   },
 
+  // Fact stickers beside the About text (the portrait is never covered).
+  // text: {projects} and {tools} are counted for you. shape: "pill" | "tag" | "round" | "scallop".
+  // color: a site colour (pink, yellow, sky, mint, orange, green, blue, brown, red, magenta).
+  // open: a project's name opens its details; href: a link (e.g. "#work"). Stickers can be dragged on desktop.
+  aboutStickers: [
+    { text: "{projects} projects shipped", shape: "round", color: "yellow", href: "#work" },
+    { text: "Android · Web · Desktop", shape: "pill", color: "sky" },
+    { text: "Now building Zenode", shape: "scallop", color: "pink", open: "Zenode" },
+    { text: "Started with Python", shape: "tag", color: "mint" },
+    { text: "Privacy-first apps", shape: "pill", color: "orange" },
+    { text: "{tools} tools in my kit", shape: "tag", color: "green", href: "#skills" },
+    // Fill these in and remove the // to show them:
+    // { text: "📍 Based in ___", shape: "pill", color: "pink" },
+    // { text: "Open to work", shape: "round", color: "green" },
+  ],
+
   // Big stat circles in the "Always building" marquee. Each number is counted from the lists below,
   // so it stays right as projects are added: count "projects", "tools", or a project cat ("web", "mobile", "ai"…).
   // A fixed number still works too: { value: "5", label: "Years" }.
