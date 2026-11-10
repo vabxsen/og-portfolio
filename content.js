@@ -103,7 +103,7 @@ const SITE = {
     {
       name: "Doclee", tagline: "Powerful PDF tools. Private by design.", platform: "Web", cats: ["web"],
       stack: "React 19 · TypeScript · Vite · Tailwind CSS · Zustand · pdf-lib · Firebase",
-      live: "https://doclee.web.app/", source: "https://github.com/vabxsen/Doclee",
+      live: "https://doclee.web.app/", source: "https://github.com/vabxsen/Doclee-demo-web",
       cover: { src: "assets/projects/doclee.jpg", kind: "browser" },
       gallery: [{ src: "assets/projects/doclee.jpg", kind: "browser" }],
       summary: "A privacy-first PDF toolkit built as an installable Progressive Web App. Images are decoded, edited and assembled into a PDF right in the browser — no server, no upload, no account required.",

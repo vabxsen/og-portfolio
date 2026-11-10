@@ -480,16 +480,52 @@ body.music-on .vinyl-disc { animation-duration: 1.8s; }
 
 /* ============ Links ============ */
 .links { padding-top: var(--pad); }
-.link-cols { display: flex; padding: 0 var(--pad); margin-bottom: var(--space-xl); }
-.link-cols ul { width: 50%; list-style: none; }
-.link-cols ul + ul { padding-left: 16px; }
-.link-cols li { font-size: 48px; line-height: 1; letter-spacing: -0.04em; color: rgba(0, 0, 0, .48); margin-bottom: 8px; }
-.link-cols li.heading { color: #000; margin-bottom: 32px; }
-.link-cols a { transition: color .15s; }
-.link-cols a:hover { color: #000; }
-/* A line under each open-source link saying what it is */
-.link-note { max-width: 540px; margin: 6px 0 22px; font-size: 18px; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink-64); }
+/* Metro map: two lines of stops. Each stop draws the piece of track to the next one, so the stops share the
+   width equally and the track always meets every dot. Wide screens run the lines across, smaller ones down */
+.metro { display: flex; flex-direction: column; gap: 72px; padding: 0 var(--pad); margin-bottom: var(--space-xl); }
+.metro-line { --line: var(--magenta); --dot: 30px; --lane: 40px; min-width: 0; }
+.line-oss { --line: var(--pink); --lane: 0px; }
+.metro-head { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; font-size: 48px; font-weight: 500; line-height: 1; letter-spacing: -0.04em; }
+.metro-head small { align-self: flex-end; padding-bottom: 5px; font-size: 16px; letter-spacing: 0; color: var(--ink-48); }
+.line-badge { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border: 3px solid #000; border-radius: 50%; background: var(--line); color: #fff; font-size: 22px; font-weight: 800; letter-spacing: 0; }
+.line-oss .line-badge { color: #000; }
+.metro-rail { position: relative; }
+.metro-track { display: flex; list-style: none; padding-top: var(--lane); }
+.stop { position: relative; flex: 1 1 0; min-width: 0; padding-right: 14px; }
+.stop:not(:last-child)::before { content: ""; position: absolute; left: calc(var(--dot) / 2); top: calc(var(--dot) / 2 - 8px); width: 100%; height: 16px; background: var(--line); border-block: 3px solid #000; }
+.stop a { position: relative; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.stop-dot { width: var(--dot); height: var(--dot); flex: none; border: 3.5px solid #000; border-radius: 50%; background: #fff; transition: background .2s, transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.is-terminus .stop-dot { width: calc(var(--dot) * 1.8); border-radius: 100px; background: #000; }
+.stop-name { font-size: clamp(24px, 2.3vw, 40px); line-height: 1; letter-spacing: -0.04em; color: var(--ink-48); transition: color .15s; }
+.stop a:hover .stop-name, .stop a:focus-visible .stop-name, .stop.is-here .stop-name { color: #000; }
+.stop a:hover .stop-dot, .stop a:focus-visible .stop-dot, .stop.is-here .stop-dot { background: var(--yellow); transform: scale(1.2); }
+.stop a:focus-visible { outline-offset: 6px; }
+/* A line under each open-source stop saying what it is */
+.link-note { max-width: 300px; margin-top: 12px; padding-right: 8px; font-size: 16px; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink-64); }
 .ext { font-size: .6em; vertical-align: .3em; }
+/* The tram: waits above a stop, rides to the next every couple of seconds, and runs to any stop you point at
+   (script.js sets --x / --y to the stop's centre) */
+.metro-tram { position: absolute; left: 0; top: 4px; display: flex; align-items: center; justify-content: center; gap: 5px; width: 48px; height: 30px; border: 3px solid #000; border-radius: 10px 10px 7px 7px; background: var(--pink); transform: translate(calc(var(--x, 15px) - 50%), 0); transition: transform 1s cubic-bezier(.65, 0, .35, 1); }
+.metro-tram i { width: 11px; height: 10px; border: 2px solid #000; border-radius: 3px; background: #fff; }
+@media (max-width: 1100px) {
+  .metro { flex-direction: row; gap: 24px; }
+  .metro-line { flex: 1 1 0; }
+  .metro-head { font-size: 36px; margin-bottom: 28px; } .line-badge { width: 38px; height: 38px; font-size: 18px; }
+  .metro-track { flex-direction: column; padding: 0 0 0 var(--lane); }
+  .stop { padding: 0 0 26px; } .line-site .stop { padding-bottom: 40px; }
+  .stop:not(:last-child)::before { left: calc(var(--dot) / 2 - 8px); top: calc(var(--dot) / 2); width: 16px; height: 100%; border-block: 0; border-inline: 3px solid #000; }
+  .stop a { flex-direction: row; gap: 14px; }
+  .stop-name { font-size: 28px; line-height: var(--dot); }
+  .is-terminus .stop-dot { width: var(--dot); height: calc(var(--dot) * 1.8); }
+  .link-note { max-width: 420px; margin: 4px 0 0 calc(var(--dot) + 14px); }
+  .metro-tram { left: 0; top: 0; flex-direction: column; width: 30px; height: 48px; border-radius: 10px 7px 7px 10px; transform: translate(0, calc(var(--y, 15px) - 50%)); }
+}
+@media (max-width: 720px) {
+  .metro { flex-direction: column; gap: 48px; }
+  .metro-head { font-size: 28px; gap: 12px; } .line-badge { width: 34px; height: 34px; font-size: 16px; }
+  .stop-name { font-size: 24px; }
+}
+.motion-paused .metro-tram, .motion-paused .stop-dot { transition: none; }
 /* Big scrolling social links: one huge line of words; hovering a word turns it pink and pauses the strip,
    and keyboard focus pauses it too (script.js brings the focused word on screen) */
 .big-links .marquee-set { --speed: 36s; align-items: center; }
@@ -664,7 +700,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
 /* ============ Responsive ============ */
 @media (max-width: 1100px) {
   :root { --space-xl: 112px; }
-  .label, .thinking .about-copy .about-lead, .link-cols li, .slashes { font-size: 36px; }
+  .label, .thinking .about-copy .about-lead, .slashes { font-size: 36px; }
   .about-copy p { font-size: 19px; } .about-copy .about-kicker { font-size: 22px; }
   .hero h1 { font-size: 88px; }
   .tool-word { font-size: 84px; } .tool-sep { font-size: 30px; } .clients .marquee { min-height: 104px; }
@@ -711,7 +747,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .nav-right { width: auto; gap: 8px; }
   .chip, .contact-pill { font-size: 18px; padding: 10px 14px; }
   .nav-right .contact-pill { display: none; }
-  .label, .thinking .about-copy .about-lead, .link-cols li, .slashes { font-size: 28px; }
+  .label, .thinking .about-copy .about-lead, .slashes { font-size: 28px; }
   .about-copy { gap: 14px; } .about-copy p { font-size: 17px; } .about-copy .about-kicker { font-size: 20px; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
   .hero-buddies { display: none; } /* phones: the intro takes the full width, so there's no room beside it */
@@ -763,11 +799,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .timeline { gap: 28px; }
   .step { width: 272px; }
   .step:not(:last-child)::after { width: 28px; }
-  .link-note { font-size: 16px; margin-bottom: 16px; }
   .craft-center h2 { font-size: 44px; margin-bottom: 24px; }
   .craft-arrow, .craft-face { width: 200px; height: 200px; }
-  .link-cols { flex-direction: column; gap: 40px; }
-  .link-cols ul { width: 100%; } .link-cols ul + ul { padding-left: 0; }
   .big-link { font-size: 68px; } .big-link-sep { font-size: 30px; }
   .hi { flex-direction: column; align-items: stretch; }
   .hi-left { gap: 40px; padding-right: var(--pad); }

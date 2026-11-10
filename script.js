@@ -1458,6 +1458,47 @@
     });
   }
 
+  /* ---------- Footer metro map: the tram rides the Quick Links line ---------- */
+  // It hops one stop every couple of seconds while the map is on screen (back and forth, end to end), and runs
+  // straight to any stop you hover or tab to. With motion paused or reduced it just waits at the stop you point at
+  function setupMetro() {
+    const rail = document.querySelector("[data-metro-line]");
+    if (!rail) return;
+    const stops = [...rail.querySelectorAll(".stop")];
+    const tram = rail.querySelector(".metro-tram");
+    let at = 0, dir = 1, holding = false, onScreen = false, timer = 0;
+    const place = (i) => {
+      stops[at].classList.remove("is-here");
+      at = i;
+      stops[at].classList.add("is-here");
+      const dot = stops[at].querySelector(".stop-dot").getBoundingClientRect();
+      const box = rail.getBoundingClientRect();
+      tram.style.setProperty("--x", `${dot.left + dot.width / 2 - box.left}px`);
+      tram.style.setProperty("--y", `${dot.top + dot.height / 2 - box.top}px`);
+    };
+    const hop = () => {
+      if (!onScreen || holding || motionPaused || reduceMotion) return;
+      if (at + dir < 0 || at + dir >= stops.length) dir = -dir;
+      place(at + dir);
+    };
+    stops.forEach((stop, i) => {
+      const go = () => { holding = true; place(i); };
+      const leave = () => { holding = false; };
+      stop.addEventListener("mouseenter", go);
+      stop.addEventListener("mouseleave", leave);
+      stop.addEventListener("focusin", go);
+      stop.addEventListener("focusout", leave);
+    });
+    place(0);
+    window.addEventListener("resize", () => place(at));
+    if (!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      clearInterval(timer);
+      if (onScreen) { place(at); timer = setInterval(hop, 1800); } // re-measure: fonts or layout may have shifted
+    }).observe(rail);
+  }
+
   /* ---------- Pause / play all motion ---------- */
   function setupMotionToggle() {
     const btn = document.querySelector("[data-motion-toggle]");
@@ -1959,6 +2000,7 @@
   setupWorkFilter();
   setupBigLinks();
   setupMotionToggle();
+  setupMetro(); // after setupMotionToggle, which sets motionPaused
   setupMusic();
   setupPhoneControls();
   setupEyes();

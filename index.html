@@ -253,24 +253,33 @@
 
     <!-- Links -->
     <section class="panel links" id="links">
-      <div class="link-cols">
-        <ul>
-          <li class="heading">Quick Links</li>
-          <li><a href="#index">Index</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#build">Build</a></li>
-          <li><a href="#work">Work</a></li>
-          <li><a href="#journey">Journey</a></li>
-        </ul>
-        <ul>
-          <li class="heading">Open Source</li>
-          <li><a href="https://github.com/vabxsen/Scoop" target="_blank" rel="noopener">Scoop <span class="ext">↗</span></a><p class="link-note">On-device media downloads with a native Android interface. Built in the open, with contribution guidelines and release notes.</p></li>
-          <li><a href="https://github.com/vabxsen/Advanced-Python-Roadmap-by-vabxsen" target="_blank" rel="noopener">Python Roadmap <span class="ext">↗</span></a><p class="link-note">A shared learning path from Python fundamentals to advanced topics, for students and independent learners.</p></li>
-          <li><a href="https://github.com/vabxsen/Doclee" target="_blank" rel="noopener">Doclee <span class="ext">↗</span></a><p class="link-note">A browser-first PDF toolkit. Explore the document pipeline, offline support, and client-side processing.</p></li>
-          <li><a href="https://github.com/vabxsen/Zenode" target="_blank" rel="noopener">Zenode <span class="ext">↗</span></a><p class="link-note">A local-first Markdown knowledge base for Windows. MIT-licensed, with end-to-end tests and automated releases.</p></li>
-          <li><a href="https://github.com/vabxsen?tab=repositories" target="_blank" rel="noopener">All Repositories <span class="ext">↗</span></a></li>
-        </ul>
+      <!-- Metro map: the page's sections are stops on the magenta Quick Links line (a little tram rides it and
+           runs to whichever stop you point at); the repos are stops on the pink Open Source line, ending at All Repositories -->
+      <div class="metro">
+        <nav class="metro-line line-site" aria-labelledby="line-site-name">
+          <h2 class="metro-head"><span class="line-badge" aria-hidden="true">Q</span><span id="line-site-name">Quick Links</span><small>6 stops</small></h2>
+          <div class="metro-rail" data-metro-line>
+          <ol class="metro-track">
+            <li class="stop"><a href="#index"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Index</span></a></li>
+            <li class="stop"><a href="#skills"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Toolkit</span></a></li>
+            <li class="stop"><a href="#about"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">About</span></a></li>
+            <li class="stop"><a href="#build"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">What I Build</span></a></li>
+            <li class="stop"><a href="#work"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Work</span></a></li>
+            <li class="stop"><a href="#journey"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Journey</span></a></li>
+          </ol>
+          <span class="metro-tram" aria-hidden="true"><i></i><i></i></span>
+          </div>
+        </nav>
+        <div class="metro-line line-oss">
+          <h2 class="metro-head"><span class="line-badge" aria-hidden="true">O</span>Open Source<small>5 stops</small></h2>
+          <ol class="metro-track">
+            <li class="stop"><a href="https://github.com/vabxsen/Scoop" target="_blank" rel="noopener"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Scoop <span class="ext">↗</span></span></a><p class="link-note">On-device media downloads with a native Android interface. Built in the open, with contribution guidelines and release notes.</p></li>
+            <li class="stop"><a href="https://github.com/vabxsen/Advanced-Python-Roadmap-by-vabxsen" target="_blank" rel="noopener"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Python Roadmap <span class="ext">↗</span></span></a><p class="link-note">A shared learning path from Python fundamentals to advanced topics, for students and independent learners.</p></li>
+            <li class="stop"><a href="https://github.com/vabxsen/Doclee-demo-web" target="_blank" rel="noopener"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Doclee <span class="ext">↗</span></span></a><p class="link-note">A browser-first PDF toolkit. Explore the document pipeline, offline support, and client-side processing.</p></li>
+            <li class="stop"><a href="https://github.com/vabxsen/Zenode" target="_blank" rel="noopener"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">Zenode <span class="ext">↗</span></span></a><p class="link-note">A local-first Markdown knowledge base for Windows. MIT-licensed, with end-to-end tests and automated releases.</p></li>
+            <li class="stop is-terminus"><a href="https://github.com/vabxsen?tab=repositories" target="_blank" rel="noopener"><span class="stop-dot" aria-hidden="true"></span><span class="stop-name">All Repositories <span class="ext">↗</span></span></a></li>
+          </ol>
+        </div>
       </div>
       <!-- Big scrolling social links. The second set is a copy that only keeps the loop seamless -->
       <nav class="marquee big-links" aria-label="Social links">
