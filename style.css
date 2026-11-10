@@ -276,13 +276,20 @@ body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; tra
 /* Pen doodles on the lead: magenta marks sized to their phrase by script.js. They show fully drawn by default;
    once script.js arms them they wait hidden, sketch themselves in when the text comes into view, and redraw on hover */
 .doodle { position: relative; white-space: nowrap; }
-.doodle svg { position: absolute; overflow: visible; pointer-events: none; }
+.doodle svg { position: absolute; z-index: 1; overflow: visible; pointer-events: none; } /* over the rolling-ideas tag */
 .doodle path { fill: none; stroke: var(--magenta); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
 .doodles-armed .doodle path { stroke-dashoffset: 1; }
 .doodles-armed .doodle.is-drawn path { animation: doodle-draw .75s cubic-bezier(.6, 0, .3, 1) var(--d, 0s) forwards; }
 .doodles-armed .doodle.is-drawn path + path { animation-duration: .25s; animation-delay: calc(var(--d, 0s) + .65s); } /* arrowhead after its shaft */
 @keyframes doodle-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .motion-paused .doodle path { stroke-dashoffset: 0 !important; animation: none !important; }
+/* Rolling ideas: script.js turns "random ideas" into a pink tag, as wide as its longest word so the line never
+   reflows, whose words roll up one after another (the list repeats its first word at the end for a seamless loop) */
+/* The words are set a touch smaller than the lead so the tag takes about the room "random ideas" did */
+.idea-roll.is-rolling { --row: 1.12em; display: inline-block; height: calc(var(--row) + 5px); overflow: hidden; vertical-align: -0.24em; padding: 0 .1em; border: 2.5px solid #000; border-radius: .28em; background: var(--pink); color: #000; font-size: .9em; transform: rotate(-2deg); }
+.idea-roll-track { display: block; transition: transform .6s cubic-bezier(.68, -0.35, .32, 1.35); }
+.idea-roll-track > span { display: block; width: max-content; height: var(--row); margin: 0 auto; line-height: var(--row); white-space: nowrap; }
+.idea-roll-track.no-anim { transition: none; }
 .about-copy .about-kicker { font-size: 26px; font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; color: #000; }
 /* Fact stickers: die-cut stickers (white edge + hairline, no shadow) scattered under the text, never over the portrait.
    The tilt and hover live on .fact-face; GSAP moves the <li> (slap-in and drag), so the two never fight. */

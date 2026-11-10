@@ -1481,6 +1481,53 @@
       : { box: [w + 10, b - fs * .55, 56, 44], paths: ["M54 42 C38 44 20 37 12 13", "M4 21 L12 11 L22 18"] },
   };
 
+  /* ---------- About lead: rolling ideas ---------- */
+  // "random ideas" becomes a pink tag that rolls to the next of its data-words every few seconds while the text is
+  // on screen. The tag is as wide as its longest word, so the sentence never reflows (and the doodles stay put).
+  // Screen readers just hear "random ideas"; with motion paused or reduced the tag holds still on it
+  function setupIdeaRoll() {
+    const tag = document.querySelector("[data-idea-roll]");
+    if (!tag) return;
+    const first = tag.textContent.trim();
+    const words = [first, ...tag.dataset.words.split("|"), first];
+    const track = document.createElement("span");
+    track.className = "idea-roll-track";
+    track.setAttribute("aria-hidden", "true");
+    words.forEach((word) => track.append(Object.assign(document.createElement("span"), { textContent: word })));
+    const spoken = Object.assign(document.createElement("span"), { className: "sr-only", textContent: first });
+    tag.replaceChildren(spoken, track);
+    tag.classList.add("is-rolling");
+    const fit = () => {
+      const widest = Math.max(...[...track.children].map((word) => word.offsetWidth));
+      const edge = tag.offsetWidth - tag.clientWidth + parseFloat(getComputedStyle(tag).paddingLeft) * 2;
+      tag.style.width = `${Math.ceil(widest + edge)}px`;
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    if (document.fonts) document.fonts.ready.then(fit);
+    if (reduceMotion || !("IntersectionObserver" in window)) return;
+    let at = 0, timer = 0;
+    const roll = () => {
+      if (motionPaused) return;
+      at += 1;
+      track.style.transform = `translateY(${-at * 1.12}em)`;
+      if (at === words.length - 1) {
+        // Landed on the repeated first word: once the roll finishes, jump back to the real one unseen
+        setTimeout(() => {
+          track.classList.add("no-anim");
+          at = 0;
+          track.style.transform = "";
+          void track.offsetWidth;
+          track.classList.remove("no-anim");
+        }, 700);
+      }
+    };
+    new IntersectionObserver(([entry]) => {
+      clearInterval(timer);
+      if (entry.isIntersecting) timer = setInterval(roll, 2600);
+    }).observe(tag);
+  }
+
   function setupDoodles() {
     const lead = document.querySelector(".about-lead");
     const marks = lead ? [...lead.querySelectorAll("[data-doodle]")] : [];
@@ -2074,6 +2121,7 @@
   setupBigLinks();
   setupMotionToggle();
   setupMetro(); // after setupMotionToggle, which sets motionPaused
+  setupIdeaRoll(); // before setupDoodles: it sets the tag's width, which the arrow doodle's spot depends on
   setupDoodles();
   setupMusic();
   setupPhoneControls();
