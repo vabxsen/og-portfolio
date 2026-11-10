@@ -707,6 +707,26 @@
   const DOT_PUSH_RADIUS = 90; // px around the cursor that dots react to
   const DOT_PUSH = 16; // max px a dot is pushed outward
   const DOT_INTRO_MS = 1400;
+  const DOT_MAX = 0.44; // biggest dot radius, as a share of a cell (0.5 would touch its neighbours)
+
+  // Unsharp mask on the brightness grid: pushes each cell away from the average of its 3×3 neighbourhood, so
+  // edges (eyes, nose, jaw, hairline) read more clearly in dots. `amount` 0 leaves it as is
+  function sharpen(lum, cols, rows, amount) {
+    if (!amount) return lum;
+    return lum.map((v, i) => {
+      const x = i % cols, y = Math.floor(i / cols);
+      let sum = 0, n = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+          sum += lum[ny * cols + nx];
+          n += 1;
+        }
+      }
+      return Math.min(1, Math.max(0, v + amount * (v - sum / n)));
+    });
+  }
 
   /**
    * Brightness grid (0..1) for the portrait map, cropped to cover a cols×rows grid.
@@ -774,12 +794,13 @@
         const cols = SITE.about.columns || 52;
         const cell = box.width / cols;
         const rows = Math.round(box.height / cell);
-        const lum = sampleBrightness(source, cols, rows, SITE.about.zoom || 1, SITE.about.focus || [0.5, 0.5]);
+        const lum = sharpen(sampleBrightness(source, cols, rows, SITE.about.zoom || 1, SITE.about.focus || [0.5, 0.5]), cols, rows, SITE.about.sharpen ?? 0.6);
         size = { w: box.width, h: box.height, cell };
         dots = [];
         lum.forEach((v, i) => {
-          // gamma < 1 lifts mid-tones so eyes, beard and hair edges keep some dots
-          const r = Math.pow(v, SITE.about.gamma || 0.8) * cell * 0.5;
+          // gamma < 1 lifts mid-tones so eyes, beard and hair edges keep some dots. The biggest dot is a bit under
+          // half a cell, so even the brightest neighbours keep a gap instead of merging into a white blob
+          const r = Math.pow(v, SITE.about.gamma || 0.8) * cell * DOT_MAX;
           if (r < cell * 0.06) return; // skip near-black cells: keeps the background clean
           dots.push({ x: (i % cols + 0.5) * cell, y: (Math.floor(i / cols) + 0.5) * cell, r, ox: 0, oy: 0, s: 1, row: Math.floor(i / cols) / rows });
         });
