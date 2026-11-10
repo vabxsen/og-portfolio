@@ -207,6 +207,7 @@
     const count = document.querySelector("[data-crate-count]");
     if (!list || !deck || !track) return;
     const total = SITE.projects.length;
+    list.parentNode.style.setProperty("--n", total); // the crate sizes its covers so all of them fit the screen
     let current = -1;
     let swapTimer = 0;
     let refocusStep = null; // the ← / → button to put focus back on once the details are redrawn
@@ -390,8 +391,12 @@
     const covers = projects.filter((p) => p.cover).slice(0, 3);
     // Nothing to show (e.g. Desktop has no screenshot yet): the category's icon, big
     if (!covers.length) { shots.appendChild(svgIcon(ICONS[icon])); return shots; }
+    // Phones and icons are narrow, so a fan of three spreads wider than three browser windows would
+    const narrow = covers.length === 3 && covers.every((p) => p.cover.kind !== "browser");
+    if (narrow) shots.classList.add("is-fan");
     covers.forEach((p, i) => {
-      const [x, r] = SHOT_LAYOUTS[covers.length][i];
+      const [x0, r] = SHOT_LAYOUTS[covers.length][i];
+      const x = narrow ? Math.sign(x0) * 30 : x0;
       const frame = framedShot(p.cover, "");
       frame.style.setProperty("--x", x);
       frame.style.setProperty("--r", `${r}deg`);
@@ -1517,26 +1522,16 @@
     document.addEventListener("keydown", resumeOnFirstGesture, { once: true, capture: true });
   }
 
-  /* ---------- Phones: Pause motion and Play music move into the menu ---------- */
-  // Floating in the bottom corners they covered the page on small screens, so there they become menu items.
+  /* ---------- Pause motion and Play music live in the menu ---------- */
+  // Floating in the bottom corners they covered whatever scrolled under them (the headline, the Work buttons,
+  // the footer name), so on every screen size they are menu items instead.
   // The buttons themselves move (not copies), so their labels and state stay in one place.
   function setupPhoneControls() {
-    const phone = window.matchMedia("(max-width: 720px)");
     const buttons = [...document.querySelectorAll("[data-motion-toggle], [data-music-toggle]")];
     if (!buttons.length) return;
-    const homes = buttons.map((btn) => ({ btn, parent: btn.parentNode, next: btn.nextSibling }));
     const slot = el("li", "menu-controls");
-    const place = () => {
-      if (phone.matches) {
-        slot.append(...buttons);
-        menuList.append(slot);
-        return;
-      }
-      homes.forEach(({ btn, parent, next }) => parent.insertBefore(btn, next));
-      slot.remove();
-    };
-    place();
-    phone.addEventListener("change", place);
+    slot.append(...buttons);
+    menuList.append(slot);
   }
 
   function setupWorkFilter() {

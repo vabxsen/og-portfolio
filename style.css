@@ -73,7 +73,8 @@ body.is-loading { overflow: hidden; }
 .menu-btn[aria-expanded="true"] .menu-icon { border: 0; }
 .menu-btn[aria-expanded="true"] .menu-icon::before, .menu-btn[aria-expanded="true"] .menu-icon::after { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 2px; background: #000; transform: rotate(45deg); }
 .menu-btn[aria-expanded="true"] .menu-icon::after { transform: rotate(-45deg); }
-.menu-list { position: absolute; top: calc(100% + 4px); left: 0; width: 240px; list-style: none; border-radius: 24px; background: rgba(0, 0, 0, .04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s, visibility .2s; }
+/* Nearly solid, so the links stay readable over the colourful photos and cards behind the menu */
+.menu-list { position: absolute; top: calc(100% + 4px); left: 0; width: 240px; list-style: none; border-radius: 24px; background: rgba(240, 240, 240, .92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s, visibility .2s; }
 /* visibility (not just opacity) keeps the closed menu's links out of the Tab order */
 .menu-list.active { opacity: 1; visibility: visible; pointer-events: auto; }
 .menu-list a { display: block; padding: 12px 16px; font-size: 24px; letter-spacing: -0.05em; border-radius: 200px; }
@@ -106,7 +107,7 @@ body.is-loading { overflow: hidden; }
 /* Clothesline: a taut line across the hero; each .card is a hanger with a polaroid pegged to the line.
    Sizes: --pw photo width, --ph picture height, --cap caption height (the card is the line + peg + photo). */
 .slider-wrap::before { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--pad) + 10px); height: 2px; background: #1a1a1a; }
-.card { --pw: 216px; --ph: 150px; --cap: 62px; position: relative; flex-shrink: 0; width: calc(var(--pw) + 24px); height: 258px; user-select: none; transform-origin: 50% 11px; }
+.card { --pw: 216px; --ph: 150px; --cap: 68px; position: relative; flex-shrink: 0; width: calc(var(--pw) + 24px); height: 258px; user-select: none; transform-origin: 50% 11px; }
 .pol-swing { transform-origin: 50% 11px; animation: pol-sway var(--sway-time, 3s) ease-in-out var(--sway-delay, 0s) infinite; }
 @keyframes pol-sway { 0%, 100% { transform: rotate(calc(var(--tilt, 0deg) - 2deg)); } 50% { transform: rotate(calc(var(--tilt, 0deg) + 2deg)); } }
 .pol-kick { position: relative; transform-origin: 50% 11px; }
@@ -126,7 +127,8 @@ body.is-loading { overflow: hidden; }
 .card:hover .pol-shot.frame-phone, .card:hover .pol-shot.frame-browser { transform: translateY(-4cqh); }
 .pol-caption { height: var(--cap); display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 2px; }
 .pol-caption .name { font-size: 30px; line-height: 1; letter-spacing: -0.01em; }
-.pol-caption .tagline { overflow: hidden; font-size: 12px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; color: rgba(0, 0, 0, .55); }
+/* Up to two lines, so the longer taglines read in full (--cap leaves room for both) */
+.pol-caption .tagline { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: 12px; line-height: 1.2; color: rgba(0, 0, 0, .55); }
 .card .view { position: absolute; right: 8px; bottom: 10px; padding: 5px 11px; border-radius: 200px; background: #000; color: #fff; font: inherit; font-size: 13px; letter-spacing: -0.01em; white-space: nowrap; cursor: pointer; opacity: 0; transform: translateY(4px); pointer-events: none; transition: opacity .2s, transform .2s, background .2s; }
 .card:hover .view, .card:focus-within .view { opacity: 1; transform: none; pointer-events: auto; }
 .card .view:hover { background: var(--magenta); }
@@ -264,7 +266,8 @@ body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; tra
 .slashes { font-size: 48px; letter-spacing: -0.04em; }
 .thinking-left { width: 50%; display: flex; flex-direction: column; gap: 40px; }
 /* Dot-matrix portrait card: tilted like a sticker, straightens on hover */
-.dots-wrap { width: min(420px, 80%); aspect-ratio: 4 / 5; margin-left: 12%; border-radius: 32px; overflow: hidden; background: #000; transform: rotate(-3deg); transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+/* The text beside it is taller, so the portrait sticks under the navbar and rides along instead of leaving a gap below */
+.dots-wrap { position: sticky; top: 112px; width: min(420px, 80%); aspect-ratio: 4 / 5; margin-left: 12%; border-radius: 32px; overflow: hidden; background: #000; transform: rotate(-3deg); transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
 .dots-wrap:hover { transform: rotate(0deg) scale(1.02); }
 .dots-wrap canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: pan-y; }
 /* The text sits level with the portrait's middle, not up at the slashes (the top padding skips the slashes and the gap under them) */
@@ -324,6 +327,11 @@ a.fact-face:hover, button.fact-face:hover { text-decoration: underline; text-und
 .service-shots .frame-browser { width: 58%; }
 .service-shots .frame-phone { height: 92%; }
 .service-shots .frame-icon { width: 46%; }
+/* A fan of phones and an icon: each takes under a third of the column's width (cqw), whatever the card's shape,
+   so they sit side by side without covering each other or reaching the text */
+.service-shots.is-fan { container-type: size; }
+.service-shots.is-fan .frame-phone { height: min(92cqh, 60cqw); }
+.service-shots.is-fan .frame-icon { width: min(36cqw, 80cqh); }
 .service-shots > svg { position: absolute; top: 50%; left: 50%; width: 52%; height: 52%; transform: translate(-50%, -50%); stroke-width: 1.2; }
 .s0 { background: var(--pink); } .s1 { background: var(--brown); } .s2 { background: var(--yellow); } .s3 { background: var(--red); }
 .motion-paused .service-card { transform: none; filter: none; }
@@ -359,7 +367,7 @@ body.music-on .vinyl-disc { animation-duration: 1.8s; }
 .cover-shot.frame-browser { right: -5cqw; bottom: -7cqh; width: 86cqw; }
 .cover-shot.frame-icon { right: 9cqw; bottom: 9cqh; width: 44cqw; }
 .sleeve .card-initial { right: 6cqw; bottom: -22cqh; font-size: 96cqh; }
-.sleeve:has(.frame-browser) .cover-meta, .sleeve:has(.card-initial) .cover-meta { top: 22cqw; bottom: auto; } /* clear of art at the bottom */
+.sleeve:has(.frame-browser) .cover-meta, .sleeve:has(.frame-icon) .cover-meta, .sleeve:has(.card-initial) .cover-meta { top: 22cqw; bottom: auto; } /* clear of art at the bottom */
 
 .track { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
 .track > * { transition: opacity .25s, transform .25s; }
@@ -382,14 +390,16 @@ body.music-on .vinyl-disc { animation-duration: 1.8s; }
 /* The crate: covers lean back in a box, the picked one stands up out of it. Only the crate scrolls sideways. */
 .crate-scroll { margin-top: 48px; padding: 56px var(--pad) 28px; overflow-x: auto; scrollbar-width: none; }
 .crate-scroll::-webkit-scrollbar { display: none; }
-.crate-box { position: relative; width: max-content; margin: 0 auto; }
+/* --cover: the covers shrink so the whole crate fits the screen (script.js sets --n, the number of records);
+   below 78px they stop shrinking and the crate scrolls sideways instead */
+.crate-box { --cover: clamp(78px, calc((100vw - 2 * var(--pad) - 56px - (var(--n, 10) - 1) * 12px) / var(--n, 10)), 124px); position: relative; width: max-content; margin: 0 auto; }
 .crate { display: flex; gap: 12px; padding: 0 28px; list-style: none; perspective: 900px; }
 .work-row[hidden] { display: none; }
 .crate-record { display: block; border-radius: 8px; transform-origin: 50% 100%; transform: rotateX(-12deg); transition: transform .4s cubic-bezier(.3, 1.4, .5, 1); }
 .crate-record:hover { transform: translateY(-26px); }
 .is-current .crate-record { transform: translateY(-46px) rotate(-3deg); }
 .crate-record:focus-visible { outline-offset: 4px; border-radius: 8px; }
-.mini-cover { position: relative; display: block; width: 124px; height: 124px; overflow: hidden; border-radius: 8px; container-type: size; }
+.mini-cover { position: relative; display: block; width: var(--cover); height: var(--cover); overflow: hidden; border-radius: 8px; container-type: size; }
 .mini-name { position: absolute; z-index: 1; left: 9cqw; top: 8cqw; right: 6cqw; font-size: 15cqw; font-weight: 800; line-height: .9; letter-spacing: -0.05em; text-align: left; }
 .mini-shot { position: absolute; object-fit: cover; object-position: top; background: #000; }
 .mini-phone { right: 10cqw; top: 34cqh; width: 40cqw; height: 84cqh; border: 3px solid #000; border-radius: 10px; }
@@ -397,7 +407,7 @@ body.music-on .vinyl-disc { animation-duration: 1.8s; }
 .mini-icon { right: 10cqw; bottom: 10cqh; width: 46cqw; height: 46cqw; border-radius: 26%; }
 .mini-cover .card-initial { right: 6cqw; bottom: -20cqh; font-size: 92cqh; --dot: 4.6cqh; }
 /* The crate's front panel hides the lower part of the covers */
-.crate-front { position: absolute; left: 0; right: 0; bottom: -20px; z-index: 2; height: 86px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 28px 16px; border-radius: 18px 18px 26px 26px; background: #111; color: #fff; font-size: 18px; letter-spacing: -0.02em; pointer-events: none; }
+.crate-front { position: absolute; left: 0; right: 0; bottom: -20px; z-index: 2; height: calc(var(--cover) * .53 + 20px); display: flex; justify-content: space-between; align-items: flex-end; padding: 0 28px 16px; border-radius: 18px 18px 26px 26px; background: #111; color: #fff; font-size: 18px; letter-spacing: -0.02em; pointer-events: none; }
 .crate-front span:last-child { color: rgba(255, 255, 255, .6); }
 .motion-paused .vinyl-disc { animation-play-state: paused; }
 
@@ -669,7 +679,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .hero h1 { font-size: 88px; }
   .tool-word { font-size: 84px; } .tool-sep { font-size: 30px; } .clients .marquee { min-height: 104px; }
   .fact-face { font-size: 17px; padding: 10px 15px; } .fact-round .fact-face { width: 110px; height: 110px; } .fact-scallop .fact-face { width: 120px; height: 120px; padding: 22px; }
-  .card { --pw: 196px; --ph: 128px; --cap: 54px; height: 225px; } .slider { min-height: 225px; }
+  .card { --pw: 196px; --ph: 128px; --cap: 59px; height: 225px; } .slider { min-height: 225px; }
   .pol-caption .name { font-size: 26px; }
   .talk-sticker { width: 112px; height: 112px; bottom: clamp(72px, calc(100% + 148px - 100vh), 120px); } .talk-ring text { font-size: 21px; }
   .ps-body { gap: 18px 26px; padding: 24px 26px 22px; } .ps-tagline { font-size: 26px; }
@@ -688,15 +698,10 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .say-hi-sticker { width: 182px; height: 182px; } .say-hi-sticker .wave { font-size: 52px; } .say-hi-sticker .serif { font-size: 44px; }
   .hi-right { padding-right: 40px; }
   .crate-stage { gap: 32px; }
+  /* here the crate can be wider than the screen, so its two labels sit together on the left, where they stay in view */
+  .crate-front { justify-content: flex-start; gap: 12px; }
   .track h3 { font-size: 72px; } .track-tagline { font-size: 22px; }
   .track-actions a, .track-open { font-size: 18px; padding: 10px 16px; }
-}
-/* Narrow tablets: the headline nearly fills the width, so the sticker moves to the cards' bottom-right edge
-   (top = slider padding + card height - half the sticker) and the intro text steps down to clear it.
-   Over the colourful cards it gets a white backing, like a real sticker, so the ring text stays readable */
-@media (max-width: 860px) {
-  .talk-sticker { top: calc(var(--pad) + 225px - 56px); bottom: auto; background: #fff; }
-  .hero-text { padding-top: 40px; }
 }
 @media (max-width: 720px) {
   :root { --pad: 20px; --space-xl: 80px; --radius: 24px; }
@@ -716,7 +721,7 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .right-text { width: 100%; padding-left: 0; font-size: 18px; }
   .hero-buddies { display: none; } /* phones: the intro takes the full width, so there's no room beside it */
   .hero h1 { font-size: 56px; }
-  .card { --pw: 172px; --ph: 116px; --cap: 50px; height: 210px; } .slider { min-height: 210px; }
+  .card { --pw: 172px; --ph: 116px; --cap: 58px; height: 210px; } .slider { min-height: 210px; }
   .pol-photo { padding: 8px 8px 0; } .pol-caption .name { font-size: 24px; } .pol-caption .tagline { font-size: 11px; }
   /* Phones: the pop-ups fill the space below the navbar (project card: screenshots on top, words below) */
   .contact-layer { padding: 10px; --env-w: 300px; --env-h: 192px; }
@@ -727,11 +732,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .ps-gallery .frame-browser { width: min(100cqw - 24px, (100cqh - 24px) * 16 / 11); }
   .project-sheet h2 { font-size: min(12cqw, 56px); } .ps-tagline { font-size: 24px; }
   .ps-summary { font-size: 17px; } .ps-btn, .ps-next { font-size: 16px; }
-  /* Phones: badge centred on the cards' edge, with room left above the intro text */
-  /* Phones: the headline fills the width, so the sticker sits on the cards' bottom-right edge
-     (top = slider padding + card height - half the sticker); the intro text keeps clear below */
-  .talk-sticker { top: calc(var(--pad) + 210px - 48px); bottom: auto; width: 96px; height: 96px; }
-  .talk-ring text { font-size: 22px; } .hero-text { padding-top: 44px; }
+  /* Phones: a little air between the photos and the intro (the hero sticker that needed more room is gone) */
+  .hero-text { padding-top: 16px; }
   .clients-head { flex-direction: column; align-items: flex-start; gap: 10px; padding: 0 var(--pad); margin-bottom: 20px; }
   .clients-head .label { padding-left: 0; }
   .ribbon-note { max-width: none; font-size: 14px; text-align: left; }
@@ -792,7 +794,8 @@ textarea.chat-field { max-height: 160px; resize: none; }
   .track-actions a, .track-open { font-size: 16px; padding: 9px 14px; }
   .crate-scroll { margin-top: 28px; padding: 44px 0 26px; }
   .crate { gap: 8px; padding: 0 20px; }
-  .mini-cover { width: 92px; height: 92px; }
+  .sleeve:has(.frame-phone) .cover-meta { max-width: 36cqw; line-height: 1.3; } /* wraps beside the phone screenshot instead of running under it */
+  .crate-box { --cover: 92px; }
   .is-current .crate-record { transform: translateY(-34px) rotate(-3deg); }
   .crate-front { height: 74px; bottom: -18px; padding: 0 20px 12px; font-size: 15px; border-radius: 14px 14px 20px 20px; }
   .ticker p { font-size: 18px; }
