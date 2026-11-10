@@ -272,17 +272,7 @@ body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; tra
 /* About copy: a big lead line, two reading paragraphs, and a bold closing line */
 .about-copy { display: flex; flex-direction: column; gap: 18px; max-width: 600px; }
 .about-copy p { font-size: 22px; line-height: 1.35; letter-spacing: -0.02em; color: var(--ink-64); }
-.thinking .about-copy .about-lead { margin-bottom: 6px; font-size: 48px; line-height: 1.08; letter-spacing: -0.04em; } /* a touch of air between lines for the doodles */
-/* Pen doodles on the lead: magenta marks sized to their phrase by script.js. They show fully drawn by default;
-   once script.js arms them they wait hidden, sketch themselves in when the text comes into view, and redraw on hover */
-.doodle { position: relative; white-space: nowrap; }
-.doodle svg { position: absolute; z-index: 1; overflow: visible; pointer-events: none; } /* over the rolling-ideas tag */
-.doodle path { fill: none; stroke: var(--magenta); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
-.doodles-armed .doodle path { stroke-dashoffset: 1; }
-.doodles-armed .doodle.is-drawn path { animation: doodle-draw .75s cubic-bezier(.6, 0, .3, 1) var(--d, 0s) forwards; }
-.doodles-armed .doodle.is-drawn path + path { animation-duration: .25s; animation-delay: calc(var(--d, 0s) + .65s); } /* arrowhead after its shaft */
-@keyframes doodle-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-.motion-paused .doodle path { stroke-dashoffset: 0 !important; animation: none !important; }
+.thinking .about-copy .about-lead { margin-bottom: 6px; font-size: 48px; line-height: 1; letter-spacing: -0.04em; }
 /* Rolling ideas: script.js turns "random ideas" into a pink tag, as wide as its longest word so the line never
    reflows, whose words roll up one after another (the list repeats its first word at the end for a seamless loop) */
 /* The words are set a touch smaller than the lead so the tag takes about the room "random ideas" did */

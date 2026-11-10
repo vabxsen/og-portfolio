@@ -1458,32 +1458,9 @@
     });
   }
 
-  /* ---------- About lead: pen doodles ---------- */
-  // Each [data-doodle] phrase gets a magenta mark drawn in pixels to fit it (redrawn on resize, so the stroke never
-  // stretches): a loop round it, a squiggle under it, or an arrow pointing back at it. They sketch themselves in,
-  // one after another, the first time the text comes into view, and a mark redraws when you hover its phrase
-  const DOODLES = {
-    // box = [left, top, width, height] of the svg relative to the phrase, from its width w, baseline b and font
-    // size fs (the lead's lines sit tight, so marks hug the letters to stay off the lines above and below)
-    loop: (w, b, fs) => {
-      const W = w + 28, H = fs * 1.06 + 6;
-      return { box: [-14, b - fs * .8 - 3, W, H], paths: [`M${W * .16} ${H * .14} C${W * .5} ${-H * .06} ${W * .98} ${H * .02} ${W * .99} ${H * .46} C${W} ${H * .96} ${W * .55} ${H * 1.02} ${W * .26} ${H * .95} C${W * .01} ${H * .88} ${-W * .01} ${H * .42} ${W * .12} ${H * .22} C${W * .26} ${H * .04} ${W * .46} ${H * .03} ${W * .62} ${H * .08}`] };
-    },
-    squiggle: (w, b, fs) => {
-      let d = "M0 4";
-      for (let x = 0; x + 16 <= w; x += 16) d += ` Q${x + 4} 0 ${x + 8} 4 Q${x + 12} 8 ${x + 16} 4`;
-      return { box: [0, b + fs * .1, w, 8], paths: [d] };
-    },
-    // Up-and-left, back at the word, from beyond its end. With no room to its right (narrow phones) it becomes a
-    // quick swoosh under the word instead, since anything bigger would land on the next paragraph
-    arrow: (w, b, fs, cramped) => cramped
-      ? { box: [0, b + fs * .1, w, 8], paths: [`M0 7 C${w * .3} 1 ${w * .7} 0 ${w} 3`] }
-      : { box: [w + 10, b - fs * .55, 56, 44], paths: ["M54 42 C38 44 20 37 12 13", "M4 21 L12 11 L22 18"] },
-  };
-
   /* ---------- About lead: rolling ideas ---------- */
   // "random ideas" becomes a pink tag that rolls to the next of its data-words every few seconds while the text is
-  // on screen. The tag is as wide as its longest word, so the sentence never reflows (and the doodles stay put).
+  // on screen. The tag is as wide as its longest word, so the sentence never reflows.
   // Screen readers just hear "random ideas"; with motion paused or reduced the tag holds still on it
   function setupIdeaRoll() {
     const tag = document.querySelector("[data-idea-roll]");
@@ -1526,56 +1503,6 @@
       clearInterval(timer);
       if (entry.isIntersecting) timer = setInterval(roll, 2600);
     }).observe(tag);
-  }
-
-  function setupDoodles() {
-    const lead = document.querySelector(".about-lead");
-    const marks = lead ? [...lead.querySelectorAll("[data-doodle]")] : [];
-    if (!marks.length) return;
-    const NS = "http://www.w3.org/2000/svg";
-    const draw = (mark) => {
-      mark.querySelector("svg")?.remove();
-      // Baseline: where a zero-size inline-block sits, measured from the phrase's top
-      const probe = document.createElement("span");
-      probe.style.cssText = "display:inline-block;width:0;height:0";
-      mark.prepend(probe);
-      const rect = mark.getBoundingClientRect();
-      const b = probe.getBoundingClientRect().top - rect.top;
-      probe.remove();
-      const fs = parseFloat(getComputedStyle(mark).fontSize);
-      const room = lead.closest(".panel").getBoundingClientRect().right - rect.right;
-      const { box: [x, y, bw, bh], paths } = DOODLES[mark.dataset.doodle](rect.width, b, fs, room < 74);
-      const svg = document.createElementNS(NS, "svg");
-      svg.setAttribute("aria-hidden", "true");
-      svg.setAttribute("viewBox", `0 0 ${bw} ${bh}`);
-      Object.assign(svg.style, { left: `${x}px`, top: `${y}px`, width: `${bw}px`, height: `${bh}px` });
-      paths.forEach((d) => {
-        const path = document.createElementNS(NS, "path");
-        path.setAttribute("d", d);
-        path.setAttribute("pathLength", "1");
-        svg.append(path);
-      });
-      mark.append(svg);
-    };
-    const drawAll = () => marks.forEach(draw);
-    drawAll();
-    let resizeTimer = 0;
-    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawAll, 150); });
-    if (document.fonts) document.fonts.ready.then(drawAll); // the phrase sizes change once Inter Tight loads
-    if (reduceMotion || !("IntersectionObserver" in window)) return; // marks stay drawn, no animation
-    lead.classList.add("doodles-armed");
-    marks.forEach((mark, i) => mark.style.setProperty("--d", `${i * 0.45}s`));
-    const sketch = (mark) => { mark.classList.remove("is-drawn"); void mark.offsetWidth; mark.classList.add("is-drawn"); };
-    new IntersectionObserver(([entry], obs) => {
-      if (!entry.isIntersecting) return;
-      marks.forEach(sketch);
-      obs.disconnect();
-    }, { threshold: 0.6 }).observe(lead);
-    marks.forEach((mark) => mark.addEventListener("mouseenter", () => {
-      if (motionPaused) return;
-      mark.style.setProperty("--d", "0s");
-      sketch(mark);
-    }));
   }
 
   /* ---------- Footer metro map: the tram rides the Quick Links line ---------- */
@@ -2121,8 +2048,7 @@
   setupBigLinks();
   setupMotionToggle();
   setupMetro(); // after setupMotionToggle, which sets motionPaused
-  setupIdeaRoll(); // before setupDoodles: it sets the tag's width, which the arrow doodle's spot depends on
-  setupDoodles();
+  setupIdeaRoll();
   setupMusic();
   setupPhoneControls();
   setupEyes();
