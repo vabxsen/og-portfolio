@@ -288,7 +288,10 @@ body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; tra
 .idea-roll-track { display: block; transition: transform .6s cubic-bezier(.68, -0.35, .32, 1.35); }
 .idea-roll-track > span { display: block; width: max-content; height: var(--row); margin: 0 auto; line-height: var(--row); white-space: nowrap; }
 .idea-roll-track.no-anim { transition: none; }
-.about-copy .about-kicker { font-size: 26px; font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; color: #000; }
+.about-copy .about-kicker { font-size: 26px; font-weight: 700; line-height: 1.4; letter-spacing: -0.03em; color: #000; }
+/* Verb stickers: tilted pills in the site's sticker colours (each sets --c and --r), outlined like the rolling tag */
+.verb { position: relative; display: inline-block; padding: 0 .36em; border: 2.5px solid #000; border-radius: 200px; background: var(--c); line-height: 1.2; transform: rotate(var(--r, 0deg)); user-select: none; }
+@media (pointer: fine) { .verb { cursor: grab; } .verb:active { cursor: grabbing; } }
 /* Fact stickers: die-cut stickers (white edge + hairline, no shadow) scattered under the text, never over the portrait.
    The tilt and hover live on .fact-face; GSAP moves the <li> (slap-in and drag), so the two never fight. */
 .fact-stickers { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; max-width: 560px; list-style: none; }

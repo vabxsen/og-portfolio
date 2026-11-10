@@ -514,6 +514,32 @@
     seen.observe(list);
   }
 
+  // The kicker's verbs: stickers that slap on one after another the first time the line comes into view. With a
+  // mouse you can tug one about; let go and it springs back into the sentence
+  function setupVerbStickers() {
+    const line = document.querySelector("[data-verb-stickers]");
+    if (!line || !hasGsap) return;
+    const verbs = [...line.querySelectorAll(".verb")];
+    verbs.forEach((verb) => gsap.set(verb, { rotation: parseFloat(verb.style.getPropertyValue("--r")) || 0 }));
+    const enableDrag = () => {
+      if (typeof Draggable === "undefined" || !window.matchMedia("(pointer: fine)").matches) return;
+      Draggable.create(verbs, {
+        type: "x,y",
+        zIndexBoost: true,
+        onPress() { gsap.to(this.target, { scale: 1.12, duration: 0.2 }); },
+        onRelease() { gsap.to(this.target, { x: 0, y: 0, scale: 1, duration: 0.9, ease: "elastic.out(1, 0.45)" }); },
+      });
+    };
+    if (reduceMotion || !("IntersectionObserver" in window)) { enableDrag(); return; }
+    gsap.set(verbs, { opacity: 0, scale: 1.6 });
+    const seen = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      seen.disconnect();
+      gsap.to(verbs, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2.6)", stagger: 0.22, onComplete: enableDrag });
+    }, { threshold: 0.8 });
+    seen.observe(line);
+  }
+
   function renderSayHi() {
     document.querySelector("[data-say-hi]").style.backgroundImage = scallopBackground("#fff570");
   }
@@ -2058,6 +2084,7 @@
   setupCtaSwarm();
   setupDraggableSliders();
   setupFactStickers(); // after setupDraggableSliders, which registers Draggable
+  setupVerbStickers(); // same
   setupShake();
   if (hasGsap && !reduceMotion && !motionPaused) revealJourney();
 })();
