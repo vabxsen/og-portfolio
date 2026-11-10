@@ -800,7 +800,7 @@
         lum.forEach((v, i) => {
           // gamma < 1 lifts mid-tones so eyes, beard and hair edges keep some dots. The biggest dot is a bit under
           // half a cell, so even the brightest neighbours keep a gap instead of merging into a white blob
-          const r = Math.pow(v, SITE.about.gamma || 0.8) * cell * DOT_MAX;
+          const r = Math.pow(v, SITE.about.gamma || 0.8) * cell * (SITE.about.dot || DOT_MAX);
           if (r < cell * 0.06) return; // skip near-black cells: keeps the background clean
           dots.push({ x: (i % cols + 0.5) * cell, y: (Math.floor(i / cols) + 0.5) * cell, r, ox: 0, oy: 0, s: 1, row: Math.floor(i / cols) / rows });
         });

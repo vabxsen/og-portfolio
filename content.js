@@ -5,12 +5,15 @@ const SITE = {
   // (the photo itself is never published). Delete about-map.js's script tag to hide it.
   // columns: dots across (more = finer detail). zoom/focus: crop in around a point (0..1 of the photo).
   // gamma: below 1 brightens mid-tones, above 1 darkens them. sharpen: edge crispness (0 = off, ~1 = strong).
+  // dot: biggest dot radius as a share of a cell (0.5 touches its neighbours).
+  // The map is 96 px wide, so columns above about 96 / zoom add dots but no extra detail.
   about: {
-    columns: 60,
-    zoom: 1.45,
+    columns: 76,
+    zoom: 1.25,
     focus: [0.48, 0.42],
-    gamma: 0.8,
-    sharpen: 0.6,
+    gamma: 0.82,
+    sharpen: 1.3,
+    dot: 0.42,
   },
 
   // Fact stickers beside the About text (the portrait is never covered).
