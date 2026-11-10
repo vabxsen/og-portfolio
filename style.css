@@ -273,6 +273,14 @@ body.is-loading .hero-buddies, .hero.is-building .hero-buddies { opacity: 0; tra
 .about-copy { display: flex; flex-direction: column; gap: 18px; max-width: 600px; }
 .about-copy p { font-size: 22px; line-height: 1.35; letter-spacing: -0.02em; color: var(--ink-64); }
 .thinking .about-copy .about-lead { margin-bottom: 6px; font-size: 48px; line-height: 1; letter-spacing: -0.04em; }
+/* The lead in stepped sizes, solid black: the joining words small, "designer's eye" huge, the last line big.
+   Sizes follow the text column's width (cqw), so "designer's eye" spans it on every screen */
+.about-copy { width: 100%; container-type: inline-size; }
+.thinking .about-copy .about-lead { color: #000; }
+.about-lead > span { display: block; }
+.about-lead .lead-s { margin-bottom: 6px; font-size: 23px; font-size: max(17px, 3.9cqw); font-weight: 600; line-height: 1.15; letter-spacing: -0.03em; }
+.about-lead .lead-xl { margin-bottom: 14px; font-size: 96px; font-size: 16.1cqw; font-weight: 800; line-height: .92; letter-spacing: -0.055em; }
+.about-lead .lead-l { margin-top: 4px; font-size: 62px; font-size: 10.2cqw; font-weight: 800; line-height: 1.02; letter-spacing: -0.05em; }
 /* Rolling ideas: script.js turns "random ideas" into a pink tag, as wide as its longest word so the line never
    reflows, whose words roll up one after another (the list repeats its first word at the end for a seamless loop) */
 /* The words are set a touch smaller than the lead so the tag takes about the room "random ideas" did */
